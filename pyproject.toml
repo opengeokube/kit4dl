@@ -1,0 +1,47 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sp-seg-tool"
+description = "SP-SEG: Proof of concept tool for manual segmentation by spheripixel projection"
+requires-python = ">=3.10"
+license = {file = "LICENSE"}
+keywords = ["deep learning", "training pipeline"]
+authors = [
+    {name = "Marco Mancini"},
+    {name = "Mirko Stojiljkovic"},
+    {name = "Jakub Walczak", email = "jakub.walczak@p.lodz.pl"},
+    {name = "Shahbaz Alvi"},
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Programming Language :: Python",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: Unix",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Software Development :: Libraries :: Python Modules"
+]
+dependencies = [
+    "pytorch",
+    "numpy>=1.23.0",
+    "pydantic>=1.10.0",
+    "scikit-learn>=1.2.0",
+    "colormath",
+    "tqdm",
+    "toml"
+]
+dynamic = ["version", "readme"]
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["."]
+
+[tool.setuptools.dynamic]
+version = {attr = "_version.VERSION"}
+readme = {file = "README.MD"}
+
+
+[tool.pydocstyle]

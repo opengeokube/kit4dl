@@ -1,0 +1,24 @@
+name: mlkit-dev
+channels:
+  - conda-forge
+  - pytorch 
+  - nvidia 
+dependencies:
+  - python=3.10
+  - pytorch
+  - pytorch-cuda=11.8
+  - torchmetrics
+  - lightning
+  - scikit-learn
+  - mlflow
+  - pydantic
+  - tqdm
+  - toml
+  - pylint 
+  - mypy
+  - isort
+  - pydocstyle
+  - pytest
+  - pip
+  - pip:
+    - black

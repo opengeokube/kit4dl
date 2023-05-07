@@ -1,0 +1,53 @@
+[base]
+seed = 0
+cuda_id = 0
+experiment_name = "handwritten_digit_classification"
+
+[model]
+name = "models.SimpleCNN"
+input_dims = 1
+layers = 4
+dropout = 0.5
+output_dims = 10
+
+[training]
+epochs = 100
+epoch_schedulers = [
+    {class = "torch.optim.schedulers.CosineAnnealing"}
+]
+
+[training.checkpoint]
+path = "chckpt"
+monitor = {"metric" = "Precision", stage = "val"}
+filename = "{epoch}_{val_fbeta_score:.2f}_convlstm"
+mode = "max"
+
+[training.optimizer]
+class = "torch.optim.Adam"
+lr = 0.0001
+weight_decay = 0.03
+
+[training.criterion]
+class = "torch.nn.NLLLoss"
+weight = [.1, .1, .1, .1, .1, .1, .1, .1, .1, .1]
+
+[training.dataset]
+class = "aaa.MNISTCustomDataset"
+root_dir = "/data/mnist/train"
+batch_size = 10
+shuffle = true
+num_workers = 4
+
+[validation]
+run_every_epoch = 1
+
+[validation.dataset]
+class = "aaa.MNISTCustomDataset"
+root_dir = "/data/mnist/val"
+batch_size = 10
+shuffle = false
+num_workers = 4
+
+[metrics]
+Precision = {task = "multiclass", num_classes=10}
+FBetaScore = {task = "multiclass", num_classes=10, beta = 2}
