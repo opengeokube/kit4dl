@@ -24,4 +24,4 @@ clean:
 	find . -type d -name "__pycache__" | xargs rm -fr
 	find . -type d -name ".ipynb_checkpoints" | xargs rm -fr
 
-prepublish: clean format typehint docs test
+prepublish: format typehint docs test clean
