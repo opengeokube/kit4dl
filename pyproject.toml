@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sp-seg-tool"
-description = "SP-SEG: Proof of concept tool for manual segmentation by spheripixel projection"
+description = "MLKit: A quick way to start with machine and deep learning"
 requires-python = ">=3.10"
 license = {file = "LICENSE"}
 keywords = ["deep learning", "training pipeline"]
