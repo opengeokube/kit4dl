@@ -19,7 +19,7 @@ epoch_schedulers = [
 [training.checkpoint]
 path = "chckpt"
 monitor = {"metric" = "Precision", "stage" = "val"}
-filename = "{epoch}_{val_fbeta_score:.2f}_convlstm"
+filename = "{epoch}_{val_precision:.2f}_convlstm"
 mode = "max"
 
 [training.optimizer]
@@ -33,10 +33,11 @@ weight = [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
 
 [training.dataset]
 target = "aaa.MNISTCustomDataset"
-root_dir = "/data/mnist/train"
 batch_size = 10
 shuffle = true
 num_workers = 4
+# below arguments are optional - dedicated to the custom class
+root_dir = "/data/mnist/train"
 
 [validation]
 run_every_epoch = 1

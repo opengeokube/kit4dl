@@ -1,5 +1,4 @@
 import pytest
-
 import torch
 
 skipnocuda = pytest.mark.skipif(
