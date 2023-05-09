@@ -3,6 +3,7 @@ import importlib
 import pytest
 import toml
 import torch
+import torchmetrics as tm
 from pydantic import ValidationError
 
 from src.nn.base import AbstractModule
@@ -445,3 +446,28 @@ class TestConf:
         }
         with pytest.raises(ValidationError):
             _ = Conf(**load_dict)
+
+    def test_conf_get_metric_obj_failed_on_missing_task(self, base_conf):
+        load = base_conf + """
+        [metrics]
+        Precision = {}
+        """
+        conf = Conf(**toml.loads(load))
+        with pytest.raises(
+            TypeError,
+            match=(
+                r"Precision.\_\_new\_\_\(\) missing 1 required positional"
+                r" argument*"
+            ),
+        ):
+            conf.metrics_obj
+
+    def test_conf_get_metric_obj(self, base_conf):
+        load = base_conf + """
+        [metrics]
+        Precision = {task = "multiclass", num_classes = 10}
+        """
+        conf = Conf(**toml.loads(load))
+        metrics = conf.metrics_obj
+        assert "Precision" in metrics
+        assert isinstance(metrics["Precision"], tm.Metric)

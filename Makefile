@@ -1,7 +1,7 @@
 .PHONY: typehint
 typehint:
-	mypy --ignore-missing-imports src/
-	pylint src/
+	mypy --ignore-missing-imports .
+	pylint .
 
 .PHONY: test
 test:
@@ -14,7 +14,7 @@ format:
 
 .PHONY: docs
 docs:
-	pydocstyle -e --convention=numpy src
+	pydocstyle -e --convention=numpy .
 
 .PHONY: clean
 clean:

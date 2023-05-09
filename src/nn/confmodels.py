@@ -293,3 +293,10 @@ class Conf(BaseModel):
             f" to define `{monitored_metric_name}` in [metrics]?"
         )
         return values
+
+    @property
+    def metrics_obj(self) -> dict[str, tm.Metric]:
+        return {
+            metric_name: getattr(tm, metric_name)(**metric_args)
+            for metric_name, metric_args in self.metrics.items()
+        }
