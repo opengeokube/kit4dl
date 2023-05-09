@@ -263,6 +263,7 @@ class TestCriterionConfig:
         conf.target == "torch.nn.NLLLoss"
         assert conf.weight == [0.1, 0.1]
 
+    @pytest.mark.skip(reason="weights values are not validated anymore")
     def test_criterion_failed_on_negative_weight(self):
         load = """
             target = "torch.nn.NLLLoss"

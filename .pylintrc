@@ -1,0 +1,11 @@
+[MAIN]
+jobs=4
+
+[MESSAGES CONTROL]
+disable=
+    fixme,
+    import-error,
+    no-name-in-module,
+    no-self-argument,
+    no-member,
+    too-few-public-methods

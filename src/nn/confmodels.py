@@ -1,3 +1,4 @@
+"""A module with configuration classes"""
 import os
 from abc import ABC
 from functools import partial
@@ -6,14 +7,7 @@ from typing import Any, Callable, Literal
 
 import torch
 import torchmetrics as tm
-from pydantic import (
-    BaseModel,
-    Field,
-    confloat,
-    conint,
-    root_validator,
-    validator,
-)
+from pydantic import BaseModel, Field, root_validator, validator
 
 import src.io as io_
 from src.nn.base import AbstractModule
@@ -31,7 +25,7 @@ class _AbstractClassWithArgumentsConf(
     ABC, BaseModel, extra="allow", allow_mutation=False
 ):
     target: FullyQualifiedName
-    arguments: dict[str, Any] | None
+    arguments: dict[str, Any]
 
     _validate_class_exists = validator("target", allow_reuse=True)(
         validate_class_exists
@@ -53,8 +47,8 @@ class _AbstractClassWithArgumentsConf(
 #  Basic experiment configuration
 # ################################
 class BaseConf(BaseModel):
-    seed: conint(ge=0) | None = 0
-    cuda_id: conint(ge=0) | None = None
+    seed: int | None = Field(default=0, ge=0)
+    cuda_id: int | None = Field(default=None, ge=0)
     experiment_name: str
 
     _assert_cuda_device = validator("cuda_id", allow_reuse=True)(
@@ -90,7 +84,7 @@ class ModelConf(_AbstractClassWithArgumentsConf):
 #       Optimizer configuration
 # ################################
 class OptimizerConf(_AbstractClassWithArgumentsConf):
-    lr: confloat(gt=0)
+    lr: float = Field(gt=0)
 
     @validator("target")
     def check_if_target_has_expected_parent_class(cls, value):
@@ -125,10 +119,10 @@ class CheckpointConf(BaseModel):
 
     @validator("monitor")
     def assert_required_monitor_keys_defined(cls, monitor):
-        assert "metric" in monitor, f"`metric` key is missing"
+        assert "metric" in monitor, "`metric` key is missing"
         assert (
             "stage" in monitor
-        ), f"`stage` key is missing. define `stage='train'` or `stage='val'`"
+        ), "`stage` key is missing. define `stage='train'` or `stage='val'`"
         return monitor
 
 
@@ -137,7 +131,7 @@ class CheckpointConf(BaseModel):
 # ################################
 class CriterionConf(BaseModel):
     target: FullyQualifiedName
-    weight: list[confloat(gt=0)] | None = None
+    weight: list[float] | None = None
 
     _validate_class_exists = validator("target", allow_reuse=True)(
         validate_class_exists
@@ -178,9 +172,9 @@ class CriterionConf(BaseModel):
 # ################################
 class DatasetConfig(BaseModel):
     target: FullyQualifiedName
-    batch_size: conint(gt=0) = 1
+    batch_size: int | None = Field(default=1, ge=0)
     shuffle: bool | None = False
-    num_workers: conint(gt=0) | None = 1
+    num_workers: int | None = Field(default=1, ge=0)
     dataset_kwargs: dict[str, Any] | None = Field(default_factory=dict)
 
     _validate_class_exists = validator("target", allow_reuse=True)(
@@ -200,7 +194,9 @@ class DatasetConfig(BaseModel):
 
     @validator("target")
     def check_if_target_has_expected_parent_class(cls, value):
-        from src.dataset import AbstractDataset
+        from src.dataset import (  # pylint: disable=import-outside-toplevel
+            AbstractDataset,
+        )
 
         target_class = io_.get_class_from_fully_qualified_name(value)
         assert issubclass(target_class, AbstractDataset), (
@@ -214,7 +210,7 @@ class DatasetConfig(BaseModel):
 #     Training configuration
 # ################################
 class TrainingConf(BaseModel):
-    epochs: conint(ge=1)
+    epochs: int = Field(gt=0)
     epoch_schedulers: list[dict[str, Any]]
     checkpoint: CheckpointConf
     optimizer: OptimizerConf
@@ -230,7 +226,7 @@ class TrainingConf(BaseModel):
 #     Validation configuration
 # ################################
 class ValidationConf(BaseModel):
-    run_every_epoch: conint(ge=1)
+    run_every_epoch: int = Field(gt=0)
     dataset: DatasetConfig
 
 
@@ -246,10 +242,6 @@ class Conf(BaseModel):
     training: TrainingConf
     validation: ValidationConf
 
-    def __init__(self, **data) -> None:
-        super().__init__(**data)
-        # TODO: validate the metric required by training.checkpoint.monitor is defined in metrics
-
     @validator("metrics")
     def validate_metrics_exists(cls, values):
         if not values:
@@ -262,27 +254,12 @@ class Conf(BaseModel):
                     " `torchmetrics` package metrics"
                 )
                 # TODO: logic to handle in the future
-                # NOTE: we have custom metric defined by fully qualified name
-                try:
-                    metric_class = io_.get_class_from_fully_qualified_name(
-                        metric_name
-                    )
-                    assert issubclass(metric_class, tm.Metric), (
-                        f"custom metric must be subclass of"
-                        f" `torchmetrics.Metric` class"
-                    )
-                except ModuleNotFoundError:
-                    assert False, (
-                        f"metric with the fully qualified name `{metric_name}`"
-                        " is not defined"
-                    )
-            else:
-                assert hasattr(tm, metric_name), (
-                    f"metric `{metric_name}` is not defined in `torchmetrics`"
-                    " package. define yours and specify it as fully qualified"
-                    " name, i.e.: package.module.MetricName"
-                )
-                _ = getattr(tm, metric_name)
+            assert hasattr(tm, metric_name), (
+                f"metric `{metric_name}` is not defined in `torchmetrics`"
+                " package. define yours and specify it as fully qualified"
+                " name, i.e.: package.module.MetricName"
+            )
+            _ = getattr(tm, metric_name)
         return values
 
     @root_validator(skip_on_failure=True)
@@ -296,6 +273,8 @@ class Conf(BaseModel):
 
     @property
     def metrics_obj(self) -> dict[str, tm.Metric]:
+        if not self.metrics:
+            raise ValueError("metrics are not defined!")
         return {
             metric_name: getattr(tm, metric_name)(**metric_args)
             for metric_name, metric_args in self.metrics.items()

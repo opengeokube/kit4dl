@@ -1,3 +1,4 @@
+"""A module with resuable validators"""
 import importlib
 
 import torch
@@ -7,7 +8,7 @@ from src.typing import FullyQualifiedName
 
 def validate_cuda_device_exists(cuda_id: int | None = None) -> int | None:
     if cuda_id is None:
-        return
+        return None
     assert (
         cuda_id < torch.cuda.device_count()
     ), f"cuda device with id `{cuda_id}` does not exist"

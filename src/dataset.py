@@ -1,3 +1,4 @@
+"""A module with the MLKit abstract dataset definition"""
 from abc import ABC, abstractmethod
 
 import lightning.pytorch as pl

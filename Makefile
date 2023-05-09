@@ -1,7 +1,8 @@
 .PHONY: typehint
 typehint:
 	mypy --ignore-missing-imports .
-	pylint .
+	pylint *.py
+	pylint src
 
 .PHONY: test
 test:
