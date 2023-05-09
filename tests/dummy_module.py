@@ -1,17 +1,19 @@
 import torchmetrics as tm
 
-import src.nn.confmodels
 from src.dataset import AbstractDataset
-from src.nn.base import AbstractModule
+from src.nn.base import MLKitAbstractModule
 
 
 class A:
     pass
 
 
-class B(AbstractModule):
+class B(MLKitAbstractModule):
     def __init__(self, input_dims, layers, dropout, output_dims):
-        super().__init__()
+        super().__init__(conf=None)
+
+    def step(self, batch, batch_idx):
+        pass
 
 
 class DummyDatasetModuleWrong:

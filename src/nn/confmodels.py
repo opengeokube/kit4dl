@@ -10,7 +10,6 @@ import torchmetrics as tm
 from pydantic import BaseModel, Field, root_validator, validator
 
 import src.io as io_
-from src.nn.base import AbstractModule
 from src.nn.validators import (
     validate_class_exists,
     validate_cuda_device_exists,
@@ -68,14 +67,16 @@ class BaseConf(BaseModel):
 class ModelConf(_AbstractClassWithArgumentsConf):
     @validator("target")
     def check_if_target_has_expected_parent_class(cls, value):
+        from src.nn.base import MLKitAbstractModule
+
         target_class = io_.get_class_from_fully_qualified_name(value)
         assert issubclass(
-            target_class, AbstractModule
-        ), f"target class must be a subclass of `{AbstractModule}` class!"
+            target_class, MLKitAbstractModule
+        ), f"target class must be a subclass of `{MLKitAbstractModule}` class!"
         return value
 
     @property
-    def model(self) -> AbstractModule:
+    def model(self):
         target_class = io_.get_class_from_fully_qualified_name(self.target)
         return target_class(**self.arguments)
 
@@ -214,6 +215,7 @@ class TrainingConf(BaseModel):
     epoch_schedulers: list[dict[str, Any]]
     checkpoint: CheckpointConf
     optimizer: OptimizerConf
+    criterion: CriterionConf
     dataset: DatasetConfig
 
     @validator("epoch_schedulers", each_item=True)

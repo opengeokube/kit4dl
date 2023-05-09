@@ -6,7 +6,7 @@ import torch
 import torchmetrics as tm
 from pydantic import ValidationError
 
-from src.nn.base import AbstractModule
+from src.nn.base import MLKitAbstractModule
 from src.nn.confmodels import (
     BaseConf,
     CheckpointConf,
@@ -141,7 +141,7 @@ class TestModelConf:
             output_dims = 10
         """
         conf = ModelConf(**toml.loads(load))
-        assert issubclass(type(conf.model), AbstractModule)
+        assert issubclass(type(conf.model), MLKitAbstractModule)
 
     def test_get_model_failed_on_wrong_parent_class(self):
         load = """
