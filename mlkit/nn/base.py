@@ -4,8 +4,8 @@ from abc import ABC, abstractmethod
 import lightning.pytorch as pl
 import torch
 
-from src.metric import MetricStore
-from src.nn.confmodels import Conf
+from mlkit.metric import MetricStore
+from mlkit.nn.confmodels import Conf
 
 
 class MLKitAbstractModule(ABC, pl.LightningModule):
@@ -18,6 +18,57 @@ class MLKitAbstractModule(ABC, pl.LightningModule):
         self.conf = conf
         self._setup_metrics()
         self._configure_criterion()
+        self.setup(**self.conf.model.arguments)
+
+    @abstractmethod
+    def setup(self, **kwargs) -> None:
+        """Setup the architecture of the neural network
+
+        Parameters
+        ----------
+        **kwargs : Any
+            List of arguments required to setup the network architecture
+
+        Examples
+        --------
+        ```python
+        def setup(self, input_dims, output_dims) -> None:
+            self.fc1 = nn.Sequential(
+                nn.Linear(input_dims, output_dims),
+            )
+        ```
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def step(self, batch, batch_idx) -> tuple[torch.Tensor, torch.Tensor]:
+        """Carry out single train or validation step for the given `batch`.
+        Return a tuple of two `torch.Tensor`'s: true labels and predicted scores.
+
+        Parameters
+        ----------
+        batch : torch.Tensor or tuple of torch.Tensor or list of torch.Tensor
+            The output of the Dataloader
+        batch_idx : int
+            Index of the batch
+
+        Returns
+        -------
+        result : tuple of `torch.Tensor`
+            A tuple whose 1st element is `torch.Tensor` of ground-truth labels
+            and the 2nd - output of the network
+
+        Examples
+        --------
+        ```python
+        ...
+        def step(self, batch, batch_idx) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+            feature_input, label_input = batch
+            scores = self(feature_input)
+            return (label_input, scores)
+        ```
+        """
+        raise NotImplementedError
 
     def configure_optimizers(
         self,
@@ -107,29 +158,6 @@ class MLKitAbstractModule(ABC, pl.LightningModule):
         self.train_metric_tracker.reset()
         self.val_metric_tracker.reset()
         self.test_metric_tracker.reset()
-
-    @abstractmethod
-    def step(self, batch, batch_idx) -> tuple[torch.Tensor, torch.Tensor]:
-        """Carry out single train or validation step for the given `batch`.
-        Return a tuple of two `torch.Tensor`'s: true labels and predicted scores.
-        Sample code could look like the below:
-
-        ```python
-        ...
-        def step(self, batch, batch_idx) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
-            feature_input, label_input = batch
-            scores = self(feature_input)
-            return (label_input, scores)
-        ```
-
-        Parameters
-        ----------
-        batch : torch.Tensor or tuple of torch.Tensor or list of torch.Tensor
-            The output of the Dataloader
-        batch_idx : int
-            Index of the batch
-        """
-        raise NotImplementedError
 
     def training_step(self, batch, batch_idx):
         y_true, y_scores = self.step(batch, batch_idx)

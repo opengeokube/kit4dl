@@ -9,12 +9,12 @@ import torch
 import torchmetrics as tm
 from pydantic import BaseModel, Field, root_validator, validator
 
-import src.io as io_
-from src.nn.validators import (
+import mlkit.io as io_
+from mlkit.nn.validators import (
     validate_class_exists,
     validate_cuda_device_exists,
 )
-from src.typing import FullyQualifiedName
+from mlkit.typing import FullyQualifiedName
 
 
 # ################################
@@ -47,7 +47,7 @@ class _AbstractClassWithArgumentsConf(
 # ################################
 class BaseConf(BaseModel):
     seed: int | None = Field(default=0, ge=0)
-    cuda_id: int | None = Field(default=None, ge=0)
+    cuda_id: int | None = None
     experiment_name: str
 
     _assert_cuda_device = validator("cuda_id", allow_reuse=True)(
@@ -67,18 +67,20 @@ class BaseConf(BaseModel):
 class ModelConf(_AbstractClassWithArgumentsConf):
     @validator("target")
     def check_if_target_has_expected_parent_class(cls, value):
-        from src.nn.base import MLKitAbstractModule
+        from mlkit.nn.base import MLKitAbstractModule
 
-        target_class = io_.get_class_from_fully_qualified_name(value)
+        target_class = io_.import_and_get_attr_from_fully_qualified_name(value)
         assert issubclass(
             target_class, MLKitAbstractModule
         ), f"target class must be a subclass of `{MLKitAbstractModule}` class!"
         return value
 
     @property
-    def model(self):
-        target_class = io_.get_class_from_fully_qualified_name(self.target)
-        return target_class(**self.arguments)
+    def model_class(self):
+        target_class = io_.import_and_get_attr_from_fully_qualified_name(
+            self.target
+        )
+        return target_class
 
 
 # ################################
@@ -89,7 +91,7 @@ class OptimizerConf(_AbstractClassWithArgumentsConf):
 
     @validator("target")
     def check_if_target_has_expected_parent_class(cls, value):
-        target_class = io_.get_class_from_fully_qualified_name(value)
+        target_class = io_.import_and_get_attr_from_fully_qualified_name(value)
         assert issubclass(target_class, torch.optim.Optimizer), (
             "target class of the optimizer must be a subclass of"
             f" `{torch.optim.Optimizer}` class!"
@@ -98,7 +100,9 @@ class OptimizerConf(_AbstractClassWithArgumentsConf):
 
     @property
     def optimizer(self) -> Callable[..., torch.optim.Optimizer]:
-        target_class = io_.get_class_from_fully_qualified_name(self.target)
+        target_class = io_.import_and_get_attr_from_fully_qualified_name(
+            self.target
+        )
         return partial(target_class, lr=self.lr, **self.arguments)
 
 
@@ -140,7 +144,7 @@ class CriterionConf(BaseModel):
 
     @validator("target")
     def check_if_target_has_expected_parent_class(cls, value):
-        target_class = io_.get_class_from_fully_qualified_name(value)
+        target_class = io_.import_and_get_attr_from_fully_qualified_name(value)
         assert issubclass(target_class, torch.nn.Module), (
             "target class of the criterion must be a subclass of"
             f" `{torch.nn.Module}` class!"
@@ -150,8 +154,10 @@ class CriterionConf(BaseModel):
     @root_validator(skip_on_failure=True)
     def match_weight(cls, values):
         if values.get("weight"):
-            criterion_class = io_.get_class_from_fully_qualified_name(
-                values["target"]
+            criterion_class = (
+                io_.import_and_get_attr_from_fully_qualified_name(
+                    values["target"]
+                )
             )
             assert "weight" in signature(criterion_class).parameters, (
                 "`weight` parameter is not defined for the criterion"
@@ -161,7 +167,9 @@ class CriterionConf(BaseModel):
 
     @property
     def criterion(self) -> torch.nn.Module:
-        target_class = io_.get_class_from_fully_qualified_name(self.target)
+        target_class = io_.import_and_get_attr_from_fully_qualified_name(
+            self.target
+        )
         if self.weight is not None:
             weight_tensor = torch.FloatTensor(self.weight)
             return target_class(weight=weight_tensor)
@@ -195,11 +203,11 @@ class DatasetConfig(BaseModel):
 
     @validator("target")
     def check_if_target_has_expected_parent_class(cls, value):
-        from src.dataset import (  # pylint: disable=import-outside-toplevel
+        from mlkit.dataset import (  # pylint: disable=import-outside-toplevel
             AbstractDataset,
         )
 
-        target_class = io_.get_class_from_fully_qualified_name(value)
+        target_class = io_.import_and_get_attr_from_fully_qualified_name(value)
         assert issubclass(target_class, AbstractDataset), (
             "target class of the criterion must be a subclass of"
             f" `{AbstractDataset}` class!"
@@ -212,7 +220,7 @@ class DatasetConfig(BaseModel):
 # ################################
 class TrainingConf(BaseModel):
     epochs: int = Field(gt=0)
-    epoch_schedulers: list[dict[str, Any]]
+    epoch_schedulers: list[dict[str, Any]] | None = Field(default_factory=list)
     checkpoint: CheckpointConf
     optimizer: OptimizerConf
     criterion: CriterionConf
@@ -258,8 +266,8 @@ class Conf(BaseModel):
                 # TODO: logic to handle in the future
             assert hasattr(tm, metric_name), (
                 f"metric `{metric_name}` is not defined in `torchmetrics`"
-                " package. define yours and specify it as fully qualified"
-                " name, i.e.: package.module.MetricName"
+                " package. define yours and specify it as "
+                " name, i.e.: /my_dir/my_subdir/my_module.py::MyMetric"
             )
             _ = getattr(tm, metric_name)
         return values

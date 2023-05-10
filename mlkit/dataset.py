@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 import lightning.pytorch as pl
 from torch.utils.data import DataLoader
 
-from src.nn.confmodels import DatasetConfig
+from mlkit.nn.confmodels import DatasetConfig
 
 
 class AbstractDataset(ABC, pl.LightningDataModule):

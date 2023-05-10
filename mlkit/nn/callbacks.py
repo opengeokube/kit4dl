@@ -2,7 +2,7 @@
 import lightning.pytorch as pl
 from lightning.pytorch import callbacks as pl_callbacks
 
-from src.nn.base import MLKitAbstractModule
+from mlkit.nn.base import MLKitAbstractModule
 
 
 class MetricCallback(pl_callbacks.Callback):

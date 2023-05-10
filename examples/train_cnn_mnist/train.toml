@@ -4,7 +4,7 @@ cuda_id = 0
 experiment_name = "handwritten_digit_classification"
 
 [model]
-target = "models.SimpleCNN"
+target = "./model.py::SimpleCNN"
 input_dims = 1
 layers = 4
 dropout = 0.5
@@ -13,7 +13,7 @@ output_dims = 10
 [training]
 epochs = 100
 epoch_schedulers = [
-    {target = "torch.optim.schedulers.CosineAnnealing"}
+    {target = "torch.optim.schedulers::CosineAnnealing"}
 ]
 
 [training.checkpoint]
@@ -23,16 +23,16 @@ filename = "{epoch}_{val_precision:.2f}_convlstm"
 mode = "max"
 
 [training.optimizer]
-target = "torch.optim.Adam"
+target = "torch.optim::Adam"
 lr = 0.0001
 weight_decay = 0.03
 
 [training.criterion]
-target = "torch.nn.NLLLoss"
+target = "torch.nn::NLLLoss"
 weight = [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
 
 [training.dataset]
-target = "aaa.MNISTCustomDataset"
+target = "./dataset.py::MNISTCustomDataset"
 batch_size = 10
 shuffle = true
 num_workers = 4
@@ -43,7 +43,7 @@ root_dir = "/data/mnist/train"
 run_every_epoch = 1
 
 [validation.dataset]
-target = "aaa.MNISTCustomDataset"
+target = "./dataset.py::MNISTCustomDataset"
 root_dir = "/data/mnist/val"
 batch_size = 10
 shuffle = false

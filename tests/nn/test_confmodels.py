@@ -6,8 +6,8 @@ import torch
 import torchmetrics as tm
 from pydantic import ValidationError
 
-from src.nn.base import MLKitAbstractModule
-from src.nn.confmodels import (
+from mlkit.nn.base import MLKitAbstractModule
+from mlkit.nn.confmodels import (
     BaseConf,
     CheckpointConf,
     Conf,
@@ -106,21 +106,21 @@ class TestBaseConfAndAccessor:
 class TestBaseClassWithArgumentsConf:
     def test_installed_class_exists(self):
         load = """
-            target = "torch.optim.SGD"
+            target = "torch.optim::SGD"
         """
         conf = _AbstractClassWithArgumentsConf(**toml.loads(load))
-        assert conf.target == "torch.optim.SGD"
+        assert conf.target == "torch.optim::SGD"
 
     def test_customed_class_exists_on_path(self):
         load = """
-            target = "tests.dummy_module.A"
+            target = "tests.dummy_module::A"
         """
         conf = _AbstractClassWithArgumentsConf(**toml.loads(load))
-        assert conf.target == "tests.dummy_module.A"
+        assert conf.target == "tests.dummy_module::A"
 
     def test_class_with_arguments(self):
         load = """
-            target = "torch.optim.SGD"
+            target = "torch.optim::SGD"
             arg1 = "val1"
             arg2 = -1.5
         """
@@ -134,18 +134,18 @@ class TestBaseClassWithArgumentsConf:
 class TestModelConf:
     def test_get_model_proper_parent_class(self):
         load = """
-            target = "tests.dummy_module.B"
+            target = "tests.dummy_module::B"
             input_dims = 1
             layers = 4
             dropout = 0.1
             output_dims = 10
         """
         conf = ModelConf(**toml.loads(load))
-        assert issubclass(type(conf.model), MLKitAbstractModule)
+        assert issubclass(conf.model_class, MLKitAbstractModule)
 
     def test_get_model_failed_on_wrong_parent_class(self):
         load = """
-            target = "tests.dummy_module.A"
+            target = "tests.dummy_module::A"
         """
         with pytest.raises(ValidationError):
             _ = ModelConf(**toml.loads(load))
@@ -154,7 +154,7 @@ class TestModelConf:
 class TestOptimizerConf:
     def test_get_optimizer_proper_parent_class(self):
         load = """
-            target = "torch.optim.SGD"
+            target = "torch.optim::SGD"
             lr = 0.1
         """
         conf = OptimizerConf(**toml.loads(load))
@@ -170,14 +170,14 @@ class TestOptimizerConf:
 
     def test_get_optimizer_failed_on_missing_lr(self):
         load = """
-            target = "torch.optim.SGD"
+            target = "torch.optim::SGD"
         """
         with pytest.raises(ValidationError):
             _ = OptimizerConf(**toml.loads(load))
 
     def test_get_optimizer_failed_on_wrong_parent_class(self):
         load = """
-            target = "tests.dummy_module.A"
+            target = "tests.dummy_module::A"
             lr = 0.1
         """
         with pytest.raises(ValidationError):
@@ -241,14 +241,14 @@ class TestCheckpointConf:
 class TestCriterionConfig:
     def test_criterion(self):
         load = """
-            target = "torch.nn.NLLLoss"
+            target = "torch.nn::NLLLoss"
         """
         conf = CriterionConf(**toml.loads(load))
         conf.target == "torch.nn.NLLLoss"
 
     def test_criterion_failed_on_weight_passed_if_not_supported(self):
         load = """
-            target = "torch.nn.MSELoss"
+            target = "torch.nn::MSELoss"
             weight = [0.1, 0.1]
         """
         with pytest.raises(ValidationError):
@@ -256,7 +256,7 @@ class TestCriterionConfig:
 
     def test_criterion_weight_passed(self):
         load = """
-            target = "torch.nn.NLLLoss"
+            target = "torch.nn::NLLLoss"
             weight = [0.1, 0.1]
         """
         conf = CriterionConf(**toml.loads(load))
@@ -266,7 +266,7 @@ class TestCriterionConfig:
     @pytest.mark.skip(reason="weights values are not validated anymore")
     def test_criterion_failed_on_negative_weight(self):
         load = """
-            target = "torch.nn.NLLLoss"
+            target = "torch.nn::NLLLoss"
             weight = [-0.1, 0.1]
         """
         with pytest.raises(ValidationError):
@@ -274,14 +274,14 @@ class TestCriterionConfig:
 
     def test_get_criterion_proper_parent_class(self):
         load = """
-            target = "torch.nn.MSELoss"
+            target = "torch.nn::MSELoss"
         """
         conf = CriterionConf(**toml.loads(load))
         assert issubclass(type(conf.criterion), torch.nn.Module)
 
     def test_get_criterion_failed_on_wrong_parent_class(self):
         load = """
-            target = "tests.dummy_module.A"
+            target = "tests.dummy_module::A"
         """
         with pytest.raises(ValidationError):
             _ = CriterionConf(**toml.loads(load))
@@ -290,14 +290,14 @@ class TestCriterionConfig:
 class TestDatasetConf:
     def test_get_dataset_fail_on_wrong_parent_class(self):
         load = """
-            target = "tests.dummy_module.DummyDatasetModuleWrong"
+            target = "tests.dummy_module::DummyDatasetModuleWrong"
         """
         with pytest.raises(ValidationError):
             _ = DatasetConfig(**toml.loads(load))
 
     def test_get_dataset_default_args(self):
         load = """
-            target = "tests.dummy_module.DummyDatasetModule"
+            target = "tests.dummy_module::DummyDatasetModule"
             root_dir = "/data/mnist/train"
         """
         conf = DatasetConfig(**toml.loads(load))
@@ -308,7 +308,7 @@ class TestDatasetConf:
 
     def test_get_dataset_check_arguments_values(self):
         load = """
-            target = "tests.dummy_module.DummyDatasetModule"
+            target = "tests.dummy_module::DummyDatasetModule"
             batch_size = 10
             shuffle = true
             num_workers = 4
@@ -322,7 +322,7 @@ class TestDatasetConf:
 
     def test_get_dataset_check_extra_arguments(self):
         load = """
-            target = "tests.dummy_module.DummyDatasetModule"
+            target = "tests.dummy_module::DummyDatasetModule"
             batch_size = 10
             shuffle = true
             num_workers = 4
@@ -342,11 +342,10 @@ class TestConf:
         return """
         [base]
         seed = 0
-        cuda_id = 0
         experiment_name = "handwritten_digit_classification"
 
         [model]
-        target = "tests.dummy_module.B"
+        target = "./tests/dummy_module.py::B"
         input_dims = 1
         layers = 4
         dropout = 0.5
@@ -355,7 +354,7 @@ class TestConf:
         [training]
         epochs = 100
         epoch_schedulers = [
-            {target = "torch.optim.schedulers.CosineAnnealing"}
+            {target = "torch.optim.schedulers::CosineAnnealing"}
         ]
 
         [training.checkpoint]
@@ -365,16 +364,16 @@ class TestConf:
         mode = "max"
 
         [training.optimizer]
-        target = "torch.optim.Adam"
+        target = "torch.optim::Adam"
         lr = 0.0001
         weight_decay = 0.03
 
         [training.criterion]
-        target = "torch.nn.NLLLoss"
+        target = "torch.nn::NLLLoss"
         weight = [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
 
         [training.dataset]
-        target = "tests.dummy_module.DummyDatasetModule"
+        target = "./tests/dummy_module.py::DummyDatasetModule"
         batch_size = 10
         shuffle = true
         num_workers = 4
@@ -384,7 +383,7 @@ class TestConf:
         run_every_epoch = 1
 
         [validation.dataset]
-        target = "tests.dummy_module.DummyDatasetModule"
+        target = "tests.dummy_module::DummyDatasetModule"
         root_dir = "/data/mnist/val"
         batch_size = 10
         shuffle = false

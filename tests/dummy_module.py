@@ -1,7 +1,7 @@
 import torchmetrics as tm
 
-from src.dataset import AbstractDataset
-from src.nn.base import MLKitAbstractModule
+from mlkit.dataset import AbstractDataset
+from mlkit.nn.base import MLKitAbstractModule
 
 
 class A:
@@ -9,8 +9,8 @@ class A:
 
 
 class B(MLKitAbstractModule):
-    def __init__(self, input_dims, layers, dropout, output_dims):
-        super().__init__(conf=None)
+    def setup(self, input_dims, layers, dropout, output_dims):
+        pass
 
     def step(self, batch, batch_idx):
         pass
@@ -31,3 +31,8 @@ class CustomMetricWrong:
 
 class CustomMetric(tm.Metric):
     pass
+
+
+class T1:
+    def f1():
+        pass
