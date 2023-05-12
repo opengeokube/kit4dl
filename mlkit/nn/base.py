@@ -14,6 +14,7 @@ class MLKitAbstractModule(ABC, pl.LightningModule):
 
     def __init__(self, *, conf: Conf) -> None:
         super().__init__()
+        assert conf, "`conf` argument cannot be `None`"
         self.save_hyperparameters()
         self.conf = conf
         self._setup_metrics()
@@ -87,15 +88,11 @@ class MLKitAbstractModule(ABC, pl.LightningModule):
         ], lr_schedulers
 
     def _setup_metrics(self) -> None:
-        if not self.conf:
-            return None
         self.train_metric_tracker = MetricStore(self.conf.metrics_obj)
         self.val_metric_tracker = MetricStore(self.conf.metrics_obj)
         self.test_metric_tracker = MetricStore(self.conf.metrics_obj)
 
     def _configure_criterion(self) -> None:
-        if not self.conf:
-            return None
         self.criterion = self.conf.training.criterion.criterion.to(
             self.conf.base.device
         )
@@ -103,7 +100,6 @@ class MLKitAbstractModule(ABC, pl.LightningModule):
     def compute_loss(
         self, input: torch.Tensor, target: torch.Tensor
     ) -> torch.Tensor:
-        assert self.criterion, "critarion was not configured!"
         return self.criterion(input, target)
 
     def log_train_metrics(self) -> None:

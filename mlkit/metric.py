@@ -9,15 +9,18 @@ class MetricStore:
     def __init__(self, metrics: dict[str, tm.Metric]) -> None:
         self._metrics = metrics
 
-    def reset(self):
+    def reset(self) -> "MetricStore":
         for met in self._metrics.values():
             met.reset()
+        return self
 
-    def update(self, true, predictions):
+    def update(self, true, predictions) -> "MetricStore":
         for met in self._metrics.values():
             met.update(predictions, true)
+        return self
 
-    def result_dict(self) -> dict[str, float]:
+    @property
+    def results(self) -> dict[str, float]:
         return {
             metric_name: metric.compute().item()
             for metric_name, metric in self._metrics.items()

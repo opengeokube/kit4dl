@@ -35,3 +35,11 @@ class MetricCallback(pl_callbacks.Callback):
         self, trainer: pl.Trainer, pl_module: MLKitAbstractModule
     ) -> None:
         pl_module.log_test_metrics()
+
+
+class ModelCheckpoint(pl_callbacks.ModelCheckpoint):
+    def on_fit_end(
+        self, trainer: pl.Trainer, pl_module: pl.LightningModule
+    ) -> None:
+        super().on_fit_end(trainer, pl_module)
+        # TODO:

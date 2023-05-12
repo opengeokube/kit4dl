@@ -60,6 +60,12 @@ class BaseConf(BaseModel):
             return torch.device("cpu")
         return torch.device(f"cuda:{self.cuda_id}")
 
+    @property
+    def accelerator_device_id(self) -> tuple[str, int]:
+        if self.cuda_id is None:
+            return ("cpu", "auto")
+        return ("gpu", [self.cuda_id])
+
 
 # ################################
 #  Neural network model configuration
@@ -76,7 +82,7 @@ class ModelConf(_AbstractClassWithArgumentsConf):
         return value
 
     @property
-    def model_class(self):
+    def model_class(self) -> type:
         target_class = io_.import_and_get_attr_from_fully_qualified_name(
             self.target
         )
@@ -114,6 +120,10 @@ class CheckpointConf(BaseModel):
     monitor: dict[str, str]
     filename: str
     mode: Literal["min", "max"] | None = "max"
+    save_top_k: int = Field(ge=1)
+    save_weights_only: bool | None = True
+    every_n_train_steps: int | None = Field(ge=1)
+    save_on_train_epoch_end: bool | None = None
 
     @validator("path")
     def assert_path_not_exists_or_is_empty(cls, path):
@@ -204,15 +214,22 @@ class DatasetConfig(BaseModel):
     @validator("target")
     def check_if_target_has_expected_parent_class(cls, value):
         from mlkit.dataset import (  # pylint: disable=import-outside-toplevel
-            AbstractDataset,
+            MLKitAbstractDataset,
         )
 
         target_class = io_.import_and_get_attr_from_fully_qualified_name(value)
-        assert issubclass(target_class, AbstractDataset), (
+        assert issubclass(target_class, MLKitAbstractDataset), (
             "target class of the criterion must be a subclass of"
-            f" `{AbstractDataset}` class!"
+            f" `{MLKitAbstractDataset}` class!"
         )
         return value
+
+    @property
+    def datamodule_class(self) -> type:
+        target_class = io_.import_and_get_attr_from_fully_qualified_name(
+            self.target
+        )
+        return target_class
 
 
 # ################################
@@ -241,6 +258,20 @@ class ValidationConf(BaseModel):
 
 
 # ################################
+#     Testing configuration
+# ################################
+class TestConf(BaseModel):
+    dataset: DatasetConfig
+
+
+# ################################
+#     Predicting configuration
+# ################################
+class PredictConf(BaseModel):
+    dataset: DatasetConfig
+
+
+# ################################
 #     Complete configuration
 # ################################
 class Conf(BaseModel):
@@ -251,6 +282,8 @@ class Conf(BaseModel):
     )
     training: TrainingConf
     validation: ValidationConf
+    test: TestConf | None = None
+    predict: PredictConf | None = None
 
     @validator("metrics")
     def validate_metrics_exists(cls, values):

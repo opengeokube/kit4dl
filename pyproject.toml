@@ -54,3 +54,8 @@ files = [
 
 [project.scripts]
 mlflow = "mlkit.scripts:generate_template"
+
+[tool.pytest.ini_options]
+filterwarnings = [
+    "ignore::DeprecationWarning"
+]

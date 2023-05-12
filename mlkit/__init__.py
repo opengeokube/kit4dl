@@ -1,2 +1,2 @@
-from mlkit.dataset import AbstractDataset
+from mlkit.dataset import MLKitAbstractDataset
 from mlkit.nn.base import MLKitAbstractModule

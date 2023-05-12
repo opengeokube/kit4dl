@@ -1,5 +1,5 @@
-from mlkit import AbstractDataset
+from mlkit import MLKitAbstractDataset
 
 
-class MNISTCustomDataset(AbstractDataset):
+class MNISTCustomDataset(MLKitAbstractDataset):
     pass

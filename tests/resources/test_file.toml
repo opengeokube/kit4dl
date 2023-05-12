@@ -21,7 +21,6 @@ path = "chckpt"
 monitor = {"metric" = "Precision", "stage" = "val"}
 filename = "{epoch}_{val_precision:.2f}_convlstm"
 mode = "max"
-save_top_k = 1
 
 [training.optimizer]
 target = "torch.optim::Adam"
