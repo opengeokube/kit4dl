@@ -53,7 +53,7 @@ class Trainer:
 
     def _configure_trainer(self) -> pl.Trainer:
         accelerator_device_id, device = self.conf.base.accelerator_device_id
-        tconf = self.conf.training
+        chkp_conf = self.conf.training.checkpoint
         return pl.Trainer(
             accelerator_device_id=accelerator_device_id,
             devices=device,
@@ -65,14 +65,14 @@ class Trainer:
             callbacks=[
                 MetricCallback(),
                 ModelCheckpoint(
-                    dirpath=tconf.checkpoint.path,
-                    filename=tconf.checkpoint.filename,
-                    monitor=tconf.checkpoint.monitor,
-                    save_top_k=tconf.checkpoint.save_top_k,
-                    mode=tconf.checkpoint.mode,
-                    save_weights_only=tconf.checkpoint.save_weights_only,
-                    every_n_train_steps=tconf.checkpoint.every_n_train_steps,
-                    save_on_train_epoch_end=tconf.checkpoint.save_on_train_epoch_end,
+                    dirpath=chkp_conf.path,
+                    filename=chkp_conf.filename,
+                    monitor=chkp_conf.monitor,
+                    save_top_k=chkp_conf.save_top_k,
+                    mode=chkp_conf.mode,
+                    save_weights_only=chkp_conf.save_weights_only,
+                    every_n_train_steps=chkp_conf.every_n_train_steps,
+                    save_on_train_epoch_end=chkp_conf.save_on_train_epoch_end,
                 ),
             ],
         )
