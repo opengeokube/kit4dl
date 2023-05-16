@@ -1,0 +1,87 @@
+[base]
+# the value of the seed for pseudo-random numbers 
+seed = 0
+# number of CUDA device to use, if CPU should be used, remove below line
+cuda_id = 0
+# your experiment's name
+experiment_name = "my_new_awesome_experiment"
+
+[model]
+# path to you model given as an absolute path or a relative (with respect to the conf.toml file)
+target = "./model.py::MyNewNetwork"
+# here you pass any extra keword arguments required by your model - MyNewNetwork
+# like: input dimensions, dropout values, etc.
+arg1 = ...
+arg2 = ...
+
+[training]
+epochs = 100
+epoch_schedulers = [
+    {target = "torch.optim.schedulers::CosineAnnealing"}
+]
+
+[training.checkpoint]
+# directory where checkpoint should be saved
+path = "my_checkpoints"
+# metric being tracked and stage for which comparison is done. supported stages are: "train" or "val"
+monitor = {"metric" = "Precision", "stage" = "val"}
+# filename pattern as described in https://lightning.ai/docs/pytorch/stable/api/lightning.pytorch.callbacks.ModelCheckpoint.html
+# metric value for use in `filename` is constructed as <stage>_<lowercase metric name>
+# REMEMBER! Define used metric in the `metrics` table in this file!
+filename = "{epoch}_{val_precision:.2f}_convlstm"
+# here you can define some other arguments accepted by ttps://lightning.ai/docs/pytorch/stable/api/lightning.pytorch.callbacks.ModelCheckpoint.html
+mode = "max"
+save_top_k = 1
+
+[training.optimizer]
+# target optimizer class, NOTE! Class name is separated with double colon
+target = "torch.optim::Adam"
+# below other arguments required by the class can be defined
+lr = 0.0001
+weight_decay = 0.03
+
+[training.criterion]
+target = "torch.nn::NLLLoss"
+weight = [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
+
+[validation]
+# how often validation should be run
+run_every_epoch = 1
+
+[dataset]
+# target class of you dataset module for training. it should be given as an absolute path or a relative (with respect to the conf.toml file)
+target = "./dataset.py::MyCustomDatamodule"
+
+# if there is a common procedure for generating train/validation split
+# like, random split the input data, you can define arguments in the table [dataset.trainval]
+# just uncomment below two lines
+# [dataset.trainval]
+# root_dir = "..."
+
+# if you want to specify different logic for train and validation datasets,
+# like loading separate formerly prepared files, you two tables [dataset.train] and [dataset.validation]
+[dataset.train]
+# here you can define arguments taken by the method `prepare_traindataset`
+root_dir = "my_train_file.txt"
+
+[dataset.validation]
+# here you can define arguments taken by the method `prepare_valdataset`
+root_dir = "my_val_file.txt"
+
+[dataset.train.loader]
+# here you define arguments of data loader for train dataset
+batch_size = 10
+shuffle = true
+num_workers = 4
+
+[dataset.validation.loader]
+# here you define arguments of data loader for train dataset
+batch_size = 10
+shuffle = false
+num_workers = 4
+
+[metrics]
+# here you define metrics you want to log. use those defined
+# in the `torchmetrics` package.
+Precision = {task = "multiclass", num_classes=10}
+FBetaScore = {task = "multiclass", num_classes=10, beta = 2}

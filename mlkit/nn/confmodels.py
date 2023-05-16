@@ -14,7 +14,7 @@ from mlkit.nn.validators import (
     validate_class_exists,
     validate_cuda_device_exists,
 )
-from mlkit.typing import FullyQualifiedName
+from mlkit.types import FullyQualifiedName
 
 
 # ################################
@@ -23,7 +23,7 @@ from mlkit.typing import FullyQualifiedName
 class _AbstractClassWithArgumentsConf(
     ABC, BaseModel, extra="allow", allow_mutation=False
 ):
-    target: FullyQualifiedName
+    target: FullyQualifiedName | str
     arguments: dict[str, Any]
 
     _validate_class_exists = validator("target", allow_reuse=True)(
@@ -120,7 +120,7 @@ class CheckpointConf(BaseModel):
     monitor: dict[str, str]
     filename: str
     mode: Literal["min", "max"] | None = "max"
-    save_top_k: int = Field(ge=1)
+    save_top_k: int | None = Field(1, ge=1)
     save_weights_only: bool | None = True
     every_n_train_steps: int | None = Field(ge=1)
     save_on_train_epoch_end: bool | None = None
@@ -138,6 +138,7 @@ class CheckpointConf(BaseModel):
         assert (
             "stage" in monitor
         ), "`stage` key is missing. define `stage='train'` or `stage='val'`"
+        assert monitor["stage"] in {"train", "val"}
         return monitor
 
 
@@ -187,29 +188,57 @@ class CriterionConf(BaseModel):
 
 
 # ################################
-#       Dataset configuration
+#     Training configuration
 # ################################
-class DatasetConfig(BaseModel):
-    target: FullyQualifiedName
-    batch_size: int | None = Field(default=1, ge=0)
-    shuffle: bool | None = False
-    num_workers: int | None = Field(default=1, ge=0)
-    dataset_kwargs: dict[str, Any] | None = Field(default_factory=dict)
+class TrainingConf(BaseModel):
+    epochs: int = Field(gt=0)
+    epoch_schedulers: list[dict[str, Any]] | None = Field(default_factory=list)
+    checkpoint: CheckpointConf
+    optimizer: OptimizerConf
+    criterion: CriterionConf
 
-    _validate_class_exists = validator("target", allow_reuse=True)(
-        validate_class_exists
-    )
+    @validator("epoch_schedulers", each_item=True)
+    def assert_epoch_scheduler_exist(cls, sch):
+        # TODO:
+        return sch
+
+
+# ################################
+#     Validation configuration
+# ################################
+class ValidationConf(BaseModel):
+    run_every_epoch: int = Field(gt=0)
+
+
+# ################################
+#     Split dataset configuration
+# ################################
+class SplitDatasetConf(BaseModel):
+    loader: dict[str, Any] | None = Field(default_factory=dict)
+    arguments: dict[str, Any]
 
     @root_validator(pre=True)
     def build_model_arguments(cls, values: dict[str, Any]) -> dict[str, Any]:
-        if "dataset_kwargs" in values:
+        if "arguments" in values:
             return values
-        dataset_kwargs = {
+        arguments = {
             k: v for k, v in values.items() if k not in cls.__fields__
         }
         values = {k: v for k, v in values.items() if k in cls.__fields__}
-        values["dataset_kwargs"] = dataset_kwargs
+        values["arguments"] = arguments
         return values
+
+
+# ################################
+#     Dataset configuration
+# ################################
+class DatasetConf(BaseModel):
+    target: FullyQualifiedName | str
+    train: SplitDatasetConf | None = None
+    validation: SplitDatasetConf | None = None
+    trainval: SplitDatasetConf | None = None
+    test: SplitDatasetConf | None = None
+    predict: SplitDatasetConf | None = None
 
     @validator("target")
     def check_if_target_has_expected_parent_class(cls, value):
@@ -219,7 +248,7 @@ class DatasetConfig(BaseModel):
 
         target_class = io_.import_and_get_attr_from_fully_qualified_name(value)
         assert issubclass(target_class, MLKitAbstractDataset), (
-            "target class of the criterion must be a subclass of"
+            "target class of the dataset module must be a subclass of"
             f" `{MLKitAbstractDataset}` class!"
         )
         return value
@@ -233,45 +262,6 @@ class DatasetConfig(BaseModel):
 
 
 # ################################
-#     Training configuration
-# ################################
-class TrainingConf(BaseModel):
-    epochs: int = Field(gt=0)
-    epoch_schedulers: list[dict[str, Any]] | None = Field(default_factory=list)
-    checkpoint: CheckpointConf
-    optimizer: OptimizerConf
-    criterion: CriterionConf
-    dataset: DatasetConfig
-
-    @validator("epoch_schedulers", each_item=True)
-    def assert_epoch_scheduler_exist(cls, sch):
-        # TODO:
-        return sch
-
-
-# ################################
-#     Validation configuration
-# ################################
-class ValidationConf(BaseModel):
-    run_every_epoch: int = Field(gt=0)
-    dataset: DatasetConfig
-
-
-# ################################
-#     Testing configuration
-# ################################
-class TestConf(BaseModel):
-    dataset: DatasetConfig
-
-
-# ################################
-#     Predicting configuration
-# ################################
-class PredictConf(BaseModel):
-    dataset: DatasetConfig
-
-
-# ################################
 #     Complete configuration
 # ################################
 class Conf(BaseModel):
@@ -282,8 +272,7 @@ class Conf(BaseModel):
     )
     training: TrainingConf
     validation: ValidationConf
-    test: TestConf | None = None
-    predict: PredictConf | None = None
+    dataset: DatasetConf
 
     @validator("metrics")
     def validate_metrics_exists(cls, values):
@@ -299,8 +288,7 @@ class Conf(BaseModel):
                 # TODO: logic to handle in the future
             assert hasattr(tm, metric_name), (
                 f"metric `{metric_name}` is not defined in `torchmetrics`"
-                " package. define yours and specify it as "
-                " name, i.e.: /my_dir/my_subdir/my_module.py::MyMetric"
+                " package."
             )
             _ = getattr(tm, metric_name)
         return values

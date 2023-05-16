@@ -53,7 +53,7 @@ files = [
 ]
 
 [project.scripts]
-mlflow = "mlkit.scripts:generate_template"
+mlkit = "mlkit.cli.app:run"
 
 [tool.pytest.ini_options]
 filterwarnings = [

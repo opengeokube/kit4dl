@@ -32,20 +32,21 @@ weight_decay = 0.03
 target = "torch.nn::NLLLoss"
 weight = [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
 
-[training.dataset]
-target = "./dataset.py::MNISTCustomDataset"
-batch_size = 10
-shuffle = true
-num_workers = 4
-# below arguments are optional - dedicated to the custom class
-root_dir = "/data/mnist/train"
-
 [validation]
 run_every_epoch = 1
 
-[validation.dataset]
+[dataset]
 target = "./dataset.py::MNISTCustomDataset"
-root_dir = "/data/mnist/val"
+
+[dataset.trainval]
+root_dir = "./mnist"
+
+[dataset.train.loader]
+batch_size = 10
+shuffle = true
+num_workers = 4
+
+[dataset.validation.loader]
 batch_size = 10
 shuffle = false
 num_workers = 4

@@ -5,7 +5,7 @@ import os
 import torch
 
 from mlkit.io import import_and_get_attr_from_fully_qualified_name
-from mlkit.typing import FullyQualifiedName
+from mlkit.types import FullyQualifiedName
 
 
 def validate_cuda_device_exists(cuda_id: int | None = None) -> int | None:

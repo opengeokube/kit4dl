@@ -1,4 +1,5 @@
 import os
+from unittest.mock import patch
 
 import pytest
 
@@ -31,8 +32,10 @@ class TestIO:
         assert func in str(func)
 
     def test_import_fail_on_not_existing_file(self):
-        path = r"./dummy_module.py::A"
-        with pytest.raises(ImportError, match=r"no package specified for*"):
+        path = r"./not_existing.py::A"
+        with pytest.raises(
+            AssertionError, match=r"module: ./not_existing.py does not exist"
+        ):
             _ = io_.import_and_get_attr_from_fully_qualified_name(path)
 
     @pytest.mark.parametrize(
@@ -77,3 +80,6 @@ class TestIO:
         obj2 = cls2()
         assert hasattr(obj2, "f2")
         assert not hasattr(obj2, "f1")
+
+    def test_rel2abs_for_base(self):
+        assert os.path.isabs(io_.rel2abs_for_base("./aaa.py", "/home/user"))

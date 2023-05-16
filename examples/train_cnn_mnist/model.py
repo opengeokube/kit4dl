@@ -32,7 +32,7 @@ class SimpleCNNModel(MLKitAbstractModule):
         )
 
     def step(self, batch, batch_idx) -> tuple[torch.Tensor, torch.Tensor]:
-        img, label = batch
+        x, label = batch
         x = self.l1(x)
         x = self.hidden_layers(x)
         return label, self.fc(x)

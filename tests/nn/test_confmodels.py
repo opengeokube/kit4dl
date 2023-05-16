@@ -12,7 +12,7 @@ from mlkit.nn.confmodels import (
     CheckpointConf,
     Conf,
     CriterionConf,
-    DatasetConfig,
+    DatasetConf,
     ModelConf,
     OptimizerConf,
     _AbstractClassWithArgumentsConf,
@@ -283,7 +283,10 @@ class TestCriterionConfig:
         load = """
             target = "tests.dummy_module::A"
         """
-        with pytest.raises(ValidationError):
+        with pytest.raises(
+            ValidationError,
+            match=r"target class of the criterion must be a subclass of*",
+        ):
             _ = CriterionConf(**toml.loads(load))
 
 
@@ -292,48 +295,41 @@ class TestDatasetConf:
         load = """
             target = "tests.dummy_module::DummyDatasetModuleWrong"
         """
-        with pytest.raises(ValidationError):
-            _ = DatasetConfig(**toml.loads(load))
+        with pytest.raises(
+            ValidationError,
+            match=r"target class of the dataset module must be a subclass of*",
+        ):
+            _ = DatasetConf(**toml.loads(load))
 
-    def test_get_dataset_default_args(self):
+    def test_define_trainval_and_train_loader(self):
         load = """
             target = "tests.dummy_module::DummyDatasetModule"
-            root_dir = "/data/mnist/train"
-        """
-        conf = DatasetConfig(**toml.loads(load))
-        assert conf.batch_size == 1
-        assert conf.shuffle is False
-        assert conf.num_workers == 1
-        assert conf.dataset_kwargs == {"root_dir": "/data/mnist/train"}
 
-    def test_get_dataset_check_arguments_values(self):
+            [trainval]
+            root_dir = "..."
+
+            [train.loader]
+            batch_size = 100
+        """
+        conf = DatasetConf(**toml.loads(load))
+        assert conf.trainval is not None
+        assert conf.trainval.arguments == {"root_dir": "..."}
+        assert conf.train is not None
+        assert conf.train.loader == {"batch_size": 100}
+
+    def test_define_val_train_test_predict_none_on_trainval_defined(self):
         load = """
             target = "tests.dummy_module::DummyDatasetModule"
-            batch_size = 10
-            shuffle = true
-            num_workers = 4
-            root_dir = "/data/mnist/train"
-        """
-        conf = DatasetConfig(**toml.loads(load))
-        assert conf.batch_size == 10
-        assert conf.shuffle is True
-        assert conf.num_workers == 4
-        assert conf.dataset_kwargs == {"root_dir": "/data/mnist/train"}
 
-    def test_get_dataset_check_extra_arguments(self):
-        load = """
-            target = "tests.dummy_module::DummyDatasetModule"
-            batch_size = 10
-            shuffle = true
-            num_workers = 4
-            root_dir = "/data/mnist/train"
-            extra_arg = -10
+            [trainval]
+            root_dir = "..."
         """
-        conf = DatasetConfig(**toml.loads(load))
-        assert conf.dataset_kwargs == {
-            "root_dir": "/data/mnist/train",
-            "extra_arg": -10,
-        }
+        conf = DatasetConf(**toml.loads(load))
+        assert conf.trainval is not None
+        assert conf.train is None
+        assert conf.validation is None
+        assert conf.test is None
+        assert conf.predict is None
 
 
 class TestConf:
@@ -372,23 +368,24 @@ class TestConf:
         target = "torch.nn::NLLLoss"
         weight = [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
 
-        [training.dataset]
-        target = "./tests/dummy_module.py::DummyDatasetModule"
-        batch_size = 10
-        shuffle = true
-        num_workers = 4
-        root_dir = "/data/mnist/train"
-
         [validation]
         run_every_epoch = 1
 
-        [validation.dataset]
-        target = "tests.dummy_module::DummyDatasetModule"
-        root_dir = "/data/mnist/val"
+        [dataset]
+        target = "./tests/dummy_module.py::DummyDatasetModule"
+
+        [dataset.trainval]
+        root_dir = "./mnist"
+
+        [dataset.train.loader]
+        batch_size = 10
+        shuffle = true
+        num_workers = 4
+
+        [dataset.validation.loader]
         batch_size = 10
         shuffle = false
         num_workers = 4
-
         """
 
     def test_conf_parse(self, base_conf):
@@ -431,7 +428,10 @@ class TestConf:
         [metrics]
         NonExistingMetric = {}
         """
-        with pytest.raises(ValidationError):
+        with pytest.raises(
+            ValidationError,
+            match=r".*metric `NonExistingMetric` is not defined*",
+        ):
             _ = Conf(**toml.loads(load))
 
     def test_conf_fail_on_monitoring_undefined_metric(self, base_conf):

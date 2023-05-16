@@ -18,6 +18,7 @@ class Trainer:
     def __init__(self, conf: Conf) -> None:
         self._conf = conf
         self._device = self.conf.base.device
+        set_seed(self._conf.base.seed)
 
     def prepare(self) -> "Trainer":
         self._model = self._configure_model()

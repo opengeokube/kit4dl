@@ -43,8 +43,10 @@ class MLKitAbstractModule(ABC, pl.LightningModule):
 
     @abstractmethod
     def step(self, batch, batch_idx) -> tuple[torch.Tensor, torch.Tensor]:
-        """Carry out single train or validation step for the given `batch`.
+        """Carry out single train/validation/test step for the given `batch`.
         Return a tuple of two `torch.Tensor`'s: true labels and predicted scores.
+        If you need to define separate logic for validation or test step,
+        implement `val_step` or `test_step` methods, respectivelly.
 
         Parameters
         ----------
@@ -70,6 +72,66 @@ class MLKitAbstractModule(ABC, pl.LightningModule):
         ```
         """
         raise NotImplementedError
+
+    def val_step(self, batch, batch_idx) -> tuple[torch.Tensor, torch.Tensor]:
+        """Carry out single validation step for the given `batch`.
+        Return a tuple of two `torch.Tensor`'s: true labels and predicted scores.
+        If not overriden, the implementation of `step` method is used.
+
+        Parameters
+        ----------
+        batch : torch.Tensor or tuple of torch.Tensor or list of torch.Tensor
+            The output of the Dataloader
+        batch_idx : int
+            Index of the batch
+
+        Returns
+        -------
+        result : tuple of `torch.Tensor`
+            A tuple whose 1st element is `torch.Tensor` of ground-truth labels
+            and the 2nd - output of the network
+
+        Examples
+        --------
+        ```python
+        ...
+        def step(self, batch, batch_idx) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+            feature_input, label_input = batch
+            scores = self(feature_input)
+            return (label_input, scores)
+        ```
+        """
+        return self.step(batch, batch_idx)
+
+    def test_step(self, batch, batch_idx) -> tuple[torch.Tensor, torch.Tensor]:
+        """Carry out single test step for the given `batch`.
+        Return a tuple of two `torch.Tensor`'s: true labels and predicted scores.
+        If not overriden, the implementation of `step` method is used.
+
+        Parameters
+        ----------
+        batch : torch.Tensor or tuple of torch.Tensor or list of torch.Tensor
+            The output of the Dataloader
+        batch_idx : int
+            Index of the batch
+
+        Returns
+        -------
+        result : tuple of `torch.Tensor`
+            A tuple whose 1st element is `torch.Tensor` of ground-truth labels
+            and the 2nd - output of the network
+
+        Examples
+        --------
+        ```python
+        ...
+        def step(self, batch, batch_idx) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+            feature_input, label_input = batch
+            scores = self(feature_input)
+            return (label_input, scores)
+        ```
+        """
+        return self.step(batch, batch_idx)
 
     def configure_optimizers(
         self,
@@ -163,14 +225,14 @@ class MLKitAbstractModule(ABC, pl.LightningModule):
         return loss
 
     def validation_step(self, batch, batch_idx):
-        y_true, y_scores = self.step(batch, batch_idx)
+        y_true, y_scores = self.val_step(batch, batch_idx)
         loss = self.compute_loss(y_scores, y_true)
         predictions = y_true.argmax(dim=-1)
         self.update_val_metrics(true=y_true, predictions=predictions)
         return loss
 
     def test_step(self, batch, batch_idx):
-        y_true, y_scores = self.step(batch, batch_idx)
+        y_true, y_scores = self.test_step(batch, batch_idx)
         loss = self.compute_loss(y_scores, y_true)
         predictions = y_true.argmax(dim=-1)
         self.update_test_metrics(true=y_true, predictions=predictions)
