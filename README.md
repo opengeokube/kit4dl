@@ -1,4 +1,6 @@
-<div align="center">
+<script src="scripts/termynal/termynal.js" data-termynal-container="#termynal">
+
+</script>
 <img src="static/logo.svg">
 
 # A quick way to start with machine and deep learning
@@ -15,9 +17,9 @@
 
 ## 🖋️ Authors
 OpenGeokube Developers:
+1. Jakub Walczak
 1. Marco Macini
 1. Mirko Stojiljkovic
-1. Jakub Walczak
 1. Shahbaz Alvi
 
 ## 🎬 Quickstart
@@ -45,12 +47,16 @@ pip install .
 ```
 
 #### Preparing simple project
+<div id="termynal" data-termynal>
+    <span data-ty="input">mlflow init --name=my-new-project</span>
+    <span data-ty>MLKit Creating a new skeleton for the project: << my-new-project >></span>
+</div>
 
 
 ## 📜 Cite Us
 ```bibtex
 @ONLINE{ml-kit,
-  author = {Mancini, M., Stojiljkovic, M., Walczak, J., Alvi, S.},
+  author = {Walczak, J., Mancini, M., Stojiljkovic, M., Alvi, S.},
   title = {{MLKit}: A quick way to start with machine and deep learning},
   year = 2023,
   url = {https://github.com/opengeokube/ml-kit},
