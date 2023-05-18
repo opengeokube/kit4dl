@@ -66,7 +66,7 @@ mlkit train
 If the `conf.toml` file is present in your current working directory, the training will start.
 
 If you need to specify the path to the configuration file, use `--conf` argument:
-```console
+```bash
 mlkit train --conf=/path/to/your/conf.toml
 ```
 
