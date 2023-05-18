@@ -1,6 +1,3 @@
-<script src="scripts/termynal/termynal.js" data-termynal-container="#termynal">
-
-</script>
 <img src="static/logo.svg">
 
 # A quick way to start with machine and deep learning
@@ -47,10 +44,37 @@ pip install .
 ```
 
 #### Preparing simple project
-<div id="termynal" data-termynal>
-    <span data-ty="input">mlflow init --name=my-new-project</span>
-    <span data-ty>MLKit Creating a new skeleton for the project: << my-new-project >></span>
-</div>
+To start the new project in the current working directory, just run the following command:
+
+```console
+mlflow init --name=my-new-project
+```
+
+It will create a directory with the name `my-new-project` where you'll find sample files.
+Implement necessery methods for datamodule (`dataset.py`) and network (`model.py`).
+Then, adjust `conf.toml` according to your needs. That's all 🎉
+
+#### Running the training
+To run the training just type the following command:
+
+```console
+mlkit train
+```
+
+If the `conf.toml` file is present in your current working directory, the training will start.
+
+If you need to specify the path to the configuration file, use `--conf` argument:
+```console
+mlkit train --conf=/path/to/your/conf.toml
+```
+
+#### Serving the model
+
+
+## 🚧 Roadmap
+- [ ] add handling sklearn-like models
+- [ ] add functionality to serve the model
+- [ ] write more unit tests
 
 
 ## 📜 Cite Us
