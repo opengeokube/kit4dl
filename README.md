@@ -47,18 +47,19 @@ pip install .
 #### Preparing simple project
 To start the new project in the current working directory, just run the following command:
 
-```console
+```bash
 mlflow init --name=my-new-project
 ```
 
 It will create a directory with the name `my-new-project` where you'll find sample files.
 Implement necessery methods for datamodule (`dataset.py`) and network (`model.py`).
-Then, adjust `conf.toml` according to your needs. That's all 🎉
+Then, adjust `conf.toml` according to your needs. 
+That's all 🎉
 
 #### Running the training
 To run the training just type the following command:
 
-```console
+```bash
 mlkit train
 ```
 
