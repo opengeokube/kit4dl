@@ -1,3 +1,4 @@
+<div align="center">
 <img src="static/logo.svg">
 
 # A quick way to start with machine and deep learning
