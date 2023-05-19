@@ -13,7 +13,7 @@ output_dims = 10
 [training]
 epochs = 100
 epoch_schedulers = [
-    {target = "torch.optim.schedulers::CosineAnnealing"}
+    {target = "torch.optim.lr_scheduler::CosineAnnealingLR", T_max=100}
 ]
 
 [training.checkpoint]
@@ -51,5 +51,5 @@ shuffle = false
 num_workers = 4
 
 [metrics]
-Precision = {task = "multiclass", num_classes=10}
-FBetaScore = {task = "multiclass", num_classes=10, beta = 2}
+Precision = {task = "multiclass", num_classes = 10}
+FBetaScore = {task = "multiclass", num_classes = 10, beta = 2}

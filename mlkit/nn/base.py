@@ -1,4 +1,5 @@
 """A module with the base class of modules supported by MLKit"""
+import logging
 from abc import ABC, abstractmethod
 
 import lightning.pytorch as pl
@@ -14,10 +15,26 @@ class MLKitAbstractModule(ABC, pl.LightningModule):
         assert conf, "`conf` argument cannot be `None`"
         self._criterion: torch.nn.Module = None
         self._conf: Conf = conf
-        self._setup_metrics()
+
+        self.__logger = logging.getLogger(__name__)
+        self.configure_logger()
+
+        self._configure_metrics()
         self._configure_criterion()
         self.configure(**self._conf.model.arguments)
         self.save_hyperparameters()
+
+    def configure_logger(self) -> None:
+        __log_methods = ("debug", "info", "warn", "error", "critical")
+        ch = logging.StreamHandler()
+        ch.setLevel(self._conf.base.log_level)
+        formatter = logging.Formatter(
+            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+        )
+        ch.setFormatter(formatter)
+        self.__logger.addHandler(ch)
+        for log_method in __log_methods:
+            setattr(self, log_method, getattr(self.__logger, log_method))
 
     @abstractmethod
     def configure(self, **kwargs) -> None:
@@ -31,7 +48,7 @@ class MLKitAbstractModule(ABC, pl.LightningModule):
         Examples
         --------
         ```python
-        def setup(self, input_dims, output_dims) -> None:
+        def configure(self, input_dims, output_dims) -> None:
             self.fc1 = nn.Sequential(
                 nn.Linear(input_dims, output_dims),
             )
@@ -131,26 +148,69 @@ class MLKitAbstractModule(ABC, pl.LightningModule):
         """
         return self.step(batch, batch_idx)
 
+    def predict_step(self, batch, batch_idx) -> torch.Tensor:
+        """Carry out single predict step for the given `batch`.
+        Return a `torch.Tensor` - the predicted scores.
+        If not overriden, the implementation of `step` method is used.
+
+        Parameters
+        ----------
+        batch : torch.Tensor or tuple of torch.Tensor or list of torch.Tensor
+            The output of the Dataloader
+        batch_idx : int
+            Index of the batch
+
+        Returns
+        -------
+        result : torch.Tensor
+            The score being the output of of the network
+
+        Examples
+        --------
+        ```python
+        ...
+        def step(self, batch, batch_idx) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+            feature_input, label_input = batch
+            scores = self(feature_input)
+            return (label_input, scores)
+        ```
+        """
+        return self.step(batch, batch_idx)
+
     def configure_optimizers(
         self,
     ) -> tuple[
         list[torch.optim.Optimizer],
         list[torch.optim.lr_scheduler.LRScheduler] | None,
     ]:
-        lr_schedulers: list = self._conf.training.configured_schedulers
-        return [
+        self.__logger.debug(
+            "configuring optimizers and lr epoch schedulers..."
+        )
+        optimizer: torch.optim.Optimizer = (
             self._conf.training.optimizer.optimizer(self.parameters())
-        ], lr_schedulers
+        )
+        lr_schedulers: list = [
+            scheduler(optimizer)
+            for scheduler in self._conf.training.preconfigured_schedulers_classes
+        ]
+        self.__logger.info("selected optimizer is: %s", optimizer)
+        self.__logger.info(
+            "selected %d  lr schedulers: %s", len(lr_schedulers), lr_schedulers
+        )
+        return [optimizer], lr_schedulers
 
-    def _setup_metrics(self) -> None:
+    def _configure_metrics(self) -> None:
+        self.__logger.debug("configuring metrics...")
         self.train_metric_tracker = MetricStore(self._conf.metrics_obj)
         self.val_metric_tracker = MetricStore(self._conf.metrics_obj)
         self.test_metric_tracker = MetricStore(self._conf.metrics_obj)
 
     def _configure_criterion(self) -> None:
+        self.__logger.debug("configuring criterion...")
         self._criterion = self._conf.training.criterion.criterion.to(
             self._conf.base.device
         )
+        self.__logger.info("selected critarion is: %s", self._criterion)
 
     def compute_loss(
         self, input: torch.Tensor, target: torch.Tensor
@@ -162,8 +222,15 @@ class MLKitAbstractModule(ABC, pl.LightningModule):
             metric_name,
             metric_value,
         ) in self.train_metric_tracker.results.items():
+            stage_metric_name = f"train_{metric_name}"
+            self.__logger.info(
+                "epoch: %d metric: %s value: %s",
+                self.current_epoch,
+                stage_metric_name,
+                metric_value,
+            )
             self.log(
-                f"train_{metric_name}",
+                stage_metric_name,
                 metric_value,
                 logger=True,
             )
@@ -173,8 +240,15 @@ class MLKitAbstractModule(ABC, pl.LightningModule):
             metric_name,
             metric_value,
         ) in self.val_metric_tracker.results.items():
+            stage_metric_name = f"val_{metric_name}"
+            self.__logger.info(
+                "epoch: %d metric: %s value: %s",
+                self.current_epoch,
+                stage_metric_name,
+                metric_value,
+            )
             self.log(
-                f"val_{metric_name}",
+                stage_metric_name,
                 metric_value,
                 logger=True,
             )
@@ -184,8 +258,15 @@ class MLKitAbstractModule(ABC, pl.LightningModule):
             metric_name,
             metric_value,
         ) in self.test_metric_tracker.results.items():
+            stage_metric_name = f"test_{metric_name}"
+            self.__logger.info(
+                "epoch: %d metric: %s value: %s",
+                self.current_epoch,
+                stage_metric_name,
+                metric_value,
+            )
             self.log(
-                f"test_{metric_name}",
+                stage_metric_name,
                 metric_value,
                 logger=True,
             )

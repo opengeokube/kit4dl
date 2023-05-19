@@ -17,7 +17,7 @@ from mlkit.nn.confmodels import (
     OptimizerConf,
     _AbstractClassWithArgumentsConf,
 )
-from tests.fixtures import true_conf
+from tests.fixtures import base_conf_txt, dummy_optimizer, true_conf
 from tests.test_utils import skipnocuda
 
 
@@ -98,6 +98,24 @@ class TestBaseConfAndAccessor:
         dev = BaseConf(**toml.loads(load)).device
         assert dev.type == "cpu"
         assert dev.index is None
+
+    @pytest.mark.parametrize(
+        "lvl", ["debug", "warn", "info", "critical", "error"]
+    )
+    def test_get_log_lowercase(self, lvl):
+        load = f"""
+    experiment_name = "handwritten_digit_classification"
+    log_level = "{lvl}"
+        """
+        assert BaseConf(**toml.loads(load)).log_level == lvl.upper()
+
+    def test_get_log_fail_on_wrong_lvl(self):
+        load = f"""
+    experiment_name = "handwritten_digit_classification"
+    log_level = "not-existing"
+        """
+        with pytest.raises(ValidationError, match=r""):
+            _ = BaseConf(**toml.loads(load)).log_level
 
 
 @pytest.mark.skipif(
@@ -246,7 +264,7 @@ class TestCheckpointConf:
             mode = "max"  
         """
         conf = CheckpointConf(**toml.loads(load))
-        assert conf.monitor_metric == "precision"
+        assert conf.monitor_metric == "val_precision"
 
 
 class TestCriterionConfig:
@@ -345,62 +363,15 @@ class TestDatasetConf:
 
 class TestConf:
     @pytest.fixture
-    def base_conf(self):
-        return """
-        [base]
-        seed = 0
-        experiment_name = "handwritten_digit_classification"
-
-        [model]
-        target = "./tests/dummy_module.py::B"
-        input_dims = 1
-        layers = 4
-        dropout = 0.5
-        output_dims = 10
-
-        [training]
-        epochs = 100
-        epoch_schedulers = [
-            {target = "torch.optim.schedulers::CosineAnnealing"}
-        ]
-
-        [training.checkpoint]
-        path = "chckpt"
-        monitor = {"metric" = "Precision", "stage" = "val"}
-        filename = "{epoch}_{val_fbeta_score:.2f}_convlstm"
-        mode = "max"
-
-        [training.optimizer]
-        target = "torch.optim::Adam"
-        lr = 0.0001
-        weight_decay = 0.03
-
-        [training.criterion]
-        target = "torch.nn::NLLLoss"
-        weight = [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
-
-        [validation]
-        run_every_epoch = 1
-
-        [dataset]
-        target = "./tests/dummy_module.py::DummyDatasetModule"
-
-        [dataset.trainval]
-        root_dir = "./mnist"
-
-        [dataset.train.loader]
-        batch_size = 10
-        shuffle = true
-        num_workers = 4
-
-        [dataset.validation.loader]
-        batch_size = 10
-        shuffle = false
-        num_workers = 4
+    def full_conf_dict(self, base_conf_txt):
+        entries = base_conf_txt + """
+        [metrics]
+        Precision = {task = "multiclass", num_classes=10}
         """
+        yield toml.loads(entries)
 
-    def test_conf_parse(self, base_conf):
-        load = base_conf + """
+    def test_conf_parse(self, base_conf_txt):
+        load = base_conf_txt + """
         [metrics]
         Precision = {task = "multiclass", num_classes=10}
         FBetaScore = {task = "multiclass", num_classes=10, beta = 2}        
@@ -413,8 +384,8 @@ class TestConf:
             " name"
         )
     )
-    def test_conf_custom_metric(self, base_conf):
-        load = base_conf + """
+    def test_conf_custom_metric(self, base_conf_txt):
+        load = base_conf_txt + """
         [metrics]
         test.dummy_module.CustomMetric = {}
         """
@@ -426,16 +397,16 @@ class TestConf:
             " name"
         )
     )
-    def test_conf_custom_metric_fail_on_wrong_parentclass(self, base_conf):
-        load = base_conf + """
+    def test_conf_custom_metric_fail_on_wrong_parentclass(self, base_conf_txt):
+        load = base_conf_txt + """
         [metrics]
         teset.dummy_module.CustomMetricWrong = {}
         """
         with pytest.raises(ValidationError):
             _ = Conf(**toml.loads(load))
 
-    def test_conf_fail_on_nonexisting_metric(self, base_conf):
-        load = base_conf + """
+    def test_conf_fail_on_nonexisting_metric(self, base_conf_txt):
+        load = base_conf_txt + """
         [metrics]
         NonExistingMetric = {}
         """
@@ -445,8 +416,8 @@ class TestConf:
         ):
             _ = Conf(**toml.loads(load))
 
-    def test_conf_fail_on_monitoring_undefined_metric(self, base_conf):
-        load = base_conf + """
+    def test_conf_fail_on_monitoring_undefined_metric(self, base_conf_txt):
+        load = base_conf_txt + """
         [metrics]
         Precision = {}
         """
@@ -458,8 +429,8 @@ class TestConf:
         with pytest.raises(ValidationError):
             _ = Conf(**load_dict)
 
-    def test_conf_get_metric_obj_failed_on_missing_task(self, base_conf):
-        load = base_conf + """
+    def test_conf_get_metric_obj_failed_on_missing_task(self, base_conf_txt):
+        load = base_conf_txt + """
         [metrics]
         Precision = {}
         """
@@ -473,8 +444,8 @@ class TestConf:
         ):
             conf.metrics_obj
 
-    def test_conf_get_metric_obj(self, base_conf):
-        load = base_conf + """
+    def test_conf_get_metric_obj(self, base_conf_txt):
+        load = base_conf_txt + """
         [metrics]
         Precision = {task = "multiclass", num_classes = 10}
         """
@@ -483,18 +454,45 @@ class TestConf:
         assert "precision" in metrics
         assert isinstance(metrics["precision"], tm.Metric)
 
-    def test_conf_update_path(self, true_conf):
-        ROOT_DIR = "/some/root/dir"
-        assert true_conf.model.target == "./model.py::SimpleCNN"
-        assert true_conf.training.optimizer.target == "torch.optim::Adam"
-        assert true_conf.training.criterion.target == "torch.nn::NLLLoss"
-        assert true_conf.datasets.target == "./dataset.py::MNISTCustomDataset"
+    def test_conf_schedulers_single_preconfigured_schedulers_classes(
+        self, full_conf_dict, dummy_optimizer
+    ):
+        conf = Conf(**full_conf_dict)
+        assert isinstance(conf.training.preconfigured_schedulers_classes, list)
 
-        true_conf.update_relative_targets()
-        assert true_conf.model.target == f"{ROOT_DIR}/./model.py::SimpleCNN"
-        assert true_conf.training.optimizer.target == "torch.optim::Adam"
-        assert true_conf.training.criterion.target == "torch.nn::NLLLoss"
-        assert (
-            true_conf.datasets.target
-            == f"{ROOT_DIR}/./dataset.py::MNISTCustomDataset"
+    def test_conf_schedulers_preconfigured_schedulers_classes(
+        self, full_conf_dict, dummy_optimizer
+    ):
+        conf = Conf(**full_conf_dict)
+        scheduler = conf.training.preconfigured_schedulers_classes[0](
+            dummy_optimizer
+        )
+        assert isinstance(scheduler, torch.optim.lr_scheduler.LRScheduler)
+
+    def test_conf_schedulers_double_preconfigured_schedulers_classes(
+        self, full_conf_dict, dummy_optimizer
+    ):
+        conf = Conf(**full_conf_dict)
+        assert len(conf.training.preconfigured_schedulers_classes) == 1
+        assert isinstance(
+            conf.training.preconfigured_schedulers_classes[0](dummy_optimizer),
+            torch.optim.lr_scheduler.CosineAnnealingLR,
+        )
+
+        full_conf_dict["training"]["epoch_schedulers"].append(
+            {
+                "target": "torch.optim.lr_scheduler::MultiStepLR",
+                "milestones": [30, 80],
+                "gamma": 0.1,
+            }
+        )
+        conf = Conf(**full_conf_dict)
+        assert len(conf.training.preconfigured_schedulers_classes) == 2
+        assert isinstance(
+            conf.training.preconfigured_schedulers_classes[0](dummy_optimizer),
+            torch.optim.lr_scheduler.CosineAnnealingLR,
+        )
+        assert isinstance(
+            conf.training.preconfigured_schedulers_classes[1](dummy_optimizer),
+            torch.optim.lr_scheduler.MultiStepLR,
         )

@@ -50,10 +50,17 @@ class BaseConf(BaseModel):
     seed: int | None = Field(default=0, ge=0)
     cuda_id: int | None = None
     experiment_name: str
+    log_level: Literal["DEBUG", "INFO", "WARN", "ERROR", "CRITICAL"] | None = (
+        "INFO"
+    )
 
     _assert_cuda_device = validator("cuda_id", allow_reuse=True)(
         validate_cuda_device_exists
     )
+
+    @validator("log_level", pre=True)
+    def match_log_level(cls, item):
+        return item.upper()
 
     @property
     def device(self) -> torch.device:
@@ -211,16 +218,19 @@ class TrainingConf(BaseModel):
         return sch
 
     @property
-    def configured_schedulers(
+    def preconfigured_schedulers_classes(
         self,
     ) -> list[torch.optim.lr_scheduler.LRScheduler]:
         schedulers = []
         for sch in self.epoch_schedulers:
             sch_copy = sch.copy()
             schedulers.append(
-                io_.import_and_get_attr_from_fully_qualified_name(
-                    sch_copy.pop("target")
-                )(**sch_copy)
+                partial(
+                    io_.import_and_get_attr_from_fully_qualified_name(
+                        sch_copy.pop("target")
+                    ),
+                    **sch_copy,
+                )
             )
         return schedulers
 
