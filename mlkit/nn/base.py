@@ -9,21 +9,19 @@ from mlkit.nn.confmodels import Conf
 
 
 class MLKitAbstractModule(ABC, pl.LightningModule):
-    conf: Conf
-    criterion: torch.nn.Module = None
-
     def __init__(self, *, conf: Conf) -> None:
         super().__init__()
         assert conf, "`conf` argument cannot be `None`"
-        self.save_hyperparameters()
-        self.conf = conf
+        self._criterion: torch.nn.Module = None
+        self._conf: Conf = conf
         self._setup_metrics()
         self._configure_criterion()
-        self.setup(**self.conf.model.arguments)
+        self.configure(**self._conf.model.arguments)
+        self.save_hyperparameters()
 
     @abstractmethod
-    def setup(self, **kwargs) -> None:
-        """Setup the architecture of the neural network
+    def configure(self, **kwargs) -> None:
+        """Configure the architecture of the neural network
 
         Parameters
         ----------
@@ -139,36 +137,31 @@ class MLKitAbstractModule(ABC, pl.LightningModule):
         list[torch.optim.Optimizer],
         list[torch.optim.lr_scheduler.LRScheduler] | None,
     ]:
-        assert self.conf is not None, (
-            "configuration was not set. did you forget to call"
-            " `obj.setup_configuration(conf)` method?"
-        )
-        # TODO: handle list of epoch schedulers
-        lr_schedulers = None
+        lr_schedulers: list = self._conf.training.configured_schedulers
         return [
-            self.conf.training.optimizer.optimizer(self.parameters())
+            self._conf.training.optimizer.optimizer(self.parameters())
         ], lr_schedulers
 
     def _setup_metrics(self) -> None:
-        self.train_metric_tracker = MetricStore(self.conf.metrics_obj)
-        self.val_metric_tracker = MetricStore(self.conf.metrics_obj)
-        self.test_metric_tracker = MetricStore(self.conf.metrics_obj)
+        self.train_metric_tracker = MetricStore(self._conf.metrics_obj)
+        self.val_metric_tracker = MetricStore(self._conf.metrics_obj)
+        self.test_metric_tracker = MetricStore(self._conf.metrics_obj)
 
     def _configure_criterion(self) -> None:
-        self.criterion = self.conf.training.criterion.criterion.to(
-            self.conf.base.device
+        self._criterion = self._conf.training.criterion.criterion.to(
+            self._conf.base.device
         )
 
     def compute_loss(
         self, input: torch.Tensor, target: torch.Tensor
     ) -> torch.Tensor:
-        return self.criterion(input, target)
+        return self._criterion(input, target)
 
     def log_train_metrics(self) -> None:
         for (
             metric_name,
             metric_value,
-        ) in self.train_metric_tracker.result_dict().items():
+        ) in self.train_metric_tracker.results.items():
             self.log(
                 f"train_{metric_name}",
                 metric_value,
@@ -179,7 +172,7 @@ class MLKitAbstractModule(ABC, pl.LightningModule):
         for (
             metric_name,
             metric_value,
-        ) in self.val_metric_tracker.result_dict().items():
+        ) in self.val_metric_tracker.results.items():
             self.log(
                 f"val_{metric_name}",
                 metric_value,
@@ -190,7 +183,7 @@ class MLKitAbstractModule(ABC, pl.LightningModule):
         for (
             metric_name,
             metric_value,
-        ) in self.test_metric_tracker.result_dict().items():
+        ) in self.test_metric_tracker.results.items():
             self.log(
                 f"test_{metric_name}",
                 metric_value,
@@ -220,20 +213,20 @@ class MLKitAbstractModule(ABC, pl.LightningModule):
     def training_step(self, batch, batch_idx):
         y_true, y_scores = self.step(batch, batch_idx)
         loss = self.compute_loss(y_scores, y_true)
-        predictions = y_true.argmax(dim=-1)
+        predictions = y_scores.argmax(dim=-1)
         self.update_train_metrics(true=y_true, predictions=predictions)
         return loss
 
     def validation_step(self, batch, batch_idx):
         y_true, y_scores = self.val_step(batch, batch_idx)
         loss = self.compute_loss(y_scores, y_true)
-        predictions = y_true.argmax(dim=-1)
+        predictions = y_scores.argmax(dim=-1)
         self.update_val_metrics(true=y_true, predictions=predictions)
         return loss
 
     def test_step(self, batch, batch_idx):
         y_true, y_scores = self.test_step(batch, batch_idx)
         loss = self.compute_loss(y_scores, y_true)
-        predictions = y_true.argmax(dim=-1)
+        predictions = y_scores.argmax(dim=-1)
         self.update_test_metrics(true=y_true, predictions=predictions)
         return loss

@@ -29,9 +29,9 @@ def init(
     shutil.copytree(empty_proj_path, name)
 
 
-def _get_conf_from_file(conf):
+def _get_conf_from_file(conf, root_dir: str | None = None):
     with open(conf, "rt") as file:
-        return Conf(**toml.load(file))
+        return Conf(root_dir=root_dir, **toml.load(file))
 
 
 @_app.command()
@@ -43,25 +43,27 @@ def train(
     """Train using the configuration file"""
     log.info("Attept to run training...")
     if not conf:
+        root_dir = os.getcwd()
         log.info(
             (
                 "--conf argument was not specified. looking for `conf.toml`"
                 " file in the current directory: %s"
             ),
-            os.getcwd(),
+            root_dir,
         )
-        conf = os.path.join(".", "conf.toml")
+        conf = os.path.join(root_dir, "conf.toml")
         if not os.path.exists(conf):
             raise RuntimeError(
                 "you haven't specified --conf argument and no `conf.toml`"
-                f" file was found in the current directory: {os.getcwd()}"
+                f" file was found in the current directory: {root_dir}"
             )
     else:
+        root_dir = os.path.dirname(conf)
         if not os.path.exists(conf):
             raise RuntimeError(
                 f"the conf file you specified: {conf} does not exist"
             )
-    conf_ = _get_conf_from_file(conf)
+    conf_ = _get_conf_from_file(conf, root_dir=root_dir)
     log.info("Running trainer...")
     Trainer(conf=conf_).prepare().fit()
     log.info("Training finished")

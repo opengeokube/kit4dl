@@ -17,6 +17,7 @@ from mlkit.nn.confmodels import (
     OptimizerConf,
     _AbstractClassWithArgumentsConf,
 )
+from tests.fixtures import true_conf
 from tests.test_utils import skipnocuda
 
 
@@ -236,6 +237,16 @@ class TestCheckpointConf:
         """
         with pytest.raises(ValidationError):
             _ = CheckpointConf(**toml.loads(load))
+
+    def test_checkpoint_monitor_metric(self):
+        load = """
+            path = "chckpt"
+            monitor = {"metric" = "Precision", "stage" = "val"}
+            filename = "{epoch}_{val_fbeta_score:.2f}_convlstm"
+            mode = "max"  
+        """
+        conf = CheckpointConf(**toml.loads(load))
+        assert conf.monitor_metric == "precision"
 
 
 class TestCriterionConfig:
@@ -469,5 +480,21 @@ class TestConf:
         """
         conf = Conf(**toml.loads(load))
         metrics = conf.metrics_obj
-        assert "Precision" in metrics
-        assert isinstance(metrics["Precision"], tm.Metric)
+        assert "precision" in metrics
+        assert isinstance(metrics["precision"], tm.Metric)
+
+    def test_conf_update_path(self, true_conf):
+        ROOT_DIR = "/some/root/dir"
+        assert true_conf.model.target == "./model.py::SimpleCNN"
+        assert true_conf.training.optimizer.target == "torch.optim::Adam"
+        assert true_conf.training.criterion.target == "torch.nn::NLLLoss"
+        assert true_conf.datasets.target == "./dataset.py::MNISTCustomDataset"
+
+        true_conf.update_relative_targets()
+        assert true_conf.model.target == f"{ROOT_DIR}/./model.py::SimpleCNN"
+        assert true_conf.training.optimizer.target == "torch.optim::Adam"
+        assert true_conf.training.criterion.target == "torch.nn::NLLLoss"
+        assert (
+            true_conf.datasets.target
+            == f"{ROOT_DIR}/./dataset.py::MNISTCustomDataset"
+        )

@@ -7,6 +7,7 @@ dependencies:
   - python=3.10
   - pytorch
   - pytorch-cuda=11.8
+  - torchvision 
   - torchmetrics
   - lightning
   - scikit-learn
@@ -23,3 +24,5 @@ dependencies:
   - pip:
     - black
     - types-toml
+    - typer[all]
+    - pytest-cov

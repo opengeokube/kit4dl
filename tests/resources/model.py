@@ -6,11 +6,9 @@ from mlkit import MLKitAbstractModule
 
 
 class SimpleCNN(MLKitAbstractModule):
-    def configure(self, input_dims, layers, dropout, output_dims) -> None:
+    def configure(self, input_dims, layers, dropout, output_dims):
         self.l1 = nn.Sequential(
-            nn.Conv2d(
-                input_dims, 16, kernel_size=3, padding="same", bias=True
-            ),
+            nn.Conv2d(input_dims, 16, kernel_size=3, bias=True),
             nn.ReLU(),
             nn.BatchNorm2d(16),
         )
@@ -19,9 +17,7 @@ class SimpleCNN(MLKitAbstractModule):
         for _ in range(layers):
             hidden_layers.extend(
                 [
-                    nn.Conv2d(
-                        16, 16, kernel_size=3, padding="same", bias=True
-                    ),
+                    nn.Conv2d(16, 16, kernel_size=3, bias=True),
                     nn.ReLU(),
                     nn.BatchNorm2d(16),
                 ]
@@ -29,7 +25,7 @@ class SimpleCNN(MLKitAbstractModule):
         self.hidden_layers = nn.Sequential(*hidden_layers)
         self.fc = nn.Sequential(
             nn.Flatten(),
-            nn.Linear(28 * 28 * 16, 64),
+            nn.Linear(16 * 5, 64),
             nn.ReLU(),
             nn.Dropout(dropout),
             nn.Linear(64, output_dims),

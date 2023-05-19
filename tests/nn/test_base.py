@@ -6,7 +6,6 @@ import torch
 import torchmetrics as tm
 
 from mlkit.nn.base import MLKitAbstractModule
-from mlkit.nn.confmodels import Conf
 
 
 class TestBaseMLModel:

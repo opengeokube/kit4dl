@@ -1,4 +1,6 @@
 """A module with neural network train task definition"""
+from typing import Any
+
 import lightning.pytorch as pl
 from lightning.pytorch import callbacks
 from lightning.pytorch import loggers as pl_log
@@ -12,12 +14,15 @@ from mlkit.utils import set_seed
 
 class Trainer:
     _model: MLKitAbstractModule
+    _datamodule: MLKitAbstractDataset
     _trainer: pl.Trainer
     _conf: Conf
+    _log: Any
 
     def __init__(self, conf: Conf) -> None:
         self._conf = conf
-        self._device = self.conf.base.device
+        self._device = self._conf.base.device
+        self._log = self._new_logger()
         set_seed(self._conf.base.seed)
 
     def prepare(self) -> "Trainer":
@@ -34,46 +39,36 @@ class Trainer:
         pass
 
     def _configure_datamodule(self) -> MLKitAbstractDataset:
-        test_dataset_conf = (
-            self._conf.test.dataset if self._conf.test is not None else None
-        )
-        predict_dataset_conf = (
-            self._conf.predict.dataset if self._conf.test is not None else None
-        )
-        return self._conf.training.dataset.datamodule_class(
-            train_config=self._conf.training.dataset,
-            val_config=self._conf.validation.dataset,
-            test_config=test_dataset_conf,
-            predict_config=predict_dataset_conf,
-        )
+        return self._conf.dataset.datamodule_class(conf=self._conf.dataset)
 
     def _configure_model(self) -> MLKitAbstractModule:
-        return self.conf.model.model_class(**self.conf.model.arguments).to(
-            self._device
+        return self._conf.model.model_class(conf=self._conf).to(self._device)
+
+    def _get_model_checkpoint(self) -> ModelCheckpoint:
+        chkp_conf = self._conf.training.checkpoint
+        return ModelCheckpoint(
+            dirpath=chkp_conf.path,
+            filename=chkp_conf.filename,
+            monitor=chkp_conf.monitor_metric,
+            save_top_k=chkp_conf.save_top_k,
+            mode=chkp_conf.mode,
+            save_weights_only=chkp_conf.save_weights_only,
+            every_n_train_steps=chkp_conf.every_n_train_steps,
+            save_on_train_epoch_end=chkp_conf.save_on_train_epoch_end,
         )
 
     def _configure_trainer(self) -> pl.Trainer:
-        accelerator_device_id, device = self.conf.base.accelerator_device_id
-        chkp_conf = self.conf.training.checkpoint
+        accelerator_device, device = self._conf.base.accelerator_device_and_id
+        callbacks = [MetricCallback()]
+        if self._conf.training.checkpoint:
+            callbacks.append(self._get_model_checkpoint())
         return pl.Trainer(
-            accelerator_device_id=accelerator_device_id,
+            accelerator=accelerator_device,
             devices=device,
-            max_epochs=self.conf.training.epochs,
-            check_val_every_n_epoch=self.conf.validation.run_every_epoch,
+            max_epochs=self._conf.training.epochs,
+            check_val_every_n_epoch=self._conf.validation.run_every_epoch,
             enable_progress_bar=True,
             deterministic=True,
-            logger=self._new_logger(),
-            callbacks=[
-                MetricCallback(),
-                ModelCheckpoint(
-                    dirpath=chkp_conf.path,
-                    filename=chkp_conf.filename,
-                    monitor=chkp_conf.monitor,
-                    save_top_k=chkp_conf.save_top_k,
-                    mode=chkp_conf.mode,
-                    save_weights_only=chkp_conf.save_weights_only,
-                    every_n_train_steps=chkp_conf.every_n_train_steps,
-                    save_on_train_epoch_end=chkp_conf.save_on_train_epoch_end,
-                ),
-            ],
+            logger=self._log,
+            callbacks=callbacks,
         )

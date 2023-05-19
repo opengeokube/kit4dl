@@ -10,6 +10,7 @@ import torchmetrics as tm
 from pydantic import BaseModel, Field, root_validator, validator
 
 import mlkit.io as io_
+from mlkit import utils as ut
 from mlkit.nn.validators import (
     validate_class_exists,
     validate_cuda_device_exists,
@@ -61,7 +62,7 @@ class BaseConf(BaseModel):
         return torch.device(f"cuda:{self.cuda_id}")
 
     @property
-    def accelerator_device_id(self) -> tuple[str, int]:
+    def accelerator_device_and_id(self) -> tuple[str, int]:
         if self.cuda_id is None:
             return ("cpu", "auto")
         return ("gpu", [self.cuda_id])
@@ -141,6 +142,12 @@ class CheckpointConf(BaseModel):
         assert monitor["stage"] in {"train", "val"}
         return monitor
 
+    @property
+    def monitor_metric(self) -> str:
+        return "_".join(
+            [self.monitor["stage"].lower(), self.monitor["metric"].lower()]
+        )
+
 
 # ################################
 #     Criterion configuration
@@ -193,14 +200,29 @@ class CriterionConf(BaseModel):
 class TrainingConf(BaseModel):
     epochs: int = Field(gt=0)
     epoch_schedulers: list[dict[str, Any]] | None = Field(default_factory=list)
-    checkpoint: CheckpointConf
+    checkpoint: CheckpointConf | None = None
     optimizer: OptimizerConf
     criterion: CriterionConf
 
     @validator("epoch_schedulers", each_item=True)
     def assert_epoch_scheduler_exist(cls, sch):
-        # TODO:
+        assert "target" in sch
+        validate_class_exists(sch["target"])
         return sch
+
+    @property
+    def configured_schedulers(
+        self,
+    ) -> list[torch.optim.lr_scheduler.LRScheduler]:
+        schedulers = []
+        for sch in self.epoch_schedulers:
+            sch_copy = sch.copy()
+            schedulers.append(
+                io_.import_and_get_attr_from_fully_qualified_name(
+                    sch_copy.pop("target")
+                )(**sch_copy)
+            )
+        return schedulers
 
 
 # ################################
@@ -274,8 +296,13 @@ class Conf(BaseModel):
     validation: ValidationConf
     dataset: DatasetConf
 
+    def __init__(self, root_dir: str | None = None, **kwargs):
+        if root_dir:
+            kwargs = Conf.override_with_abs_target(root_dir, kwargs)
+        super().__init__(**kwargs)
+
     @validator("metrics")
-    def validate_metrics_exists(cls, values):
+    def validate_metrics_exist(cls, values):
         if not values:
             return None
         for metric_name in values.keys():
@@ -307,6 +334,14 @@ class Conf(BaseModel):
         if not self.metrics:
             raise ValueError("metrics are not defined!")
         return {
-            metric_name: getattr(tm, metric_name)(**metric_args)
+            metric_name.lower(): getattr(tm, metric_name)(**metric_args)
             for metric_name, metric_args in self.metrics.items()
         }
+
+    @classmethod
+    def override_with_abs_target(cls, root_dir, entries: dict) -> dict:
+        replace_logic = partial(io_.maybe_get_abs_target, root_dir=root_dir)
+        entries = ut.replace_item_recursively(
+            entries, key="target", replace=replace_logic
+        )
+        return entries

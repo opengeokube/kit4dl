@@ -80,6 +80,3 @@ class TestIO:
         obj2 = cls2()
         assert hasattr(obj2, "f2")
         assert not hasattr(obj2, "f1")
-
-    def test_rel2abs_for_base(self):
-        assert os.path.isabs(io_.rel2abs_for_base("./aaa.py", "/home/user"))
