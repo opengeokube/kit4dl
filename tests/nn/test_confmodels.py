@@ -1,7 +1,12 @@
 import importlib
 
 import pytest
-import toml
+
+try:
+    import tomllib as toml
+except ModuleNotFoundError:
+    import toml
+
 import torch
 import torchmetrics as tm
 from pydantic import ValidationError

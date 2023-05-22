@@ -1,10 +1,51 @@
 import os
 
 import pytest
-import toml
+
+try:
+    import tomllib as toml
+except ModuleNotFoundError:
+    import toml
+
+from unittest.mock import MagicMock, PropertyMock
+
 import torch
+import torchmetrics as tm
 
 from mlkit.nn.confmodels import Conf
+
+
+@pytest.fixture
+def conf():
+    conf = MagicMock()
+    conf.base = MagicMock()
+    conf.base.accelerator_device_and_id = PropertyMock(), PropertyMock()
+    conf.base.log_level = "INFO"
+    conf.base.seed = 0
+    conf.model = MagicMock()
+    conf.model.arguments = PropertyMock(
+        return_value={"input_dims": 10, "output_dims": 1}
+    )
+    conf.metrics_obj = PropertyMock(
+        return_value={
+            "Precision": tm.Precision(task="binary"),
+            "FBetaScore": tm.FBetaScore(task="binary"),
+        }
+    )
+    conf.training = MagicMock()
+    conf.training.optimizer = MagicMock()
+    conf.training.optimizer.optimizer = PropertyMock(
+        return_value=torch.optim.SGD
+    )
+    conf.training.checkpoint.mode = PropertyMock(return_value="max")
+
+    conf.parameters = MagicMock(return_value=None)
+    conf.model.model_class = PropertyMock()
+
+    conf.dataset = MagicMock()
+    conf.dataset = PropertyMock()
+    conf.dataset.datamodule_class = MagicMock()
+    yield conf
 
 
 @pytest.fixture
