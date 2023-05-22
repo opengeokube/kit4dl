@@ -30,18 +30,53 @@ def maybe_get_abs_target(target: str, root_dir: str | os.PathLike) -> str:
 def get_class_from_py_file(path: str | os.PathLike, name: str):
     assert ".py" in path, f"path: {path} is not a Python module"
     assert os.path.exists(path), f"module: {path} does not exist"
-    spec = importlib.util.spec_from_file_location("_imported_nn_module", path)
+    spec = importlib.util.spec_from_file_location(
+        "_file_imported_module", path
+    )
     if not spec:
         raise RuntimeError(f"module {path} is not defined")
-    _imported_nn_module = importlib.util.module_from_spec(spec)
-    sys.modules["_imported_nn_module"] = _imported_nn_module
-    spec.loader.exec_module(_imported_nn_module)
-    return getattr(_imported_nn_module, name)
+    _file_imported_module = importlib.util.module_from_spec(spec)
+    sys.modules["_file_imported_module"] = _file_imported_module
+    spec.loader.exec_module(_file_imported_module)
+    return getattr(_file_imported_module, name)
 
 
 def import_and_get_attr_from_fully_qualified_name(
-    name: FullyQualifiedName | str | os.PathLike,
+    name: FullyQualifiedName | str,
 ) -> Any:
+    """Take class based on fully qualified name or module path.
+
+    Parameters
+    ----------
+    name :  FullyQualifiedName or str
+        Fully qualified name to the class, i.e. my_package.my_module::MyClass
+        or path (absolute or relative) to the module together with class name:
+        my_module.py::MyClass
+
+    Returns
+    -------
+    res_class : type
+        A type from the available module or imported from a .py file
+
+    Raises
+    ------
+    ValueError
+        if `name` format is wrong
+    ModuleNotFoundError
+        if a module (installed or from file) was not found
+
+    Examples
+    --------
+    ```bash
+    >>> import_and_get_attr_from_fully_qualified_name("sklearn.ensemble::RandomForestClassifier")
+    <class 'sklearn.ensemble._forest.RandomForestClassifier'>
+    ```
+
+    ```bash
+    >>> import_and_get_attr_from_fully_qualified_name("./dataset::MyMNISTDatamodule")
+    <class '_file_imported_module.MyMNISTDatamodule'>
+    ```
+    """
     assert name is not None, "`name` argument cannot be `None`"
     if "::" not in name:
         raise ValueError(

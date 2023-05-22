@@ -3,7 +3,10 @@ import logging
 import os
 import shutil
 
-import toml
+try:
+    import tomllib as toml
+except ModuleNotFoundError:
+    import toml
 import typer
 from typing_extensions import Annotated
 
@@ -21,7 +24,14 @@ def init(
         str, typer.Option(help="The name of your new project")
     ] = "new_mlkit_project"
 ) -> None:
-    """Create a new MLKit project."""
+    """Create a new MLKit project.
+
+    Parameters
+    ----------
+    name : str, optional
+        The optional name of the project.
+        If skipped, the deafult `new_mlkit_project` will be used
+    """
     log.info("MLKit Creating a new skeleton for the project: << %s >>", name)
     empty_proj_path = importlib.resources.path(
         "mlkit.cli._templates", "project"
@@ -40,7 +50,15 @@ def train(
         str, typer.Option(help="Path to the configuration TOML file")
     ] = None
 ) -> None:
-    """Train using the configuration file"""
+    """Train using the configuration file
+
+    Parameters
+    ----------
+    conf : str, optional
+        Path to the configuration TOML file.
+        If skipped, the program will search for the `conf.toml` file
+        in the current working directoy.
+    """
     log.info("Attept to run training...")
     if not conf:
         root_dir = os.getcwd()

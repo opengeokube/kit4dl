@@ -36,6 +36,10 @@ class MLKitAbstractModule(ABC, pl.LightningModule):
         for log_method in __log_methods:
             setattr(self, log_method, getattr(self.__logger, log_method))
 
+    @property
+    def _mlkit_logger(self) -> logging.Logger:
+        return self.__logger
+
     @abstractmethod
     def configure(self, **kwargs) -> None:
         """Configure the architecture of the neural network
