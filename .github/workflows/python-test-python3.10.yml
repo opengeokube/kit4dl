@@ -1,6 +1,8 @@
 name: Python package
 
-on: [pull_request]
+on: 
+  pull_request:
+    types: [opened, synchronized]
 
 jobs:
   build:
@@ -18,4 +20,4 @@ jobs:
       - name: Install pytest
         run: conda install pytest
       - name: Run unit tests
-        run: make test
+        run: pytest tests/
