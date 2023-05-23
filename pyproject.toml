@@ -33,7 +33,6 @@ dependencies = [
     "typer[all]",
     "toml; python_version<'3.11'"
 ]
-requires-python = ">=3.10"
 dynamic = ["readme"]
 
 [tool.setuptools]
