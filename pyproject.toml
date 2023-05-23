@@ -30,7 +30,7 @@ dependencies = [
     "scikit-learn>=1.2.0",
     "colormath",
     "tqdm",
-    "typer-cli>=0.9.*",
+    "typer-cli==0.9.*",
     "toml; python_version=='3.10'"
 ]
 dynamic = ["readme"]
