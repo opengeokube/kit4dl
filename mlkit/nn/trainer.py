@@ -1,4 +1,5 @@
 """A module with neural network train task definition"""
+import logging
 from typing import Any
 
 import lightning.pytorch as pl
@@ -6,23 +7,25 @@ from lightning.pytorch import callbacks
 from lightning.pytorch import loggers as pl_log
 
 from mlkit.dataset import MLKitAbstractDataset
+from mlkit.mixins import LoggerMixin
 from mlkit.nn.base import MLKitAbstractModule
 from mlkit.nn.callbacks import MetricCallback, ModelCheckpoint
 from mlkit.nn.confmodels import Conf
 from mlkit.utils import set_seed
 
 
-class Trainer:
+class Trainer(LoggerMixin):
     _model: MLKitAbstractModule
     _datamodule: MLKitAbstractDataset
     _trainer: pl.Trainer
     _conf: Conf
-    _log: Any
+    _metric_logger: Any
 
     def __init__(self, conf: Conf) -> None:
+        self._logger = logging.getLogger("lightning.pytorch")
         self._conf = conf
         self._device = self._conf.base.device
-        self._log = self._new_logger()
+        self._metric_logger = self._new_metric_logger()
         set_seed(self._conf.base.seed)
 
     def prepare(self) -> "Trainer":
@@ -35,7 +38,7 @@ class Trainer:
         self._trainer.fit(self._model, datamodule=self._datamodule)
         return self
 
-    def _new_logger(self) -> pl_log.Logger:
+    def _new_metric_logger(self) -> pl_log.Logger:
         pass
 
     def _configure_datamodule(self) -> MLKitAbstractDataset:
@@ -69,6 +72,6 @@ class Trainer:
             check_val_every_n_epoch=self._conf.validation.run_every_epoch,
             enable_progress_bar=True,
             deterministic=True,
-            logger=self._log,
+            logger=self._metric_logger,
             callbacks=callbacks,
         )

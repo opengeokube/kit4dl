@@ -82,9 +82,9 @@ def train(
                 f"the conf file you specified: {conf} does not exist"
             )
     conf_ = _get_conf_from_file(conf, root_dir=root_dir)
-    log.info("Running trainer...")
+    log.info("Running trainer \U0001F3AC")
     Trainer(conf=conf_).prepare().fit()
-    log.info("Training finished")
+    log.info("Training finished \U00002728")
 
 
 def run():

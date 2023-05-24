@@ -6,17 +6,18 @@ import lightning.pytorch as pl
 import torch
 
 from mlkit.metric import MetricStore
+from mlkit.mixins import LoggerMixin
 from mlkit.nn.confmodels import Conf
 
 
-class MLKitAbstractModule(ABC, pl.LightningModule):
+class MLKitAbstractModule(ABC, pl.LightningModule, LoggerMixin):
     def __init__(self, *, conf: Conf) -> None:
         super().__init__()
         assert conf, "`conf` argument cannot be `None`"
         self._criterion: torch.nn.Module = None
         self._conf: Conf = conf
 
-        self.__logger = logging.getLogger(__name__)
+        self._logger = logging.getLogger("lightning")
         self.configure_logger()
 
         self._configure_metrics()
@@ -25,20 +26,16 @@ class MLKitAbstractModule(ABC, pl.LightningModule):
         self.save_hyperparameters()
 
     def configure_logger(self) -> None:
-        __log_methods = ("debug", "info", "warn", "error", "critical")
         ch = logging.StreamHandler()
         ch.setLevel(self._conf.base.log_level)
-        formatter = logging.Formatter(
-            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-        )
-        ch.setFormatter(formatter)
-        self.__logger.addHandler(ch)
-        for log_method in __log_methods:
-            setattr(self, log_method, getattr(self.__logger, log_method))
+        if self._conf.base.log_format:
+            formatter = logging.Formatter(self._conf.base.log_format)
+            for handler in self._logger.handlers:
+                handler.setFormatter(formatter)
 
     @property
     def _mlkit_logger(self) -> logging.Logger:
-        return self.__logger
+        return self._logger
 
     @abstractmethod
     def configure(self, **kwargs) -> None:
@@ -187,9 +184,7 @@ class MLKitAbstractModule(ABC, pl.LightningModule):
         list[torch.optim.Optimizer],
         list[torch.optim.lr_scheduler.LRScheduler] | None,
     ]:
-        self.__logger.debug(
-            "configuring optimizers and lr epoch schedulers..."
-        )
+        self.debug("configuring optimizers and lr epoch schedulers...")
         optimizer: torch.optim.Optimizer = (
             self._conf.training.optimizer.optimizer(self.parameters())
         )
@@ -197,24 +192,24 @@ class MLKitAbstractModule(ABC, pl.LightningModule):
             scheduler(optimizer)
             for scheduler in self._conf.training.preconfigured_schedulers_classes
         ]
-        self.__logger.info("selected optimizer is: %s", optimizer)
-        self.__logger.info(
+        self.info("selected optimizer is: %s", optimizer)
+        self.info(
             "selected %d  lr schedulers: %s", len(lr_schedulers), lr_schedulers
         )
         return [optimizer], lr_schedulers
 
     def _configure_metrics(self) -> None:
-        self.__logger.debug("configuring metrics...")
+        self.debug("configuring metrics...")
         self.train_metric_tracker = MetricStore(self._conf.metrics_obj)
         self.val_metric_tracker = MetricStore(self._conf.metrics_obj)
         self.test_metric_tracker = MetricStore(self._conf.metrics_obj)
 
     def _configure_criterion(self) -> None:
-        self.__logger.debug("configuring criterion...")
+        self.debug("configuring criterion...")
         self._criterion = self._conf.training.criterion.criterion.to(
             self._conf.base.device
         )
-        self.__logger.info("selected critarion is: %s", self._criterion)
+        self.info("selected critarion is: %s", self._criterion)
 
     def compute_loss(
         self, input: torch.Tensor, target: torch.Tensor
@@ -227,7 +222,7 @@ class MLKitAbstractModule(ABC, pl.LightningModule):
             metric_value,
         ) in self.train_metric_tracker.results.items():
             stage_metric_name = f"train_{metric_name}"
-            self.__logger.info(
+            self.info(
                 "epoch: %d metric: %s value: %s",
                 self.current_epoch,
                 stage_metric_name,
@@ -245,7 +240,7 @@ class MLKitAbstractModule(ABC, pl.LightningModule):
             metric_value,
         ) in self.val_metric_tracker.results.items():
             stage_metric_name = f"val_{metric_name}"
-            self.__logger.info(
+            self.info(
                 "epoch: %d metric: %s value: %s",
                 self.current_epoch,
                 stage_metric_name,
@@ -263,7 +258,7 @@ class MLKitAbstractModule(ABC, pl.LightningModule):
             metric_value,
         ) in self.test_metric_tracker.results.items():
             stage_metric_name = f"test_{metric_name}"
-            self.__logger.info(
+            self.info(
                 "epoch: %d metric: %s value: %s",
                 self.current_epoch,
                 stage_metric_name,

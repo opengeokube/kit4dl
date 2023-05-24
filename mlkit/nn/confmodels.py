@@ -53,6 +53,7 @@ class BaseConf(BaseModel):
     log_level: Literal["DEBUG", "INFO", "WARN", "ERROR", "CRITICAL"] | None = (
         "INFO"
     )
+    log_format: str | None = None
 
     _assert_cuda_device = validator("cuda_id", allow_reuse=True)(
         validate_cuda_device_exists
