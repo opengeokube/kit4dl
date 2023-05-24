@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "mlkit"
 version = "2023.05a0"
-description = "MLKit: A quick way to start with machine and deep learning"
+description = "MLKit - A quick way to start with machine and deep learning"
 requires-python = ">=3.10"
 license = {file = "LICENSE"}
 keywords = ["deep learning", "training pipeline"]

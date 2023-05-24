@@ -1,0 +1,43 @@
+{% set data = load_file_data('../pyproject.toml', 'toml', from_recipe_dir=True) %}
+{% set prj = data.get('project', {}) %}
+
+package:
+  name: {{ prj.get('name') }}
+  version: {{ prj.get('version') }}
+about:
+  summary: {{ prj.get('description') }}
+source:
+  path: ...
+  # git_url: https://github.com/opengeokube/ml-kit/
+
+build:
+  noarch: python
+  number: 0
+  script: python -m pip install --no-deps --ignore-installed ../..
+
+requirements:
+  build:
+    - python {{ python }}
+  run:
+    - "pytorch"
+    - "lightning"
+    - "torchmetrics"
+    - "numpy>=1.23.0"
+    - "pydantic>=1.10.0"
+    - "scikit-learn>=1.2.0"
+    - "colormath"
+    - "tqdm"
+    - "typer[all]"
+
+channels:
+  - conda-forge
+  - pytorch 
+  - nvidia 
+
+about:
+  home:  https://github.com/opengeokube/ml-kit/
+  license: MIT
+  summary: 'A quick way to start with machine and deep learning'
+  dev_url: https://github.com/opengeokube/ml-kit/
+  doc_url: https://github.com/opengeokube/ml-kit/blob/main/README.md
+  doc_source_url: https://github.com/opengeokube/ml-kit/blob/main/README.md

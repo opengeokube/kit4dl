@@ -20,6 +20,7 @@ dependencies:
   - isort
   - pydocstyle
   - pytest
+  - conda-build
   - pip
   - pip:
     - black
