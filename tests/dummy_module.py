@@ -12,7 +12,7 @@ class B(MLKitAbstractModule):
     def setup(self, input_dims, layers, dropout, output_dims):
         pass
 
-    def step(self, batch, batch_idx):
+    def run_step(self, batch, batch_idx):
         pass
 
 

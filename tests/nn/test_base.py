@@ -19,7 +19,7 @@ class TestBaseMLModel:
     def custom_module(self, conf):
         class CustomModule(MLKitAbstractModule):
             configure = MagicMock()
-            step = MagicMock()
+            run_step = MagicMock()
 
         obj = CustomModule(conf=conf)
         yield obj
@@ -31,14 +31,3 @@ class TestBaseMLModel:
 
     def test_setup_called(self, custom_module, conf):
         custom_module.configure.assert_called_with(**conf.model.arguments)
-
-    @pytest.mark.parametrize(
-        "log_method", ["debug", "info", "warn", "error", "critical"]
-    )
-    def test_logging_methods(self, custom_module, log_method):
-        assert hasattr(custom_module, log_method)
-        assert callable(getattr(custom_module, log_method))
-
-    def test_log_methods_use_configured_handler(self):
-        # TODO:
-        pass

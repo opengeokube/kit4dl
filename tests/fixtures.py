@@ -18,11 +18,16 @@ from mlkit.nn.confmodels import Conf
 @pytest.fixture
 def conf():
     conf = MagicMock()
-    conf.base = MagicMock()
-    conf.base.accelerator_device_and_id = PropertyMock(), PropertyMock()
-    conf.base.log_level = "INFO"
-    conf.base.seed = 0
-    conf.model = MagicMock()
+    conf.base = PropertyMock()
+    conf.base.accelerator_device_and_id = PropertyMock(
+        return_value="cuda"
+    ), PropertyMock(return_value=0)
+    conf.base.log_level = PropertyMock(return_value="INFO")
+    conf.base.log_format = PropertyMock(
+        return_value="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    )
+    conf.base.seed = PropertyMock(return_value=0)
+    conf.model = PropertyMock()
     conf.model.arguments = PropertyMock(
         return_value={"input_dims": 10, "output_dims": 1}
     )
@@ -32,19 +37,17 @@ def conf():
             "FBetaScore": tm.FBetaScore(task="binary"),
         }
     )
-    conf.training = MagicMock()
-    conf.training.optimizer = MagicMock()
+    conf.training = PropertyMock()
+    conf.training.optimizer = PropertyMock()
     conf.training.optimizer.optimizer = PropertyMock(
         return_value=torch.optim.SGD
     )
     conf.training.checkpoint.mode = PropertyMock(return_value="max")
 
-    conf.parameters = MagicMock(return_value=None)
     conf.model.model_class = PropertyMock()
 
-    conf.dataset = MagicMock()
     conf.dataset = PropertyMock()
-    conf.dataset.datamodule_class = MagicMock()
+    conf.dataset.datamodule_class = PropertyMock()
     yield conf
 
 
