@@ -1,5 +1,6 @@
 """A module with LabelStore definition dedicated for 
 collecting metrics during training or validation"""
+import numpy as np
 import torchmetrics as tm
 
 
@@ -22,6 +23,8 @@ class MetricStore:
     @property
     def results(self) -> dict[str, float]:
         return {
-            metric_name: metric.compute().item()
+            metric_name: (
+                np.nan if metric._update_count == 0 else metric.compute().item()
+            )
             for metric_name, metric in self._metrics.items()
         }

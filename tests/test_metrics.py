@@ -1,3 +1,5 @@
+import warnings
+from contextlib import suppress
 from functools import partial
 
 import numpy as np
@@ -29,18 +31,18 @@ class TestMetricStore:
         assert id(res1) != id(res2)
         assert res1 == res2
 
-    def test_get_empty_result(self, metric_store):
-        assert metric_store.results == {"Precision": 0.0, "Recall": 0.0}
+    def test_get_empty_result_nan(self, metric_store):
+        assert metric_store.results == {"Precision": np.nan, "Recall": np.nan}
 
     def test_reset_if_zeros_out(self, metric_store):
-        metric_store.results == {"Precision": 0.0, "Recall": 0.0}
+        metric_store.results == {"Precision": np.nan, "Recall": np.nan}
         metric_store.update(
             torch.randint(0, 2, size=(100,)), torch.randint(0, 2, size=(100,))
         )
         assert metric_store.results["Precision"] != 0.0
         assert metric_store.results["Recall"] != 0.0
         metric_store.reset()
-        metric_store.results == {"Precision": 0.0, "Recall": 0.0}
+        metric_store.results == {"Precision": np.nan, "Recall": np.nan}
 
     def test_metric_aggregation(self, metric_store):
         true = torch.randint(0, 2, size=(100,))
@@ -54,3 +56,8 @@ class TestMetricStore:
         metric_store.update(torch.cat([true, true2]), torch.cat([pred, pred2]))
         metrics_2 = metric_store.results
         assert metrics_1 == metrics_2
+
+    def test_no_warning_on_before_update(self, metric_store):
+        with warnings.catch_warnings(record=True) as warns:
+            _ = metric_store.results
+            assert len(warns) == 0

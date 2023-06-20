@@ -14,7 +14,7 @@ class TestValidators:
         cuda_id = torch.cuda.device_count() + 1
         with pytest.raises(
             AssertionError,
-            match=f"cuda device with id `{cuda_id}` does not exist",
+            match=f"CUDA device with id `{cuda_id}` does not exist",
         ):
             validators.validate_cuda_device_exists(cuda_id)
 

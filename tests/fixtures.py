@@ -7,7 +7,7 @@ try:
 except ModuleNotFoundError:
     import toml
 
-from unittest.mock import MagicMock, PropertyMock
+from unittest.mock import MagicMock, Mock, PropertyMock
 
 import torch
 import torchmetrics as tm
@@ -22,27 +22,21 @@ def conf():
     conf.base.accelerator_device_and_id = PropertyMock(
         return_value="cuda"
     ), PropertyMock(return_value=0)
-    conf.base.log_level = PropertyMock(return_value="INFO")
-    conf.base.log_format = PropertyMock(
-        return_value="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    conf.base.log_level = "INFO"
+    conf.base.log_format = (
+        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     )
-    conf.base.seed = PropertyMock(return_value=0)
+    conf.base.seed = 0
     conf.model = PropertyMock()
-    conf.model.arguments = PropertyMock(
-        return_value={"input_dims": 10, "output_dims": 1}
-    )
-    conf.metrics_obj = PropertyMock(
-        return_value={
-            "Precision": tm.Precision(task="binary"),
-            "FBetaScore": tm.FBetaScore(task="binary"),
-        }
-    )
+    conf.model.arguments = {"input_dims": 10, "output_dims": 1}
+    conf.metrics_obj = {
+        "Precision": tm.Precision(task="binary"),
+        "FBetaScore": tm.FBetaScore(task="binary"),
+    }
     conf.training = PropertyMock()
     conf.training.optimizer = PropertyMock()
-    conf.training.optimizer.optimizer = PropertyMock(
-        return_value=torch.optim.SGD
-    )
-    conf.training.checkpoint.mode = PropertyMock(return_value="max")
+    conf.training.optimizer.optimizer = torch.optim.SGD
+    conf.training.checkpoint.mode = "max"
 
     conf.model.model_class = PropertyMock()
 

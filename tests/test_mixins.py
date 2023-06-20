@@ -2,7 +2,7 @@ import pytest
 
 
 class TestLoggingMixin:
-    @pytest.mark.parametrized(
+    @pytest.mark.parametrize(
         "log_method", ["debug", "info", "warn", "error", "critical"]
     )
     def test_log_methods_are_available(self, log_method):
