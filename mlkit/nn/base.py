@@ -58,7 +58,7 @@ class MLKitAbstractModule(ABC, pl.LightningModule, LoggerMixin):
         raise NotImplementedError
 
     @abstractmethod
-    def step(self, batch, batch_idx) -> tuple[torch.Tensor, torch.Tensor]:
+    def run_step(self, batch, batch_idx) -> tuple[torch.Tensor, torch.Tensor]:
         """Carry out single train/validation/test step for the given `batch`.
         Return a tuple of two `torch.Tensor`'s: true labels and predicted scores.
         If you need to define separate logic for validation or test step,
@@ -81,7 +81,7 @@ class MLKitAbstractModule(ABC, pl.LightningModule, LoggerMixin):
         --------
         ```python
         ...
-        def step(self, batch, batch_idx) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+        def run_step(self, batch, batch_idx) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
             feature_input, label_input = batch
             scores = self(feature_input)
             return (label_input, scores)
@@ -89,7 +89,9 @@ class MLKitAbstractModule(ABC, pl.LightningModule, LoggerMixin):
         """
         raise NotImplementedError
 
-    def val_step(self, batch, batch_idx) -> tuple[torch.Tensor, torch.Tensor]:
+    def run_val_step(
+        self, batch, batch_idx
+    ) -> tuple[torch.Tensor, torch.Tensor]:
         """Carry out single validation step for the given `batch`.
         Return a tuple of two `torch.Tensor`'s: true labels and predicted scores.
         If not overriden, the implementation of `step` method is used.
@@ -111,15 +113,17 @@ class MLKitAbstractModule(ABC, pl.LightningModule, LoggerMixin):
         --------
         ```python
         ...
-        def step(self, batch, batch_idx) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+        def run_step(self, batch, batch_idx) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
             feature_input, label_input = batch
             scores = self(feature_input)
             return (label_input, scores)
         ```
         """
-        return self.step(batch, batch_idx)
+        return self.run_step(batch, batch_idx)
 
-    def test_step(self, batch, batch_idx) -> tuple[torch.Tensor, torch.Tensor]:
+    def run_test_step(
+        self, batch, batch_idx
+    ) -> tuple[torch.Tensor, torch.Tensor]:
         """Carry out single test step for the given `batch`.
         Return a tuple of two `torch.Tensor`'s: true labels and predicted scores.
         If not overriden, the implementation of `step` method is used.
@@ -141,15 +145,15 @@ class MLKitAbstractModule(ABC, pl.LightningModule, LoggerMixin):
         --------
         ```python
         ...
-        def step(self, batch, batch_idx) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+        def run_step(self, batch, batch_idx) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
             feature_input, label_input = batch
             scores = self(feature_input)
             return (label_input, scores)
         ```
         """
-        return self.step(batch, batch_idx)
+        return self.run_step(batch, batch_idx)
 
-    def predict_step(self, batch, batch_idx) -> torch.Tensor:
+    def run_predict_step(self, batch, batch_idx) -> torch.Tensor:
         """Carry out single predict step for the given `batch`.
         Return a `torch.Tensor` - the predicted scores.
         If not overriden, the implementation of `step` method is used.
@@ -170,13 +174,13 @@ class MLKitAbstractModule(ABC, pl.LightningModule, LoggerMixin):
         --------
         ```python
         ...
-        def step(self, batch, batch_idx) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+        def run_step(self, batch, batch_idx) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
             feature_input, label_input = batch
             scores = self(feature_input)
             return (label_input, scores)
         ```
         """
-        return self.step(batch, batch_idx)
+        return self.run_step(batch, batch_idx)
 
     def configure_optimizers(
         self,
@@ -291,21 +295,21 @@ class MLKitAbstractModule(ABC, pl.LightningModule, LoggerMixin):
         self.test_metric_tracker.reset()
 
     def training_step(self, batch, batch_idx):
-        y_true, y_scores = self.step(batch, batch_idx)
+        y_true, y_scores = self.run_step(batch, batch_idx)
         loss = self.compute_loss(y_scores, y_true)
         predictions = y_scores.argmax(dim=-1)
         self.update_train_metrics(true=y_true, predictions=predictions)
         return loss
 
     def validation_step(self, batch, batch_idx):
-        y_true, y_scores = self.val_step(batch, batch_idx)
+        y_true, y_scores = self.run_val_step(batch, batch_idx)
         loss = self.compute_loss(y_scores, y_true)
         predictions = y_scores.argmax(dim=-1)
         self.update_val_metrics(true=y_true, predictions=predictions)
         return loss
 
     def test_step(self, batch, batch_idx):
-        y_true, y_scores = self.test_step(batch, batch_idx)
+        y_true, y_scores = self.run_test_step(batch, batch_idx)
         loss = self.compute_loss(y_scores, y_true)
         predictions = y_scores.argmax(dim=-1)
         self.update_test_metrics(true=y_true, predictions=predictions)

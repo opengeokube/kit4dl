@@ -12,5 +12,5 @@ class MyNewNetwork(MLKitAbstractModule):
         # Here, you define the architecture
         raise NotImplementedError
 
-    def step(self, batch, batch_idx) -> tuple[torch.Tensor, torch.Tensor]:
+    def run_step(self, batch, batch_idx) -> tuple[torch.Tensor, torch.Tensor]:
         raise NotImplementedError

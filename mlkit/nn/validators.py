@@ -11,9 +11,10 @@ from mlkit.types import FullyQualifiedName
 def validate_cuda_device_exists(cuda_id: int | None = None) -> int | None:
     if cuda_id is None:
         return None
+    assert torch.cuda.is_available(), "CUDA is not available"
     assert (
         cuda_id < torch.cuda.device_count()
-    ), f"cuda device with id `{cuda_id}` does not exist"
+    ), f"CUDA device with id `{cuda_id}` does not exist"
     return cuda_id
 
 

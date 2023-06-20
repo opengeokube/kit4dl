@@ -138,38 +138,43 @@ class MLKitAbstractDataset(ABC, pl.LightningDataModule):
         """
         raise NotImplementedError
 
+    def _handle_fit_stage(self) -> None:
+        if self.conf.trainval:
+            self.train_dataset, self.val_dataset = (
+                self.prepare_trainvaldataset(**self.conf.trainval.arguments)
+            )
+        else:
+            self.train_dataset = self.prepare_traindataset(
+                **self.conf.train.arguments
+            )
+            self.val_dataset = self.prepare_valdataset(
+                **self.conf.train.arguments
+            )
+
+    def _handle_test_stage(self) -> None:
+        assert self.conf.test, (
+            "`test_config` is not defined. did you forget to define"
+            " `[dataset.test]` section in the configuration file?"
+        )
+        self.val_dataset = self.prepare_testdataset(**self.conf.test.arguments)
+
+    def _handle_predict_stage(self) -> None:
+        assert self.conf.predict, (
+            "`test_config` is not defined. did you forget to define"
+            " `[dataset.predict]` section in the configuration file?"
+        )
+        self.predict_dataset = self.prepare_predictdataset(
+            **self.conf.predict.arguments
+        )
+
     def setup(self, stage: str):
         match stage:
             case "fit":
-                if self.conf.trainval:
-                    self.train_dataset, self.val_dataset = (
-                        self.prepare_trainvaldataset(
-                            **self.conf.trainval.arguments
-                        )
-                    )
-                else:
-                    self.train_dataset = self.prepare_traindataset(
-                        **self.conf.train.arguments
-                    )
-                    self.val_dataset = self.prepare_valdataset(
-                        **self.conf.train.arguments
-                    )
+                self._handle_fit_stage()
             case "test":
-                assert self.conf.test, (
-                    "`test_config` is not defined. did you forget to define"
-                    " `[dataset.test]` section in the configuration file?"
-                )
-                self.val_dataset = self.prepare_testdataset(
-                    **self.conf.test.arguments
-                )
+                self._handle_test_stage()
             case "predict":
-                assert self.conf.predict, (
-                    "`test_config` is not defined. did you forget to define"
-                    " `[dataset.predict]` section in the configuration file?"
-                )
-                self.predict_dataset = self.prepare_predictdataset(
-                    **self.conf.predict.arguments
-                )
+                self._handle_predict_stage()
 
     def train_dataloader(self):
         assert self.train_dataset is not None, (
@@ -198,4 +203,7 @@ class MLKitAbstractDataset(ABC, pl.LightningDataModule):
         pass
 
     def numpy_testdataloader(self):
+        pass
+
+    def numpy_predictdataloader(self):
         pass
