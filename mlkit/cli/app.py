@@ -33,10 +33,8 @@ def init(
         If skipped, the deafult `new_mlkit_project` will be used
     """
     log.info("MLKit Creating a new skeleton for the project: << %s >>", name)
-    empty_proj_path = importlib.resources.path(
-        "mlkit.cli._templates", "project"
-    )
-    shutil.copytree(empty_proj_path, name)
+    with importlib.resources.path("mlkit.cli._templates", "project") as empty_proj_path:
+        shutil.copytree(empty_proj_path, name)
 
 
 def _get_conf_from_file(conf, root_dir: str | None = None):
