@@ -54,6 +54,7 @@ readme = {file = "README.MD"}
 files = [
     "mlkit",
 ]
+exclude = ["tests"]
 
 [project.scripts]
 mlkit = "mlkit.cli.app:run"

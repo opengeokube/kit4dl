@@ -1,6 +1,6 @@
 import torchmetrics as tm
 
-from mlkit.dataset import MLKitAbstractDataset
+from mlkit.dataset import MLKitAbstractDataModule
 from mlkit.nn.base import MLKitAbstractModule
 
 
@@ -20,7 +20,7 @@ class DummyDatasetModuleWrong:
     pass
 
 
-class DummyDatasetModule(MLKitAbstractDataset):
+class DummyDatasetModule(MLKitAbstractDataModule):
     def __init__(self, train_config, root_dir: str):
         super().__init__(train_config, None, None)
 

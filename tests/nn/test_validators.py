@@ -2,7 +2,7 @@ import pytest
 import torch
 
 from mlkit.nn import validators
-from tests.test_utils import skipnocuda
+from tests.utils import skipnocuda
 
 
 class TestValidators:

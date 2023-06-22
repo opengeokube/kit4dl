@@ -1,6 +1,7 @@
 """A module with the base class of modules supported by MLKit"""
 import logging
 from abc import ABC, abstractmethod
+from typing import Any
 
 import lightning.pytorch as pl
 import torch
@@ -10,11 +11,15 @@ from mlkit.mixins import LoggerMixin
 from mlkit.nn.confmodels import Conf
 
 
-class MLKitAbstractModule(ABC, pl.LightningModule, LoggerMixin):
+class MLKitAbstractModule(
+    ABC, pl.LightningModule, LoggerMixin
+):  # pylint: disable=too-many-ancestors
+    """Base abstract class for MLKit modules"""
+
     def __init__(self, *, conf: Conf) -> None:
         super().__init__()
         assert conf, "`conf` argument cannot be `None`"
-        self._criterion: torch.nn.Module = None
+        self._criterion: torch.nn.Module | None = None
         self._conf: Conf = conf
 
         self._logger = logging.getLogger("lightning")
@@ -26,25 +31,29 @@ class MLKitAbstractModule(ABC, pl.LightningModule, LoggerMixin):
         self.save_hyperparameters()
 
     def configure_logger(self) -> None:
-        ch = logging.StreamHandler()
-        ch.setLevel(self._conf.base.log_level)
+        """Configure logger based on the configuration passed to the class.
+        Set formatter for all handlers."""
         if self._conf.base.log_format:
             formatter = logging.Formatter(self._conf.base.log_format)
             for handler in self._logger.handlers:
                 handler.setFormatter(formatter)
+        for handler in self._logger.handlers:
+            handler.setLevel(self._conf.base.log_level)  # type: ignore[arg-type]
 
     @property
     def _mlkit_logger(self) -> logging.Logger:
         return self._logger
 
     @abstractmethod
-    def configure(self, **kwargs) -> None:
+    def configure(self, *args: Any, **kwargs: Any) -> None:
         """Configure the architecture of the neural network
 
         Parameters
         ----------
+        *args: Any
+            List of positional arguments to setup the network architecture
         **kwargs : Any
-            List of arguments required to setup the network architecture
+            List of named arguments required to setup the network architecture
 
         Examples
         --------
@@ -153,7 +162,9 @@ class MLKitAbstractModule(ABC, pl.LightningModule, LoggerMixin):
         """
         return self.run_step(batch, batch_idx)
 
-    def run_predict_step(self, batch, batch_idx) -> torch.Tensor:
+    def run_predict_step(
+        self, batch, batch_idx
+    ) -> tuple[torch.Tensor, torch.Tensor]:
         """Carry out single predict step for the given `batch`.
         Return a `torch.Tensor` - the predicted scores.
         If not overriden, the implementation of `step` method is used.
@@ -216,11 +227,14 @@ class MLKitAbstractModule(ABC, pl.LightningModule, LoggerMixin):
         self.info("selected critarion is: %s", self._criterion)
 
     def compute_loss(
-        self, input: torch.Tensor, target: torch.Tensor
+        self, prediction: torch.Tensor, target: torch.Tensor
     ) -> torch.Tensor:
-        return self._criterion(input, target)
+        """Computes the loss based on the prediction and target."""
+        assert self._criterion, "criterion is None"
+        return self._criterion(prediction, target)
 
     def log_train_metrics(self) -> None:
+        """Log train metrics"""
         for (
             metric_name,
             metric_value,
@@ -239,6 +253,7 @@ class MLKitAbstractModule(ABC, pl.LightningModule, LoggerMixin):
             )
 
     def log_val_metrics(self) -> None:
+        """Log validation metrics"""
         for (
             metric_name,
             metric_value,
@@ -257,6 +272,7 @@ class MLKitAbstractModule(ABC, pl.LightningModule, LoggerMixin):
             )
 
     def log_test_metrics(self) -> None:
+        """Log test metrics"""
         for (
             metric_name,
             metric_value,
@@ -277,38 +293,49 @@ class MLKitAbstractModule(ABC, pl.LightningModule, LoggerMixin):
     def update_val_metrics(
         self, true: torch.Tensor, predictions: torch.Tensor
     ) -> None:
+        """Update validation metrics with true and prediction values"""
         self.val_metric_tracker.update(true=true, predictions=predictions)
 
     def update_train_metrics(
         self, true: torch.Tensor, predictions: torch.Tensor
     ) -> None:
+        """Update train metrics with true and prediction values"""
         self.train_metric_tracker.update(true=true, predictions=predictions)
 
     def update_test_metrics(
         self, true: torch.Tensor, predictions: torch.Tensor
     ) -> None:
+        """Update test metrics with true and prediction values"""
         self.test_metric_tracker.update(true=true, predictions=predictions)
 
     def reset_metric_trackers(self) -> None:
+        """Reset all metric trackers: train, validation, and test."""
         self.train_metric_tracker.reset()
         self.val_metric_tracker.reset()
         self.test_metric_tracker.reset()
 
-    def training_step(self, batch, batch_idx):
+    def training_step(
+        self, batch, batch_idx
+    ):  # pylint: disable=arguments-differ
+        """Carry out a single training step"""
         y_true, y_scores = self.run_step(batch, batch_idx)
         loss = self.compute_loss(y_scores, y_true)
         predictions = y_scores.argmax(dim=-1)
         self.update_train_metrics(true=y_true, predictions=predictions)
         return loss
 
-    def validation_step(self, batch, batch_idx):
+    def validation_step(
+        self, batch, batch_idx
+    ):  # pylint: disable=arguments-differ
+        """Carry out a single validation step"""
         y_true, y_scores = self.run_val_step(batch, batch_idx)
         loss = self.compute_loss(y_scores, y_true)
         predictions = y_scores.argmax(dim=-1)
         self.update_val_metrics(true=y_true, predictions=predictions)
         return loss
 
-    def test_step(self, batch, batch_idx):
+    def test_step(self, batch, batch_idx):  # pylint: disable=arguments-differ
+        """Carry out a single test step"""
         y_true, y_scores = self.run_test_step(batch, batch_idx)
         loss = self.compute_loss(y_scores, y_true)
         predictions = y_scores.argmax(dim=-1)

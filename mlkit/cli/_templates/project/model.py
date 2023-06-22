@@ -1,11 +1,13 @@
 """Docstring of the module containing my neural network module"""
+from typing import Any
+
 import torch
 
 from mlkit import MLKitAbstractModule
 
 
 class MyNewNetwork(MLKitAbstractModule):
-    def setup(self, **kwargs) -> None:
+    def configure(self, *args: Any, **kwargs: Any) -> None:
         # You can define kwargs used in the configuration file
         # def setup(self, input_dims, dropout_rate):
         #     ...

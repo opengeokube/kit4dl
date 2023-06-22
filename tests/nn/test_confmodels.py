@@ -23,7 +23,7 @@ from mlkit.nn.confmodels import (
     _AbstractClassWithArgumentsConf,
 )
 from tests.fixtures import base_conf_txt, dummy_optimizer, true_conf
-from tests.test_utils import skipnocuda
+from tests.utils import skipnocuda
 
 
 class TestBaseConfAndAccessor:
@@ -269,7 +269,7 @@ class TestCheckpointConf:
             mode = "max"  
         """
         conf = CheckpointConf(**toml.loads(load))
-        assert conf.monitor_metric == "val_precision"
+        assert conf.monitor_metric_name == "val_precision"
 
 
 class TestCriterionConfig:

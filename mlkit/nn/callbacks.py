@@ -1,4 +1,6 @@
 """A module with predefined MLKit callbacks"""
+import warnings
+
 import lightning.pytorch as pl
 from lightning.pytorch import callbacks as pl_callbacks
 
@@ -6,40 +8,81 @@ from mlkit.nn.base import MLKitAbstractModule
 
 
 class MetricCallback(pl_callbacks.Callback):
+    """Callback that manages reseting and logging metric values
+    for train and validation stages"""
+
     def on_train_epoch_start(
-        self, trainer: pl.Trainer, pl_module: MLKitAbstractModule
+        self, trainer: pl.Trainer, pl_module: pl.LightningModule
     ) -> None:
+        if not isinstance(pl_module, MLKitAbstractModule):
+            warnings.warn(
+                f"type `{type(pl_module)}` doesn't support MetricCallback"
+                " logic. try to inherit from the `mlkit.MLKitAbstractModule`"
+            )
+            return
         pl_module.train_metric_tracker.reset()
 
     def on_train_epoch_end(
-        self, trainer: pl.Trainer, pl_module: MLKitAbstractModule
+        self, trainer: pl.Trainer, pl_module: pl.LightningModule
     ) -> None:
+        if not isinstance(pl_module, MLKitAbstractModule):
+            warnings.warn(
+                f"type `{type(pl_module)}` doesn't support MetricCallback"
+                " logic. try to inherit from the `mlkit.MLKitAbstractModule`"
+            )
+            return
         pl_module.log_train_metrics()
 
     def on_validation_epoch_start(
-        self, trainer: pl.Trainer, pl_module: MLKitAbstractModule
+        self, trainer: pl.Trainer, pl_module: pl.LightningModule
     ) -> None:
+        if not isinstance(pl_module, MLKitAbstractModule):
+            warnings.warn(
+                f"type `{type(pl_module)}` doesn't support MetricCallback"
+                " logic. try to inherit from the `mlkit.MLKitAbstractModule`"
+            )
+            return
         pl_module.val_metric_tracker.reset()
 
     def on_validation_epoch_end(
-        self, trainer: pl.Trainer, pl_module: MLKitAbstractModule
+        self, trainer: pl.Trainer, pl_module: pl.LightningModule
     ) -> None:
+        if not isinstance(pl_module, MLKitAbstractModule):
+            warnings.warn(
+                f"type `{type(pl_module)}` doesn't support MetricCallback"
+                " logic. try to inherit from the `mlkit.MLKitAbstractModule`"
+            )
+            return
         pl_module.log_val_metrics()
 
     def on_test_epoch_start(
-        self, trainer: pl.Trainer, pl_module: MLKitAbstractModule
+        self, trainer: pl.Trainer, pl_module: pl.LightningModule
     ) -> None:
+        if not isinstance(pl_module, MLKitAbstractModule):
+            warnings.warn(
+                f"type `{type(pl_module)}` doesn't support MetricCallback"
+                " logic. try to inherit from the `mlkit.MLKitAbstractModule`"
+            )
+            return
         pl_module.test_metric_tracker.reset()
 
     def on_test_epoch_end(
-        self, trainer: pl.Trainer, pl_module: MLKitAbstractModule
+        self, trainer: pl.Trainer, pl_module: pl.LightningModule
     ) -> None:
+        if not isinstance(pl_module, MLKitAbstractModule):
+            warnings.warn(
+                f"type `{type(pl_module)}` doesn't support MetricCallback"
+                " logic. try to inherit from the `mlkit.MLKitAbstractModule`"
+            )
+            return
         pl_module.log_test_metrics()
 
 
 class ModelCheckpoint(pl_callbacks.ModelCheckpoint):
+    """Callback for saving model checkpoint on fit end"""
+
     def on_fit_end(
         self, trainer: pl.Trainer, pl_module: pl.LightningModule
     ) -> None:
         super().on_fit_end(trainer, pl_module)
-        # TODO:
+        # TODO: https://github.com/opengeokube/ml-kit/issues/3

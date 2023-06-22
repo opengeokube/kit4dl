@@ -4,21 +4,90 @@ import os
 import sys
 from typing import Any
 
-from mlkit.types import FullyQualifiedName
+from mlkit.mlkit_types import FullyQualifiedName
 
 _TARGET_SPLIT = "::"
 
 
 def split_target(target: str | FullyQualifiedName) -> tuple[str, str]:
+    """Split target name or fully qualified name by `::` to get the path and the attribute.
+
+    Parameters
+    ----------
+    target : str or FullyQualifiedName
+        The value of the class or Python module path
+
+    Returns
+    -------
+    path_attr : tuple of str
+        A tuple whose first item is a path component of the target and the second - attribute name
+
+    Example
+    -------
+    ```
+    >>> split_target("a.b.c::D")
+    "a.b.c", "D"
+    ```
+    """
     path, attr_name = target.rsplit(_TARGET_SPLIT, maxsplit=1)
     return (path, attr_name)
 
 
 def connect_target(path: str, attr_name: str) -> str:
+    """Connect path and attribute name with `::`.
+
+    Parameters
+    ----------
+    path : str
+        The path
+    attr_name: str
+        The attribute name
+
+    Returns
+    -------
+    target : str
+        A string of `path` and `attr_name` connected with `::`
+
+    Example
+    -------
+    ```
+    >>> connect_target("a.b.c", "D")
+    "a.b.c::D"
+    ```
+    """
     return _TARGET_SPLIT.join([path, attr_name])
 
 
-def maybe_get_abs_target(target: str, root_dir: str | os.PathLike) -> str:
+def maybe_get_abs_target(
+    target: str | FullyQualifiedName, root_dir: str
+) -> str:
+    """Get absolute path for the target if provided as the relative path to Python module.
+
+    Parameters
+    ---------
+    target : str or FullyQualifiedName
+        The value of the class or Python module path
+    root_dir : str
+        Root dir with respect to which absolut path should be computed
+
+    Returns
+    -------
+    abs_path : str
+        Absolute path for the provided target
+
+    Example
+    -------
+    ```
+    >>> maybe_get_abs_target("a.py::MyClass", "/work/usr")
+    "/work/usr/a.py::MyClass"
+    ```
+
+    ```
+    >>> maybe_get_abs_target("os::PathLike", "/work/usr")
+    os::PathLike
+    ```
+
+    """
     if ".py" not in target:
         return target
     path, attr_name = split_target(target)
@@ -27,17 +96,38 @@ def maybe_get_abs_target(target: str, root_dir: str | os.PathLike) -> str:
     return connect_target(os.path.join(root_dir, path), attr_name)
 
 
-def get_class_from_py_file(path: str | os.PathLike, name: str):
+def get_class_from_py_file(path: str, name: str):
+    """Get class defined in the Python file
+
+    Parameters
+    ----------
+    path : str
+        The path to the Python file where the class is defined
+    name : str
+        The name of the class defined in the Python module indicated by the `path` argument
+
+    Returns
+    -------
+    clss : type
+        A class loaded from the Python file
+
+    Example
+    -------
+    ```
+    >>> et_class_from_py_file("./my_module.py", "MyClass")
+    <class '_file_imported_module.MyClass'>
+    ```
+    """
     assert ".py" in path, f"path: {path} is not a Python module"
     assert os.path.exists(path), f"module: {path} does not exist"
     spec = importlib.util.spec_from_file_location(
         "_file_imported_module", path
     )
-    if not spec:
+    if spec is None:
         raise RuntimeError(f"module {path} is not defined")
     _file_imported_module = importlib.util.module_from_spec(spec)
     sys.modules["_file_imported_module"] = _file_imported_module
-    spec.loader.exec_module(_file_imported_module)
+    spec.loader.exec_module(_file_imported_module)  # type: ignore[union-attr]
     return getattr(_file_imported_module, name)
 
 
@@ -61,7 +151,7 @@ def import_and_get_attr_from_fully_qualified_name(
     Raises
     ------
     ValueError
-        if `name` format is wrong
+        if `name` format is wrong (does not contain class separator `::`)
     ModuleNotFoundError
         if a module (installed or from file) was not found
 
@@ -88,10 +178,8 @@ def import_and_get_attr_from_fully_qualified_name(
     path, attr_name = split_target(name)
     if ".py" in path:
         return get_class_from_py_file(path, attr_name)
-    elif importlib.util.find_spec(path):
+    if importlib.util.find_spec(path):
         return getattr(importlib.import_module(path), attr_name)
-    else:
-        raise ModuleNotFoundError(
-            f"module defined as `{path}` cannot be imported or found in the"
-            " system"
-        )
+    raise ModuleNotFoundError(
+        f"module defined as `{path}` cannot be imported or found in the system"
+    )

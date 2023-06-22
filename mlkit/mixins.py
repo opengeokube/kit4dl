@@ -3,24 +3,26 @@ import logging
 
 
 class LoggerMixin:
+    """Mixing class providing methods for direct logging instead of calling `_logger` methods.`"""
+
     _logger: logging.Logger
 
     def debug(self, *args, **kwargs):
-        __doc__ = self._logger.__doc__
+        """Log on debug level"""
         self._logger.debug(*args, **kwargs)
 
     def info(self, *args, **kwargs):
-        __doc__ = self._logger.__doc__
+        """Log on info level"""
         self._logger.info(*args, **kwargs)
 
     def warn(self, *args, **kwargs):
-        __doc__ = self._logger.__doc__
+        """Log on warning level"""
         self._logger.warn(*args, **kwargs)
 
     def error(self, *args, **kwargs):
-        __doc__ = self._logger.__doc__
+        """Log on error level"""
         self._logger.error(*args, **kwargs)
 
     def critical(self, *args, **kwargs):
-        __doc__ = self._logger.__doc__
+        """Log on critical level"""
         self._logger.critical(*args, **kwargs)

@@ -1,3 +1,4 @@
+"""Module with CLI for MLKit"""
 import importlib.resources
 import logging
 import os
@@ -6,7 +7,7 @@ import shutil
 try:
     import tomllib as toml
 except ModuleNotFoundError:
-    import toml
+    import toml  # type: ignore[no-redef]
 import typer
 from typing_extensions import Annotated
 
@@ -33,20 +34,26 @@ def init(
         If skipped, the deafult `new_mlkit_project` will be used
     """
     log.info("MLKit Creating a new skeleton for the project: << %s >>", name)
-    with importlib.resources.path("mlkit.cli._templates", "project") as empty_proj_path:
+    with importlib.resources.path(
+        "mlkit.cli._templates", "project"
+    ) as empty_proj_path:
         shutil.copytree(empty_proj_path, name)
 
 
 def _get_conf_from_file(conf, root_dir: str | None = None):
-    with open(conf, "rt") as file:
-        return Conf(root_dir=root_dir, **toml.load(file))
+    with open(conf, "rt", encoding="utf-8") as file:
+        return Conf(root_dir=root_dir, **toml.load(file))  # type: ignore[arg-type]
+
+
+def _get_default_conf_path() -> str:
+    return os.path.join(os.getcwd(), "conf.toml")
 
 
 @_app.command()
 def train(
     conf: Annotated[
         str, typer.Option(help="Path to the configuration TOML file")
-    ] = None
+    ] = _get_default_conf_path()
 ) -> None:
     """Train using the configuration file
 
@@ -58,27 +65,13 @@ def train(
         in the current working directoy.
     """
     log.info("Attept to run training...")
-    if not conf:
-        root_dir = os.getcwd()
-        log.info(
-            (
-                "--conf argument was not specified. looking for `conf.toml`"
-                " file in the current directory: %s"
-            ),
-            root_dir,
+    root_dir = os.path.dirname(conf)
+    if not os.path.exists(conf):
+        raise RuntimeError(
+            f"the conf file: {conf} does not exist. ensure the default"
+            " configuration file exist or specify --conf argument to a valid"
+            " configuration file."
         )
-        conf = os.path.join(root_dir, "conf.toml")
-        if not os.path.exists(conf):
-            raise RuntimeError(
-                "you haven't specified --conf argument and no `conf.toml`"
-                f" file was found in the current directory: {root_dir}"
-            )
-    else:
-        root_dir = os.path.dirname(conf)
-        if not os.path.exists(conf):
-            raise RuntimeError(
-                f"the conf file you specified: {conf} does not exist"
-            )
     conf_ = _get_conf_from_file(conf, root_dir=root_dir)
     log.info("Running trainer \U0001f3ac")
     Trainer(conf=conf_).prepare().fit()
@@ -86,4 +79,5 @@ def train(
 
 
 def run():
+    """Run the CLI app"""
     _app()

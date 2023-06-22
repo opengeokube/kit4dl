@@ -1,10 +1,10 @@
 from torch.utils.data import random_split
 from torchvision.datasets import MNIST
 
-from mlkit import MLKitAbstractDataset
+from mlkit import MLKitAbstractDataModule
 
 
-class MNISTCustomDataset(MLKitAbstractDataset):
+class MNISTCustomDataset(MLKitAbstractDataModule):
     def prepare_trainvaldataset(self, root_dir: str):
         dset = MNIST(root=root_dir, train=True, download=True)
         train_dset, val_dset = random_split(dset, [0.8, 0.2])
