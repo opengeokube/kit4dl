@@ -1,4 +1,4 @@
-"""A module with input-output operations"""
+"""A module with input-output operations."""
 import importlib
 import os
 import sys
@@ -61,10 +61,15 @@ def connect_target(path: str, attr_name: str) -> str:
 def maybe_get_abs_target(
     target: str | FullyQualifiedName, root_dir: str
 ) -> str:
-    """Get absolute path for the target if provided as the relative path to Python module.
+    """Get absolute path for the target.
+
+    If `target` provided as the absolut path or as the fully qualified name
+    of a module, no changes is done and `target` arguments is returned
+    directly. If `target` is a relative path to a Python module, it is
+    converted to the absolute path-based target.
 
     Parameters
-    ---------
+    ----------
     target : str or FullyQualifiedName
         The value of the class or Python module path
     root_dir : str
@@ -97,7 +102,7 @@ def maybe_get_abs_target(
 
 
 def get_class_from_py_file(path: str, name: str):
-    """Get class defined in the Python file
+    """Get class defined in the Python file.
 
     Parameters
     ----------

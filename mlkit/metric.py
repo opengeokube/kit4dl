@@ -1,12 +1,13 @@
-"""A module with LabelStore definition dedicated for 
-collecting metrics during training or validation"""
+"""A module with metric logic."""
 import numpy as np
 import torchmetrics as tm
 
 
 class MetricStore:
-    """Class being a store for different metrics. It manages resetting,
-    updating and computing the result."""
+    """Class being a store for different metrics.
+
+    It manages resetting,updating, and computing the metrics result.
+    """
 
     __slots__ = ("_metrics",)
 
@@ -14,7 +15,7 @@ class MetricStore:
         self._metrics = metrics
 
     def reset(self) -> "MetricStore":
-        """Reset metrics to the init state"""
+        """Reset metrics to the init state."""
         for met in self._metrics.values():
             met.reset()
         return self
@@ -35,7 +36,7 @@ class MetricStore:
 
     @property
     def results(self) -> dict[str, float]:
-        """Get dictionary with metric values"""
+        """Get dictionary with metric values."""
         return {
             metric_name: (
                 np.nan

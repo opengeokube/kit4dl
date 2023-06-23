@@ -1,4 +1,4 @@
-"""Docstring of the module containing my neural network module"""
+"""Docstring of the module containing my neural network module."""
 from typing import Any
 
 import torch
@@ -7,7 +7,10 @@ from mlkit import MLKitAbstractModule
 
 
 class MyNewNetwork(MLKitAbstractModule):
+    """My network module."""
+
     def configure(self, *args: Any, **kwargs: Any) -> None:
+        """Configure the architecture."""
         # You can define kwargs used in the configuration file
         # def setup(self, input_dims, dropout_rate):
         #     ...
@@ -15,4 +18,5 @@ class MyNewNetwork(MLKitAbstractModule):
         raise NotImplementedError
 
     def run_step(self, batch, batch_idx) -> tuple[torch.Tensor, torch.Tensor]:
+        """Run single step."""
         raise NotImplementedError

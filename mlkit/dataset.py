@@ -1,4 +1,4 @@
-"""A module with the MLKit abstract dataset definition"""
+"""A module with the MLKit abstract dataset definition."""
 from abc import ABC
 from typing import Any
 
@@ -10,8 +10,8 @@ from mlkit.nn.confmodels import DatasetConf
 
 class MLKitAbstractDataModule(ABC, pl.LightningDataModule):
     """The class with the logic for dataset management.
-    The class provides a user with a simple interface:
 
+    The class provides a user with a simple interface:
     `prepare_data` is a method for downloading and preprocessing datasets
     `prepare_traindataset` is a method returning `torch.Dataset` for train
         data
@@ -35,7 +35,18 @@ class MLKitAbstractDataModule(ABC, pl.LightningDataModule):
         self.predict_dataset: Dataset | None = None
 
     def prepare_data(self):
-        pass
+        """Prepare dataset for train/validation/test/predict splits.
+
+        Examples
+        --------
+        ```python
+        class MyDatamodule(MLKitAbstractDataModule):
+
+            def prepare_data(self):
+                # any logic you need to perform before creating splits
+                download_dataset()
+        ```
+        """
 
     def prepare_traindataset(self, *args: Any, **kwargs: Any) -> Dataset:
         """Prepare dataset for training.
@@ -213,8 +224,9 @@ class MLKitAbstractDataModule(ABC, pl.LightningDataModule):
         )
 
     def setup(self, stage: str) -> None:
-        """Setup data depending on the stage. The method should not be
-        overriden unless necessary.
+        """Set up data depending on the stage.
+
+        The method should not be overriden unless necessary.
 
         Parameters
         ----------
@@ -230,15 +242,16 @@ class MLKitAbstractDataModule(ABC, pl.LightningDataModule):
                 self._handle_predict_stage()
 
     def train_dataloader(self) -> DataLoader:
-        """Prepare loader for train data"""
-        assert self.train_dataset is not None, (
-            "`train_dataset` must be set before calling `train_dataloader`"
-            " method!"
+        """Prepare loader for train data."""
+        assert self.conf.train, (
+            "validation configuration is not defined. did you forget"
+            " [dataset.validation] section in the configuration file?"
         )
+        assert self.train_dataset
         return DataLoader(self.train_dataset, **self.conf.train.loader)
 
     def val_dataloader(self) -> DataLoader:
-        """Prepare loader for validation data"""
+        """Prepare loader for validation data."""
         assert self.conf.validation, (
             "validation configuration is not defined. did you forget"
             " [dataset.validation] section in the configuration file?"
@@ -247,7 +260,7 @@ class MLKitAbstractDataModule(ABC, pl.LightningDataModule):
         return DataLoader(self.val_dataset, **self.conf.validation.loader)
 
     def test_dataloader(self) -> DataLoader:
-        """Prepare loader for test data"""
+        """Prepare loader for test data."""
         assert self.conf.test, (
             "validation configuration is not defined. did you forget"
             " [dataset.test] section in the configuration file?"
@@ -256,7 +269,7 @@ class MLKitAbstractDataModule(ABC, pl.LightningDataModule):
         return DataLoader(self.test_dataset, **self.conf.test.loader)
 
     def predict_dataloader(self) -> DataLoader:
-        """Prepare loader for prediction data"""
+        """Prepare loader for prediction data."""
         assert self.conf.predict, (
             "validation configuration is not defined. did you forget"
             " [dataset.predict] section in the configuration file?"
@@ -265,17 +278,17 @@ class MLKitAbstractDataModule(ABC, pl.LightningDataModule):
         return DataLoader(self.predict_dataset, **self.conf.predict.loader)
 
     def numpy_train_dataloader(self):
-        """Prepare loader for train data for models accepting `numpy.ndarray`"""
+        """Prepare loader for train data for models accepting `numpy.ndarray`."""
         raise NotImplementedError
 
     def numpy_val_dataloader(self):
-        """Prepare loader for val data for models accepting `numpy.ndarray`"""
+        """Prepare loader for val data for models accepting `numpy.ndarray`."""
         raise NotImplementedError
 
     def numpy_testdataloader(self):
-        """Prepare loader for test data for models accepting `numpy.ndarray`"""
+        """Prepare loader for test data for models accepting `numpy.ndarray`."""
         raise NotImplementedError
 
     def numpy_predictdataloader(self):
-        """Prepare loader for predict data for models accepting `numpy.ndarray`"""
+        """Prepare loader for pred data for models accepting `numpy.ndarray`."""
         raise NotImplementedError

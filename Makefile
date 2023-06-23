@@ -14,7 +14,7 @@ format:
 
 .PHONY: docs
 docs:
-	pydocstyle -e --convention=numpy .
+	pydocstyle -e --convention=numpy mlkit
 
 .PHONY: clean
 clean:

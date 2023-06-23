@@ -1,4 +1,4 @@
-"""A module with configuration classes"""
+"""A module with configuration classes."""
 import os
 from abc import ABC
 from functools import partial
@@ -47,7 +47,7 @@ class _AbstractClassWithArgumentsConf(
 #  Basic experiment configuration
 # ################################
 class BaseConf(BaseModel):
-    """Base configuration model for the experiment"""
+    """Base configuration model for the experiment."""
 
     seed: int = Field(default=0, ge=0)
     cuda_id: int | None = None
@@ -67,15 +67,18 @@ class BaseConf(BaseModel):
 
     @property
     def device(self) -> torch.device:
-        """Get PyTorch device based on the provided configuration"""
+        """Get PyTorch device based on the provided configuration."""
         if self.cuda_id is None:
             return torch.device("cpu")
         return torch.device(f"cuda:{self.cuda_id}")
 
     @property
     def accelerator_device_and_id(self) -> tuple[str, list[int] | str]:
-        """Get an accelerator name (cpu or gpu) and ID of the device.
-        For CPU returns instead of ID "auto" is returned"""
+        """Get an accelerator name and its ID.
+
+        Get accelerator name: cpu or gpu and ID of the device.
+        For CPU returns instead of ID "auto" is returned.
+        """
         if self.cuda_id is None:
             return ("cpu", "auto")
         return ("gpu", [self.cuda_id])
@@ -85,7 +88,7 @@ class BaseConf(BaseModel):
 #  Neural network model configuration
 # ################################
 class ModelConf(_AbstractClassWithArgumentsConf):
-    """Model configuration class"""
+    """Model configuration class."""
 
     @validator("target")
     def _check_if_target_has_expected_parent_class(cls, value):
@@ -101,7 +104,7 @@ class ModelConf(_AbstractClassWithArgumentsConf):
 
     @property
     def model_class(self) -> type:
-        """Get Python class of the model defined in the configuration"""
+        """Get Python class of the model defined in the configuration."""
         target_class = io_.import_and_get_attr_from_fully_qualified_name(
             self.target
         )
@@ -112,7 +115,7 @@ class ModelConf(_AbstractClassWithArgumentsConf):
 #       Optimizer configuration
 # ################################
 class OptimizerConf(_AbstractClassWithArgumentsConf):
-    """Optimizer configuration class"""
+    """Optimizer configuration class."""
 
     lr: float = Field(gt=0)
 
@@ -127,8 +130,7 @@ class OptimizerConf(_AbstractClassWithArgumentsConf):
 
     @property
     def optimizer(self) -> Callable[..., torch.optim.Optimizer]:
-        """Get `partial` object of the optimizer preconfigured
-        with the provided optimizer arguments"""
+        """Get `partial` object of the preconfigured optimizer."""
         target_class = io_.import_and_get_attr_from_fully_qualified_name(
             self.target
         )
@@ -139,7 +141,7 @@ class OptimizerConf(_AbstractClassWithArgumentsConf):
 #       Checkpoint configuration
 # ################################
 class CheckpointConf(BaseModel):
-    """Checkpoint configuration class"""
+    """Checkpoint configuration class."""
 
     path: str
     monitor: dict[str, str]
@@ -147,7 +149,7 @@ class CheckpointConf(BaseModel):
     mode: Literal["min", "max"] = "max"
     save_top_k: int = Field(1, ge=1)
     save_weights_only: bool = True
-    every_n_train_steps: int = Field(ge=1)
+    every_n_train_steps: int | None = Field(ge=1)
     save_on_train_epoch_end: bool = False
 
     @validator("path")
@@ -178,7 +180,7 @@ class CheckpointConf(BaseModel):
 #     Criterion configuration
 # ################################
 class CriterionConf(BaseModel):
-    """Criterion configuration class"""
+    """Criterion configuration class."""
 
     target: FullyQualifiedName
     weight: list[float] | None = None
@@ -226,7 +228,7 @@ class CriterionConf(BaseModel):
 #     Training configuration
 # ################################
 class TrainingConf(BaseModel):
-    """Training procedure configuration class"""
+    """Training procedure configuration class."""
 
     epochs: int = Field(gt=0)
     epoch_schedulers: list[dict[str, Any]] = Field(default_factory=list)
@@ -244,7 +246,7 @@ class TrainingConf(BaseModel):
     def preconfigured_schedulers_classes(
         self,
     ) -> list[Callable]:
-        """Get a list of preconfigured schedulers"""
+        """Get a list of preconfigured schedulers."""
         schedulers: list[Callable] = []
 
         for sch in self.epoch_schedulers:
@@ -264,7 +266,7 @@ class TrainingConf(BaseModel):
 #     Validation configuration
 # ################################
 class ValidationConf(BaseModel):
-    """Validation procedure configuration class"""
+    """Validation procedure configuration class."""
 
     run_every_epoch: int = Field(gt=0)
 
@@ -273,7 +275,7 @@ class ValidationConf(BaseModel):
 #     Split dataset configuration
 # ################################
 class SplitDatasetConf(BaseModel):
-    """Configuration class with dataset split arguments"""
+    """Configuration class with dataset split arguments."""
 
     loader: dict[str, Any] = Field(default_factory=dict)
     arguments: dict[str, Any]
@@ -294,10 +296,10 @@ class SplitDatasetConf(BaseModel):
 #     Dataset configuration
 # ################################
 class DatasetConf(BaseModel):
-    """Dataset configuration class"""
+    """Dataset configuration class."""
 
     target: FullyQualifiedName | str
-    train: SplitDatasetConf
+    train: SplitDatasetConf | None = None
     validation: SplitDatasetConf | None = None
     trainval: SplitDatasetConf | None = None
     test: SplitDatasetConf | None = None
@@ -318,7 +320,7 @@ class DatasetConf(BaseModel):
 
     @property
     def datamodule_class(self) -> type:
-        """Get Python class of the data module"""
+        """Get Python class of the data module."""
         target_class = io_.import_and_get_attr_from_fully_qualified_name(
             self.target
         )
@@ -329,8 +331,7 @@ class DatasetConf(BaseModel):
 #     Complete configuration
 # ################################
 class Conf(BaseModel):
-    """Configuration class being the reflection of the configuration
-    TOML file"""
+    """Conf class being the reflection of the configuration TOML file."""
 
     base: BaseConf
     model: ModelConf
@@ -370,7 +371,7 @@ class Conf(BaseModel):
 
     @property
     def metrics_obj(self) -> dict[str, tm.Metric]:
-        """Get the dictionary of the metric name and torchmetric.Metric"""
+        """Get the dictionary of the metric name and torchmetric.Metric."""
         if not self.metrics:
             raise ValueError("metrics are not defined!")
         return {
@@ -380,7 +381,7 @@ class Conf(BaseModel):
 
     @classmethod
     def override_with_abs_target(cls, root_dir: str, entries: dict) -> dict:
-        """Replaces in-place `target` valuesof the `entries`
+        """Replace in-place `target` valuesof the `entries`.
 
         Parameters
         ----------

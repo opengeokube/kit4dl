@@ -1,4 +1,4 @@
-"""Utils module"""
+"""Module with utilities functions and structures."""
 from typing import Callable, Hashable
 
 import numpy as np
@@ -6,7 +6,7 @@ import torch
 
 
 def set_seed(seed: int) -> None:
-    """Set seed for random numbers for NumPy and PyTorch
+    """Set seed for random numbers for NumPy and PyTorch.
 
     Parameters
     ----------
@@ -20,8 +20,10 @@ def set_seed(seed: int) -> None:
 def replace_item_recursively(
     entries: dict, key: Hashable, replace: Callable
 ) -> dict:
-    """Replace in-place value associated with `key` by the result of
-    `replace(entries[key])` value. Applied recursively.
+    """Replace in-place value for `key` recursively.
+
+    Replaces recursively values for `key` by the result of the `replace`
+    callable. If value of `key` is a dictionary, the method iterates over it.
 
     Parameters
     ----------

@@ -1,4 +1,4 @@
-"""A module with the base class of modules supported by MLKit"""
+"""A module with the base class of modules supported by MLKit."""
 import logging
 from abc import ABC, abstractmethod
 from typing import Any
@@ -14,7 +14,7 @@ from mlkit.nn.confmodels import Conf
 class MLKitAbstractModule(
     ABC, pl.LightningModule, LoggerMixin
 ):  # pylint: disable=too-many-ancestors
-    """Base abstract class for MLKit modules"""
+    """Base abstract class for MLKit modules."""
 
     def __init__(self, *, conf: Conf) -> None:
         super().__init__()
@@ -32,7 +32,10 @@ class MLKitAbstractModule(
 
     def configure_logger(self) -> None:
         """Configure logger based on the configuration passed to the class.
-        Set formatter for all handlers."""
+
+        The methods configure the logger format and sets it to all
+        the handlers.
+        """
         if self._conf.base.log_format:
             formatter = logging.Formatter(self._conf.base.log_format)
             for handler in self._logger.handlers:
@@ -46,7 +49,7 @@ class MLKitAbstractModule(
 
     @abstractmethod
     def configure(self, *args: Any, **kwargs: Any) -> None:
-        """Configure the architecture of the neural network
+        """Configure the architecture of the neural network.
 
         Parameters
         ----------
@@ -69,6 +72,7 @@ class MLKitAbstractModule(
     @abstractmethod
     def run_step(self, batch, batch_idx) -> tuple[torch.Tensor, torch.Tensor]:
         """Carry out single train/validation/test step for the given `batch`.
+
         Return a tuple of two `torch.Tensor`'s: true labels and predicted scores.
         If you need to define separate logic for validation or test step,
         implement `val_step` or `test_step` methods, respectivelly.
@@ -102,6 +106,7 @@ class MLKitAbstractModule(
         self, batch, batch_idx
     ) -> tuple[torch.Tensor, torch.Tensor]:
         """Carry out single validation step for the given `batch`.
+
         Return a tuple of two `torch.Tensor`'s: true labels and predicted scores.
         If not overriden, the implementation of `step` method is used.
 
@@ -134,6 +139,7 @@ class MLKitAbstractModule(
         self, batch, batch_idx
     ) -> tuple[torch.Tensor, torch.Tensor]:
         """Carry out single test step for the given `batch`.
+
         Return a tuple of two `torch.Tensor`'s: true labels and predicted scores.
         If not overriden, the implementation of `step` method is used.
 
@@ -166,6 +172,7 @@ class MLKitAbstractModule(
         self, batch, batch_idx
     ) -> tuple[torch.Tensor, torch.Tensor]:
         """Carry out single predict step for the given `batch`.
+
         Return a `torch.Tensor` - the predicted scores.
         If not overriden, the implementation of `step` method is used.
 
@@ -199,6 +206,7 @@ class MLKitAbstractModule(
         list[torch.optim.Optimizer],
         list[torch.optim.lr_scheduler.LRScheduler] | None,
     ]:
+        """Configure optimizers and schedulers."""
         self.debug("configuring optimizers and lr epoch schedulers...")
         optimizer: torch.optim.Optimizer = (
             self._conf.training.optimizer.optimizer(self.parameters())
@@ -229,12 +237,12 @@ class MLKitAbstractModule(
     def compute_loss(
         self, prediction: torch.Tensor, target: torch.Tensor
     ) -> torch.Tensor:
-        """Computes the loss based on the prediction and target."""
+        """Compute the loss based on the prediction and target."""
         assert self._criterion, "criterion is None"
         return self._criterion(prediction, target)
 
     def log_train_metrics(self) -> None:
-        """Log train metrics"""
+        """Log train metrics."""
         for (
             metric_name,
             metric_value,
@@ -253,7 +261,7 @@ class MLKitAbstractModule(
             )
 
     def log_val_metrics(self) -> None:
-        """Log validation metrics"""
+        """Log validation metrics."""
         for (
             metric_name,
             metric_value,
@@ -272,7 +280,7 @@ class MLKitAbstractModule(
             )
 
     def log_test_metrics(self) -> None:
-        """Log test metrics"""
+        """Log test metrics."""
         for (
             metric_name,
             metric_value,
@@ -293,19 +301,19 @@ class MLKitAbstractModule(
     def update_val_metrics(
         self, true: torch.Tensor, predictions: torch.Tensor
     ) -> None:
-        """Update validation metrics with true and prediction values"""
+        """Update validation metrics with true and prediction values."""
         self.val_metric_tracker.update(true=true, predictions=predictions)
 
     def update_train_metrics(
         self, true: torch.Tensor, predictions: torch.Tensor
     ) -> None:
-        """Update train metrics with true and prediction values"""
+        """Update train metrics with true and prediction values."""
         self.train_metric_tracker.update(true=true, predictions=predictions)
 
     def update_test_metrics(
         self, true: torch.Tensor, predictions: torch.Tensor
     ) -> None:
-        """Update test metrics with true and prediction values"""
+        """Update test metrics with true and prediction values."""
         self.test_metric_tracker.update(true=true, predictions=predictions)
 
     def reset_metric_trackers(self) -> None:
@@ -317,7 +325,7 @@ class MLKitAbstractModule(
     def training_step(
         self, batch, batch_idx
     ):  # pylint: disable=arguments-differ
-        """Carry out a single training step"""
+        """Carry out a single training step."""
         y_true, y_scores = self.run_step(batch, batch_idx)
         loss = self.compute_loss(y_scores, y_true)
         predictions = y_scores.argmax(dim=-1)
@@ -327,7 +335,7 @@ class MLKitAbstractModule(
     def validation_step(
         self, batch, batch_idx
     ):  # pylint: disable=arguments-differ
-        """Carry out a single validation step"""
+        """Carry out a single validation step."""
         y_true, y_scores = self.run_val_step(batch, batch_idx)
         loss = self.compute_loss(y_scores, y_true)
         predictions = y_scores.argmax(dim=-1)
@@ -335,7 +343,7 @@ class MLKitAbstractModule(
         return loss
 
     def test_step(self, batch, batch_idx):  # pylint: disable=arguments-differ
-        """Carry out a single test step"""
+        """Carry out a single test step."""
         y_true, y_scores = self.run_test_step(batch, batch_idx)
         loss = self.compute_loss(y_scores, y_true)
         predictions = y_scores.argmax(dim=-1)

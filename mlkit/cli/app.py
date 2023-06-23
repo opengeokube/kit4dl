@@ -1,4 +1,4 @@
-"""Module with CLI for MLKit"""
+"""Module with CLI for MLKit."""
 import importlib.resources
 import logging
 import os
@@ -55,7 +55,7 @@ def train(
         str, typer.Option(help="Path to the configuration TOML file")
     ] = _get_default_conf_path()
 ) -> None:
-    """Train using the configuration file
+    """Train using the configuration file.
 
     Parameters
     ----------
@@ -79,5 +79,5 @@ def train(
 
 
 def run():
-    """Run the CLI app"""
+    """Run the CLI app."""
     _app()

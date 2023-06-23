@@ -1,4 +1,4 @@
-"""A module with neural network train task definition"""
+"""A module with neural network train task definition."""
 import logging
 from typing import Any
 
@@ -15,7 +15,7 @@ from mlkit.utils import set_seed
 
 
 class Trainer(LoggerMixin):
-    """Class managing the training procedure"""
+    """Class managing the training procedure."""
 
     _model: MLKitAbstractModule
     _datamodule: MLKitAbstractDataModule
@@ -31,14 +31,14 @@ class Trainer(LoggerMixin):
         set_seed(self._conf.base.seed)
 
     def prepare(self) -> "Trainer":
-        """Prepare trainer by configuring the model and data modules"""
+        """Prepare trainer by configuring the model and data modules."""
         self._model = self._configure_model()
         self._trainer = self._configure_trainer()
         self._datamodule = self._configure_datamodule()
         return self
 
     def fit(self) -> "Trainer":
-        """Fit the trainer making use of `lightning.pytorch.Trainer`"""
+        """Fit the trainer making use of `lightning.pytorch.Trainer`."""
         self._trainer.fit(self._model, datamodule=self._datamodule)
         return self
 
@@ -58,6 +58,7 @@ class Trainer(LoggerMixin):
             " defined in the configuration file"
         )
         chkp_conf = self._conf.training.checkpoint
+        assert isinstance(chkp_conf.every_n_train_steps, int)
         return ModelCheckpoint(
             dirpath=chkp_conf.path,
             filename=chkp_conf.filename,

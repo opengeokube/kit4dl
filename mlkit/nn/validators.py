@@ -1,4 +1,4 @@
-"""A module with resuable validators"""
+"""A module with resuable validators."""
 import torch
 
 from mlkit.io import import_and_get_attr_from_fully_qualified_name
@@ -31,7 +31,7 @@ def validate_cuda_device_exists(cuda_id: int | None = None) -> int | None:
 def validate_class_exists(
     path: FullyQualifiedName | str,
 ) -> FullyQualifiedName | str:
-    """Validate the class defined by `path` exists
+    """Validate the class defined by `path` exists.
 
     Parameters
     ----------
