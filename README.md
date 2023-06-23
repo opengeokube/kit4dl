@@ -48,7 +48,7 @@ pip install .
 To start the new project in the current working directory, just run the following command:
 
 ```bash
-mlflow init --name=my-new-project
+mlkit init --name=my-new-project
 ```
 
 It will create a directory with the name `my-new-project` where you'll find sample files.
