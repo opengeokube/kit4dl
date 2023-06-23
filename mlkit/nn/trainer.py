@@ -44,7 +44,7 @@ class Trainer(LoggerMixin):
 
     def _new_metric_logger(self) -> pl_log.Logger:
         # TODO: prepare logger based on conf file: https://github.com/opengeokube/ml-kit/issues/2
-        return pl_log.MLFlowLogger(experiment_name="test")
+        return pl_log.CSVLogger(save_dir="metrics_logs")
 
     def _configure_datamodule(self) -> MLKitAbstractDataModule:
         return self._conf.dataset.datamodule_class(conf=self._conf.dataset)
@@ -58,7 +58,12 @@ class Trainer(LoggerMixin):
             " defined in the configuration file"
         )
         chkp_conf = self._conf.training.checkpoint
-        assert isinstance(chkp_conf.every_n_train_steps, int)
+        assert (not chkp_conf.every_n_train_steps) or isinstance(
+            chkp_conf.every_n_train_steps, int
+        ), (
+            "wrong type of `every_n_train_steps`. expected: `int`, provided:"
+            f" {type(chkp_conf.every_n_train_steps)}"
+        )
         return ModelCheckpoint(
             dirpath=chkp_conf.path,
             filename=chkp_conf.filename,
