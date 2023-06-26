@@ -11,6 +11,8 @@
 [![pydocstyle](https://img.shields.io/badge/pydocstyle-enabled-AD4CD3)](http://www.pydocstyle.org/en/stable/)
 
 [![license](https://img.shields.io/badge/License-MIT-green.svg?labelColor=gray)](https://github.com/opengeokube/ml-kit/blob/main/LICENSE)
+
+[![pytest](https://github.com/opengeokube/ml-kit/actions/workflows/test.yml/badge.svg)](https://github.com/opengeokube/ml-kit/actions/workflows/test.yml/)
 </div>
 
 ## 🖋️ Authors
