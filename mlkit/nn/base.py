@@ -94,7 +94,7 @@ class MLKitAbstractModule(
         --------
         ```python
         ...
-        def run_step(self, batch, batch_idx) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+        def run_step(self, batch, batch_idx) -> tuple[torch.Tensor, torch.Tensor]:
             feature_input, label_input = batch
             scores = self(feature_input)
             return (label_input, scores)
@@ -127,7 +127,7 @@ class MLKitAbstractModule(
         --------
         ```python
         ...
-        def run_step(self, batch, batch_idx) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+        def run_step(self, batch, batch_idx) -> tuple[torch.Tensor, torch.Tensor]:
             feature_input, label_input = batch
             scores = self(feature_input)
             return (label_input, scores)
@@ -160,7 +160,7 @@ class MLKitAbstractModule(
         --------
         ```python
         ...
-        def run_step(self, batch, batch_idx) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+        def run_step(self, batch, batch_idx) -> tuple[torch.Tensor, torch.Tensor]:
             feature_input, label_input = batch
             scores = self(feature_input)
             return (label_input, scores)
@@ -170,7 +170,7 @@ class MLKitAbstractModule(
 
     def run_predict_step(
         self, batch, batch_idx
-    ) -> tuple[torch.Tensor, torch.Tensor]:
+    ) -> torch.Tensor:
         """Carry out single predict step for the given `batch`.
 
         Return a `torch.Tensor` - the predicted scores.
@@ -188,14 +188,19 @@ class MLKitAbstractModule(
         result : torch.Tensor
             The score being the output of of the network
 
+
+        Note
+        ----
+        The function returns just score values as for prediction we do not have
+        the ground-truth labels.
+
         Examples
         --------
         ```python
         ...
-        def run_step(self, batch, batch_idx) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
-            feature_input, label_input = batch
-            scores = self(feature_input)
-            return (label_input, scores)
+        def run_step(self, batch, batch_idx) -> tuple[torch.Tensor, torch.Tenso]:
+            feature_input = batch
+            return self(feature_input)
         ```
         """
         return self.run_step(batch, batch_idx)
@@ -232,7 +237,7 @@ class MLKitAbstractModule(
         self._criterion = self._conf.training.criterion.criterion.to(
             self._conf.base.device
         )
-        self.info("selected critarion is: %s", self._criterion)
+        self.info("selected criterion is: %s", self._criterion)
 
     def compute_loss(
         self, prediction: torch.Tensor, target: torch.Tensor

@@ -1,14 +1,17 @@
 """A module with the MLKit abstract dataset definition."""
+import logging
 from abc import ABC
 from typing import Any
 
 import lightning.pytorch as pl
 from torch.utils.data import DataLoader, Dataset
 
+from mlkit import context
+from mlkit.mixins import LoggerMixin
 from mlkit.nn.confmodels import DatasetConf
 
 
-class MLKitAbstractDataModule(ABC, pl.LightningDataModule):
+class MLKitAbstractDataModule(ABC, pl.LightningDataModule, LoggerMixin):
     """The class with the logic for dataset management.
 
     The class provides a user with a simple interface:
@@ -26,13 +29,23 @@ class MLKitAbstractDataModule(ABC, pl.LightningDataModule):
         for prediction
     """
 
-    def __init__(self, conf: DatasetConf):
+    def __init__(self, conf: DatasetConf, project_dir: str = "."):
         super().__init__()
         self.conf = conf
         self.train_dataset: Dataset | None = None
         self.val_dataset: Dataset | None = None
         self.test_dataset: Dataset | None = None
         self.predict_dataset: Dataset | None = None
+        self._configure_logger()
+
+    def _configure_logger(self) -> logging.Logger:
+        self._logger = logging.getLogger("mlkit.dataset")
+        if context.LOG_FORMAT:
+            formatter = logging.Formatter(context.LOG_FORMAT)
+            for handler in self._logger.handlers:
+                handler.setFormatter(formatter)
+        for handler in self._logger.handlers:
+            handler.setLevel(context.LOG_LEVEL)  # type: ignore[arg-type]
 
     def prepare_data(self):
         """Prepare dataset for train/validation/test/predict splits.

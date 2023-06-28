@@ -2,12 +2,12 @@
 import importlib
 import os
 import sys
-from typing import Any
+from typing import Any, Hashable
 
 from mlkit.mlkit_types import FullyQualifiedName
 
 _TARGET_SPLIT = "::"
-
+PROJECT_DIR = "PROJECT_DIR"
 
 def split_target(target: str | FullyQualifiedName) -> tuple[str, str]:
     """Split target name or fully qualified name by `::` to get the path and the attribute.
@@ -101,6 +101,21 @@ def maybe_get_abs_target(
     return connect_target(os.path.join(root_dir, path), attr_name)
 
 
+def import_module_from_file(path: str, exec_module: bool = False):
+    """Import module from file indicated by the relative path."""
+    assert ".py" in path, f"path: {path} is not a Python module"
+    assert os.path.exists(path), f"module: {path} does not exist"
+    spec = importlib.util.spec_from_file_location(
+        "_file_imported_module", path
+    )
+    if spec is None:
+        raise RuntimeError(f"module {path} is not defined")
+    _file_imported_module = importlib.util.module_from_spec(spec)
+    if exec_module:
+        spec.loader.exec_module(_file_imported_module)  # type: ignore[union-attr]
+    return _file_imported_module
+
+
 def get_class_from_py_file(path: str, name: str):
     """Get class defined in the Python file.
 
@@ -123,16 +138,10 @@ def get_class_from_py_file(path: str, name: str):
     <class '_file_imported_module.MyClass'>
     ```
     """
-    assert ".py" in path, f"path: {path} is not a Python module"
-    assert os.path.exists(path), f"module: {path} does not exist"
-    spec = importlib.util.spec_from_file_location(
-        "_file_imported_module", path
+    _file_imported_module = import_module_from_file(
+        path=path, exec_module=True
     )
-    if spec is None:
-        raise RuntimeError(f"module {path} is not defined")
-    _file_imported_module = importlib.util.module_from_spec(spec)
     sys.modules["_file_imported_module"] = _file_imported_module
-    spec.loader.exec_module(_file_imported_module)  # type: ignore[union-attr]
     return getattr(_file_imported_module, name)
 
 
