@@ -36,7 +36,8 @@ class DGCNN(MLKitAbstractModule):
         )
 
     def run_step(self, batch, batch_idx) -> tuple[torch.Tensor, torch.Tensor]:
-        x, label = batch
+        breakpoint()
+        x, cat, instance = batch
         x = self.l1(x)
         x = self.hidden_layers(x)
-        return label, self.fc(x)
+        return instance, self.fc(x)

@@ -9,6 +9,7 @@ import torch
 from mlkit.metric import MetricStore
 from mlkit.mixins import LoggerMixin
 from mlkit.nn.confmodels import Conf
+from mlkit.stages import Stage
 
 
 class MLKitAbstractModule(
@@ -251,7 +252,7 @@ class MLKitAbstractModule(
             metric_name,
             metric_value,
         ) in self.train_metric_tracker.results.items():
-            stage_metric_name = f"train_{metric_name}"
+            stage_metric_name = f"{Stage.TRAIN}_{metric_name}"
             self.info(
                 "epoch: %d metric: %s value: %s",
                 self.current_epoch,
@@ -270,7 +271,7 @@ class MLKitAbstractModule(
             metric_name,
             metric_value,
         ) in self.val_metric_tracker.results.items():
-            stage_metric_name = f"val_{metric_name}"
+            stage_metric_name = f"{Stage.VALIDATION}_{metric_name}"
             self.info(
                 "epoch: %d metric: %s value: %s",
                 self.current_epoch,
@@ -289,7 +290,7 @@ class MLKitAbstractModule(
             metric_name,
             metric_value,
         ) in self.test_metric_tracker.results.items():
-            stage_metric_name = f"test_{metric_name}"
+            stage_metric_name = f"{Stage.TEST}_{metric_name}"
             self.info(
                 "epoch: %d metric: %s value: %s",
                 self.current_epoch,

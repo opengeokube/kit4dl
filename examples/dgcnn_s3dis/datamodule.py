@@ -2,6 +2,7 @@
 # where the conf.toml file is located) is added to the path
 import glob
 import os
+from typing import Any, Callable
 
 import h5py
 import s3dis  # NOTE: local module s3dis.py
@@ -33,9 +34,10 @@ class S3DISDataset(Dataset):
             )
 
     def __getitem__(self, idx: int) -> tuple[Tensor, Tensor]:
-        features, labels = S3DISDataset.load_hdfs_pt(self.files[idx])
-        return (features, labels)
-
+        features, labels, instances = S3DISDataset.load_hdfs_pt(
+            self.files[idx]
+        )
+        return (features, labels, instances)
 
 class S3DISDatamodule(MLKitAbstractDataModule):
     """Datamodule managing S3DIS dataset."""

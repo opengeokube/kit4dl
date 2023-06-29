@@ -347,7 +347,7 @@ class Conf(BaseModel):
 
     base: BaseConf
     model: ModelConf
-    metrics: dict[str | FullyQualifiedName, dict[str, Any]] | None = Field(
+    metrics: dict[str, dict[str, Any]] | None = Field(
         default_factory=dict
     )
     training: TrainingConf
@@ -360,17 +360,20 @@ class Conf(BaseModel):
         super().__init__(**kwargs)
 
     @validator("metrics")
-    def _validate_metrics_exist(cls, values):
+    def _validate_metrics_class_exist(cls, values):
+        from torchmetrics import Metric  # pylint: disable=import-outside-toplevel
+                 
         if not values:
             return None
-        for metric_name in values.keys():
-            # TODO: enable custom metrics: https://github.com/opengeokube/ml-kit/issues/4
-            assert hasattr(tm, metric_name), (
-                f"metric `{metric_name}` is not defined in `torchmetrics`"
-                " package."
-            )
-            _ = getattr(tm, metric_name)
-        return values
+        for metric_name, metric_dict in values.items():
+            assert "target" in metric_dict, f"`target` is not defined for the metric `{metric_name}`"
+            target_class = io_.import_and_get_attr_from_fully_qualified_name(metric_dict["target"])
+            # TODO: issubclass for torchmetrics metric does not work
+            # as __bases__ for metrics in `object`. Method issubclass
+            # can be used for custom metrics
+            _, attr_name  = io_.split_target(metric_dict["target"])
+            assert issubclass(target_class, Metric) or hasattr(tm, attr_name), "custom metrics need to be subclasses of `torchmetrics.Metric` class!"
+        return values    
 
     @root_validator(skip_on_failure=True)
     def _check_metric_in_checkpoint_is_defined(cls, values):
@@ -383,13 +386,14 @@ class Conf(BaseModel):
 
     @property
     def metrics_obj(self) -> dict[str, tm.Metric]:
-        """Get the dictionary of the metric name and torchmetric.Metric."""
+        """Get the dictionary of the metric name and torchmetrics.Metric."""
         if not self.metrics:
             raise ValueError("metrics are not defined!")
-        return {
-            metric_name.lower(): getattr(tm, metric_name)(**metric_args)
-            for metric_name, metric_args in self.metrics.items()
-        }
+        metric_obj: dict = {}
+        for metric_name, metric_args in self.metrics.items():
+            metric_args_copy = metric_args.copy()
+            metric_obj[metric_name.lower()] = io_.import_and_get_attr_from_fully_qualified_name(metric_args_copy.pop("target"))(**metric_args_copy)
+        return metric_obj
 
     @classmethod
     def override_with_abs_target(cls, root_dir: str, entries: dict) -> dict:
