@@ -58,11 +58,11 @@ class Trainer(LoggerMixin):
             " defined in the configuration file"
         )
         chkp_conf = self._conf.training.checkpoint
-        assert (not chkp_conf.every_n_train_steps) or isinstance(
-            chkp_conf.every_n_train_steps, int
+        assert (not chkp_conf.every_n_epochs) or isinstance(
+            chkp_conf.every_n_epochs, int
         ), (
-            "wrong type of `every_n_train_steps`. expected: `int`, provided:"
-            f" {type(chkp_conf.every_n_train_steps)}"
+            "wrong type of `every_n_epochs`. expected: `int`, provided:"
+            f" {type(chkp_conf.every_n_epochs)}"
         )
         return ModelCheckpoint(
             dirpath=chkp_conf.path,
@@ -71,7 +71,7 @@ class Trainer(LoggerMixin):
             save_top_k=chkp_conf.save_top_k,
             mode=chkp_conf.mode,
             save_weights_only=chkp_conf.save_weights_only,
-            every_n_train_steps=chkp_conf.every_n_train_steps,
+            every_n_epochs=chkp_conf.every_n_epochs,
             save_on_train_epoch_end=chkp_conf.save_on_train_epoch_end,
         )
 

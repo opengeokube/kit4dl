@@ -149,7 +149,7 @@ class CheckpointConf(BaseModel):
     mode: Literal["min", "max"] = "max"
     save_top_k: int = Field(1, ge=1)
     save_weights_only: bool = True
-    every_n_train_steps: int | None = Field(ge=1)
+    every_n_epochs: int = Field(1, ge=1)
     save_on_train_epoch_end: bool = False
 
     @validator("path")

@@ -3,6 +3,10 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# datasets
+examples/dgcnn_s3dis/data/
+examples/cnn_mnist_classification/mnist/
+
 # runs dirs
 mlruns/
 

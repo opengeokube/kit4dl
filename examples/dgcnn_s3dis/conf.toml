@@ -1,0 +1,64 @@
+[base]
+seed = 0
+experiment_name = "point_clout_segmentation"
+log_level = "info"
+log_format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+
+[model]
+# The directory with conf.toml file is added to path, so we can treat .py
+# files there as the importable modules
+target = "dgcnn::DGCNN"
+input_dims = 1
+layers = 4
+dropout = 0.5
+output_dims = 10
+
+[training]
+epochs = 10
+epoch_schedulers = [
+    {target = "torch.optim.lr_scheduler::CosineAnnealingLR", T_max = 100}
+]
+
+[training.checkpoint]
+path = "{PROJECT_DIR}/chckpt"
+monitor = {"metric" = "Precision", "stage" = "val"}
+filename = "{epoch}_{val_precision:.2f}_cnn"
+mode = "max"
+save_top_k = 1
+
+[training.optimizer]
+target = "torch.optim::Adam"
+lr = 0.001
+weight_decay = 0.01
+
+[training.criterion]
+target = "torch.nn::CrossEntropyLoss"
+weight = [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
+
+[validation]
+run_every_epoch = 1
+
+[dataset]
+target = "datamodule::S3DISDatamodule"
+
+[dataset.train]
+s3dis_root_dir = "./data/hdf5"
+test_area = 5
+
+[dataset.validation]
+s3dis_root_dir = "./data/hdf5"
+test_area = 5
+
+[dataset.train.loader]
+batch_size = 150
+shuffle = true
+num_workers = 4
+
+[dataset.validation.loader]
+batch_size = 150
+shuffle = false
+num_workers = 4
+
+[metrics]
+Precision = {task = "multiclass", num_classes=10}
+FBetaScore = {task = "multiclass", num_classes=10, beta = 0.1}
