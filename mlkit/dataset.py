@@ -1,7 +1,7 @@
 """A module with the MLKit abstract dataset definition."""
 import logging
 from abc import ABC
-from typing import Any
+from typing import Any, Callable
 
 import lightning.pytorch as pl
 from torch.utils.data import DataLoader, Dataset
@@ -254,6 +254,26 @@ class MLKitAbstractDataModule(ABC, pl.LightningDataModule, LoggerMixin):
             case "predict":
                 self._handle_predict_stage()
 
+    def get_collate_fn(self) -> Callable | None:
+        """Get batch collate function."""
+        return None
+
+    def get_train_collate_fn(self) -> Callable | None:
+        """Get train specific collate function."""
+        return self.get_collate_fn()
+
+    def get_val_collate_fn(self) -> Callable | None:
+        """Get validation specific collate function."""
+        return self.get_collate_fn()
+
+    def get_test_collate_fn(self) -> Callable | None:
+        """Get test specific collate function."""
+        return self.get_collate_fn()
+
+    def get_predict_collate_fn(self) -> Callable | None:
+        """Get predict specific collate function."""
+        return self.get_collate_fn()
+
     def train_dataloader(self) -> DataLoader:
         """Prepare loader for train data."""
         assert self.conf.train, (
@@ -264,7 +284,11 @@ class MLKitAbstractDataModule(ABC, pl.LightningDataModule, LoggerMixin):
             "did you forget to return `torch.utils.data.Dataset`instance from"
             " the `prepare_traindataset` method?"
         )
-        return DataLoader(self.train_dataset, **self.conf.train.loader)
+        return DataLoader(
+            self.train_dataset,
+            **self.conf.train.loader,
+            collate_fn=self.get_train_collate_fn(),
+        )
 
     def val_dataloader(self) -> DataLoader:
         """Prepare loader for validation data."""
@@ -276,7 +300,11 @@ class MLKitAbstractDataModule(ABC, pl.LightningDataModule, LoggerMixin):
             "did you forget to return `torch.utils.data.Dataset`instance from"
             " the `prepare_valdataset` method?"
         )
-        return DataLoader(self.val_dataset, **self.conf.validation.loader)
+        return DataLoader(
+            self.val_dataset,
+            **self.conf.validation.loader,
+            collate_fn=self.get_val_collate_fn(),
+        )
 
     def test_dataloader(self) -> DataLoader:
         """Prepare loader for test data."""
@@ -288,7 +316,11 @@ class MLKitAbstractDataModule(ABC, pl.LightningDataModule, LoggerMixin):
             "did you forget to return `torch.utils.data.Dataset`instance from"
             " the `prepare_testdataset` method?"
         )
-        return DataLoader(self.test_dataset, **self.conf.test.loader)
+        return DataLoader(
+            self.test_dataset,
+            **self.conf.test.loader,
+            collate_fn=self.get_test_collate_fn(),
+        )
 
     def predict_dataloader(self) -> DataLoader:
         """Prepare loader for prediction data."""
@@ -300,7 +332,11 @@ class MLKitAbstractDataModule(ABC, pl.LightningDataModule, LoggerMixin):
             "did you forget to return `torch.utils.data.Dataset`instance from"
             " the `prepare_predictdataset` method?"
         )
-        return DataLoader(self.predict_dataset, **self.conf.predict.loader)
+        return DataLoader(
+            self.predict_dataset,
+            **self.conf.predict.loader,
+            collate_fn=self.get_predict_collate_fn(),
+        )
 
     def numpy_train_dataloader(self):
         """Prepare loader for train data for models accepting `numpy.ndarray`."""

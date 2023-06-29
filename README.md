@@ -251,6 +251,33 @@ class MNISTCustomDatamodule(MLKitAbstractDataModule):
 > ❗ **DO NOT** set state inside `prepare_data` method (~~`self.x = ...`~~).
 
 If you need more customization, feel free to override the other methods of `MLKitAbstractDataModule` superclass.
+To force custom batch collation, override selected methods out of the following ones. They should return the proper callable object!
+
+```python
+def get_train_collate_fn(self):
+    def some_collate_func(): ...
+    return some_collate_func
+
+def get_val_collate_fn(self):
+    def some_collate_func(): ...
+    return some_collate_func
+
+def get_test_collate_fn(self):
+    def some_collate_func(): ...
+    return some_collate_func
+
+def get_predict_collate_fn(self):
+    def some_collate_func(): ...
+    return some_collate_func
+```
+
+If you need a custom batch collation but the same for each stage (train/val/test/predict), implement the method `get_collate_fn()`:
+```python
+def get_collate_fn(self):
+    def some_collate_func(): ...
+    return some_collate_func
+```
+
 
 In the configuration file, there are dedicated `[dataset]`-related sections.
 
