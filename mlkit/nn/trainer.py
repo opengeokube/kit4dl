@@ -1,19 +1,19 @@
 """A module with neural network train task definition."""
-import os
 import logging
+import os
 from typing import Any
 
 import lightning.pytorch as pl
 from lightning.pytorch import callbacks as pl_callbacks
 from lightning.pytorch import loggers as pl_log
 
+from mlkit import context
 from mlkit.dataset import MLKitAbstractDataModule
 from mlkit.mixins import LoggerMixin
 from mlkit.nn.base import MLKitAbstractModule
 from mlkit.nn.callbacks import MetricCallback, ModelCheckpoint
 from mlkit.nn.confmodels import Conf
 from mlkit.utils import set_seed
-from mlkit import context
 
 
 class Trainer(LoggerMixin):
@@ -46,7 +46,9 @@ class Trainer(LoggerMixin):
 
     def _new_metric_logger(self) -> pl_log.Logger:
         # TODO: prepare logger based on conf file: https://github.com/opengeokube/ml-kit/issues/2
-        return pl_log.CSVLogger(save_dir=os.path.join(context.PROJECT_DIR, "metrics_logs"))
+        return pl_log.CSVLogger(
+            save_dir=os.path.join(context.PROJECT_DIR, "metrics_logs")
+        )
 
     def _configure_datamodule(self) -> MLKitAbstractDataModule:
         return self._conf.dataset.datamodule_class(conf=self._conf.dataset)

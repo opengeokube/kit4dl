@@ -95,4 +95,3 @@ class ModelCheckpoint(pl_callbacks.ModelCheckpoint):
     ) -> None:
         """Save model weight on the end of training process."""
         super().on_fit_end(trainer, pl_module)
-        # TODO: https://github.com/opengeokube/ml-kit/issues/3
