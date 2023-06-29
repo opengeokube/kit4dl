@@ -96,7 +96,7 @@ The packuge does not yet support model serving.
 1. [Configuring base setup](#configuring-base-setup)
 1. [Defining model](#defining-model)
 1. [Defining datamodule](#defining-datamodule)
-1. [Defining training](#defining-training)
+1. [Configuring training](#configuring-training)
 1. [Configuring optimizer](#configuring-optimizer)
 1. [Configuring criterion](#configuring-criterion)
 1. [Configuring metrics](#configuring-metrics)
@@ -111,10 +111,12 @@ It has the following properties:
 |   **Property** 	|  **Type**        |                                                   **Details**                                          	|
 |---------------	|----------------- | -------------------------------------------------------------------------------------------------------	| 
 |      `seed`	    |   `int`          |  seed of the random numbers generators for `NumPy` and `PyTorch`                                       	| 
-|     `cuda_id`   |  `int` or `None` |  ID of the cuda device (if available) or `None` for `CPU`                                                |
-|`experiment_name`| `str`            |  name of the experiment                                                                                  |
-|   `log_level`   |  `str`           | logging level, should be one out of `debug`, `info`, `warn`, `error`, `critical`                         |
-|  `log_format`   | `str`            | format of the logging message accoridng to Python's `logging` package  (e.g. `"%(asctime)s - %(name)s`)  |
+|     `cuda_id`     |  `int` or `None` |  ID of the cuda device (if available) or `None` for `CPU`                                                |
+|`experiment_name`* | `str`            |  name of the experiment                                                                                  |
+|   `log_level`     |  `str`           | logging level, should be one out of `debug`, `info`, `warn`, `error`, `critical`                         |
+|  `log_format`     | `str`            | format of the logging message accoridng to Python's `logging` package  (e.g. `"%(asctime)s - %(name)s`)  |
+
+> ❗ Arguments marked with `*` are obligatory!
 
 
 ##### ✍️ Example
@@ -143,7 +145,7 @@ from torch import nn
 from mlkit import MLKitAbstractModule
 
 class SimpleCNN(MLKitAbstractModule):
-    def configure(self, input_dims, layers, dropout, output_dims) -> None:
+    def configure(self, input_dims, output_dims) -> None:
         self.l1 = nn.Sequential(
             nn.Conv2d(
                 input_dims, 16, kernel_size=3, padding="same", bias=True
@@ -161,19 +163,20 @@ class SimpleCNN(MLKitAbstractModule):
 
 In the configuration file, in the dedicated `[model]` section, at least `target` property should be set. The extra arguments are treated as the arguments for the `configure` method.
 
-> ❗ Note that arguments' values of the `configure` method (i.e. `input_dims`, `layers`, `dropout`, and `output_dims`) are taken from the configuration files. Those names can be arbitrary.
+> ❗ Note that arguments' values of the `configure` method (i.e. `input_dims` and `output_dims`) are taken from the configuration files. Those names can be arbitrary.
 
+##### ✍️ Example
 ```toml
 [model]
-target = "dgcnn::DGCNN"
+target = "./model.py::SimpleCNN" 
 input_dims = 1
-layers = 4
-dropout = 0.5
 output_dims = 10
 ```
 > ❗ `target` is a required parameter that **must** be set. It contains a path to the class (a subclass of `MLKitAbstractModule`). To learn how `target` could be defined, see Section [Defining `target`](#defining-target).
 
 If a forward pass for your model differs for the training, validation, test, or prediction stages, you can define separate methods for them:
+
+##### ✍️ Example
 ```python
 import torch
 from torch import nn
@@ -197,6 +200,8 @@ class SimpleCNN(MLKitAbstractModule):
 Similarily to the model, datamodule instance is fully defined by the Python class and its configuration.
 The datamodule need to be a subclass of the `MLKitAbstractDataModule` abstract class from the `mlkit` package.
 The class has to implement, at least, `prepare_trainvaldataset` (if preparing is the same for the train and validation splits) or `prepare_traindataset` and `prepare_valdataset` (if preparing data differs). Besides those, you can define `prepare_testdataset` and `prepare_predictdataset`, for test and prediction, respectively.
+
+##### ✍️ Example
 ```python
 from torch.utils.data import Dataset, random_split
 from torchvision import transforms
@@ -229,6 +234,7 @@ class MNISTCustomDatamodule(MLKitAbstractDataModule):
 
 If you need to acquire data or do some other processing, implement `prepare_data` method.
 
+##### ✍️ Example
 ```python
 ...
 class MNISTCustomDatamodule(MLKitAbstractDataModule):
@@ -243,6 +249,7 @@ If you need more customization, feel free to override the other methods of `MLKi
 
 In the configuration file, there are dedicated `[dataset]`-related sections.
 
+##### ✍️ Example
 ```toml
 [dataset]
 target = "./datamodule.py::MNISTCustomDatamodule"
@@ -270,25 +277,139 @@ Besides dataset configuration, you need to specify data loader arguments as indi
 
 > ❗ You **cannot** specify loader arguments for in the `[dataset.trainval.loader]`. Loaders should be defined for each split separately.
 
-#### Defining training
+
+#### Configuring training
+Training-related arguments should be defined in the `[training]` section of the configuration file.
+You can define the following arguments.
+
+|   **Property** 	|  **Type**        |         **Details**              |
+|---------------	|----------------- | -------------------------------- | 
+|      `epochs`*    |   `int > 0`      |  number of epochs	              | 
+|`epoch_schedulers` |  `list of dict`  |  list of schedulers definitions  |
+
+> ❗ Arguments marked with `*` are obligatory!
+
+##### ✍️ Example
+
+```toml
+[training]
+epochs = 10
+epoch_schedulers = [
+    {target = "torch.optim.lr_scheduler::CosineAnnealingLR", T_max = 100}
+]
+```
 
 #### Configuring optimizer
+Optimizer configuration is located in the subsection `[training.optimizer]`.
+There, you should define `target` (see [Defining `target`](#defining-target)) and extra keyword arguments passed to the optimizer initializer.
+
+##### ✍️ Example
+```toml
+[training.optimizer]
+target = "torch.optim::Adam"
+lr = 0.001
+weight_decay = 0.01
+```
+> ❗ The section `[training.optimizer]` is **mandatory**.
+> ❗ You can always define the custom optimizer. Then, you just need to set the proper `target` value.
+
 
 #### Configuring criterion
+Similarily to the optimizer configuration, there is a subsection dedicated for the critarion. 
+You need to specify, at least, the `target` (see [Defining `target`](#defining-target)) and other mandatory or optional
+properties of the selected critarion (loss function).
 
-#### Configuring metrics
+##### ✍️ Example
+```toml
+[training.criterion]
+target = "torch.nn::CrossEntropyLoss"
+weight = [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
+```
+
+> ❗ The section `[training.criterion]` is **mandatory**.
+> ❗ You can always define the custom optimizer. Then, you just need to set the proper `target` value.
 
 #### Configuring checkpoint
+If you need to save your intermediate weights (do checkpoints) you can configure the optional subsection `[training.checkpoint]`.
+In the section, you can define the following proeprties:
+
+|   **Property** 	|  **Type**        |         **Details**              |
+|---------------	|----------------- | -------------------------------- | 
+|      `path`*      |   `str`          |    path to a directory where checkpoints should be stored	              | 
+|`monitor`* |  `dict`  |  a dictionary with two keys: `metric` and `stage`. `metrics` is a metric name as defined in the `[metrics]` section ([Configuring metrics](#configuring-metrics)), `stage` is one of the following: [`train`, `val`]  |
+|      `filename`*      |   `str`          |    filename pattern of the checkpoint (see (PyTorch Lightning `ModelCheckpoint`)[https://lightning.ai/docs/pytorch/stable/api/lightning.pytorch.callbacks.ModelCheckpoint.html])	              | 
+|      `mode`      |   `min` | `max`          |    to save checkpoint for `min`imum or `max`imum value of the metric being tracked (`monitor`). **default: `max`**	              | 
+|      `save_top_k`      |   `int`          |   save checkepoints for the top `k` values of the metric. **default: `1`**	              |
+|      `save_weights_only`      |   `bool`          |   if only weights should be saved (`True`) or other states (optimizer, scheduler) also (`False`). **default: `True`**	              |
+|      `every_n_epochs`     |   `int`          |    The number of training epochs between saving sucessive checkpoints. **default: `1`**	       | 
+|      `save_on_train_epoch_end`      |   `bool`          |    if `False` checkpointing is run at the end of the validation, otherwise - training   **default: `False`**	           | 
+
+> ❗ Arguments marked with `*` are obligatory!
+
+##### ✍️ Example
+```toml
+[training.checkpoint]
+path = "{PROJECT_DIR}/chckpt"
+monitor = {"metric" = "Precision", "stage" = "val"}
+filename = "{epoch}_{val_precision:.2f}_cnn"
+mode = "max"
+save_top_k = 1
+```
+
+> ❗ You can see we used substitutable symbol `{PROJECT_DIR}`. More about them in the Section [Substitutable symbols](#substitutable-symbols).
+
+
+#### Configuring metrics
+Metrics are configured in the section `[metrics]` of the configuration file. To use a given metric, just define them in the section,
+together with keyword arguments they require. All `torchmetrics` metrics are supported. **REMEMBER:** use the proper metric name as a key:
+
+##### ✍️ Example
+```toml
+[metrics]
+Precision = {task = "multiclass", num_classes=10}
+FBetaScore = {task = "multiclass", num_classes=10, beta = 0.1}
+```
+> ❗ Currently, custom metrics are not supported. The workaround (yet not recommended) is to provide the custom metric (according to (Torchmetrics custom metric)[https://torchmetrics.readthedocs.io/en/stable/pages/implement.html]) and add it to the `torchmetrics` module before the configuration file is parsed.
+```python
+import torch
+import torchmetrics as tm
+
+class MyMetric(tm.Metric):
+    def __init__(self):
+        ...
+    def update(self, preds: torch.Tensor, target: torch.Tensor):
+        ...
+     def compute(self):
+        ...
+
+tm.MyMetric = MyMetric
+```
 
 #### Defining `target`
+Target property in the MLKit package is kind of extended fully qualified name pointing to the classes supposed to use in the
+given context, like for:
+1. neural network class (`target = "./model.py::SimpleCNN"`)
+1. datamodule (`target = "./datamodule.py::MNISTCustomDatamodule"`)
+1. optimizer (`target = "torch.optim::Adam"`)
+1. criterion (`target = "torch.nn::CrossEntropyLoss"`)
+1. schedulers (`target = "torch.optim.lr_scheduler::CosineAnnealingLR"`)
+
+> ❗ As a package/module - class separator the double colon is used `::`!
+
+It might be set in several different ways:
+1. **By using a built-and installed package**. Then, you just need to specify the package/module name and the class name, like `target = "torch.nn::CrossEntropyLoss"`  (we use module `torch.nn` and class `CrossEntropyLoss` defined within).
+1. **By using a custom module in the project directory**. The project directory, i.e. the directory where the confguration TOML file is located, is added to the `PYTHONPATH`, so you can freely use `.py` files defined there as modules. Having the module `model.py` with the `SimpleCNN` class definition, we can write `target` as `target = "model::SimpleCNN"`.
+1. **By using a custom `.py` file.** In this case, you specify `target` as an absolute or relative (w.r.t. the configuration file) to a `.py` file, like `target = "./model.py::SimpleCNN"` or `target = "/usr/neural_nets/my_net/model.py::SimpleCNN"`.
+
+> ❗ For `target` definition you can use substitutable symbols defined below.
 
 #### Substitutable symbols
 In the configuration file you can use symbols that will be substituted during the runtime.
 The symbols should be used in curly brackets (e.g. `{PROJECT_DIR}`.)
 
-|   **Symbol** 	|            **Meaning of the symbol**                                   	|          **Example**                |
+|   **Symbol** 	|            **Meaning of the symbol**                                   	|          **Example**                  |
 |-------------	|-----------------------------------------------------------------------	| -----------------------------------	|
-| `PROJECT_DIR`	| the home directory of the TOML configuration file (project directory) 	| `target = {PROJECT_DIR}/model.py`
+| `PROJECT_DIR`	| the home directory of the TOML configuration file (project directory) 	| `target = {PROJECT_DIR}/model.py`     |
 
 
 
