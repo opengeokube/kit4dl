@@ -95,6 +95,21 @@ mlkit train --conf=/path/to/your/conf.toml
 #### Serving the model
 The packuge does not yet support model serving.
 
+## 🪁 Playground
+At first, install `mlkit` package as indicated in the Section [Installation](#installation).
+
+#### Handwritten digit recognition
+Just navigate to the directory `/examples/cnn_mnist_classification` and run
+```bash
+mlkit train
+```
+
+#### Point cloud instance segmentation
+Just navigate to the directory `/examples/dgcnn_s3dis` and run
+```bash
+mlkit train
+```
+
 
 ## 💡 Instruction
 1. [Configuring base setup](#configuring-base-setup)
