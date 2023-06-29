@@ -254,27 +254,28 @@ If you need more customization, feel free to override the other methods of `MLKi
 To force custom batch collation, override selected methods out of the following ones. They should return the proper callable object!
 
 ```python
-def get_train_collate_fn(self):
-    def some_collate_func(): ...
-    return some_collate_func
+def some_collate_func(samples: list): ...
 
-def get_val_collate_fn(self):
-    def some_collate_func(): ...
-    return some_collate_func
+class MNISTCustomDatamodule(MLKitAbstractDataModule):
+    ...
+    def get_train_collate_fn(self):
+        return some_collate_func
 
-def get_test_collate_fn(self):
-    def some_collate_func(): ...
-    return some_collate_func
+    def get_val_collate_fn(self):
+        return some_collate_func
 
-def get_predict_collate_fn(self):
-    def some_collate_func(): ...
-    return some_collate_func
+    def get_test_collate_fn(self):
+        return some_collate_func
+
+    def get_predict_collate_fn(self):
+        return some_collate_func
 ```
+
+> ❗ **DO NOT** use nested function as a callation callable. It will fail due to pickling nested function error.
 
 If you need a custom batch collation but the same for each stage (train/val/test/predict), implement the method `get_collate_fn()`:
 ```python
 def get_collate_fn(self):
-    def some_collate_func(): ...
     return some_collate_func
 ```
 
