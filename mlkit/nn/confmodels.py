@@ -235,6 +235,18 @@ class TrainingConf(BaseModel):
     checkpoint: CheckpointConf | None = None
     optimizer: OptimizerConf
     criterion: CriterionConf
+    arguments: dict[str, Any]
+
+    @root_validator(pre=True)
+    def _build_model_arguments(cls, values: dict[str, Any]) -> dict[str, Any]:
+        if "arguments" in values:
+            return values
+        arguments = {
+            k: v for k, v in values.items() if k not in cls.__fields__
+        }
+        values = {k: v for k, v in values.items() if k in cls.__fields__}
+        values["arguments"] = arguments
+        return values
 
     @validator("epoch_schedulers", each_item=True)
     def _assert_epoch_scheduler_exist(cls, sch):

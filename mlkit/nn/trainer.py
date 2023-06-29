@@ -89,4 +89,5 @@ class Trainer(LoggerMixin):
             deterministic=True,
             logger=self._metric_logger,
             callbacks=callbacks,
+            **self._conf.training.arguments,
         )

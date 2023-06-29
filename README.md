@@ -321,6 +321,12 @@ You can define the following arguments.
 
 > ❗ Arguments marked with `*` are obligatory!
 
+Besides those listed in the table above, you can specify PyTorch Lightning-related `Trainer` arguments, like:
+1. `accumulate_grad_batches`
+1. `gradient_clip_val`
+1. `gradient_clip_algorithm`
+1. ...
+
 ##### ✍️ Example
 
 ```toml
@@ -329,6 +335,7 @@ epochs = 10
 epoch_schedulers = [
     {target = "torch.optim.lr_scheduler::CosineAnnealingLR", T_max = 100}
 ]
+accumulate_grad_batches = 2
 ```
 
 #### Configuring optimizer
