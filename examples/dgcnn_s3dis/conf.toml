@@ -42,20 +42,18 @@ run_every_epoch = 1
 target = "datamodule::S3DISDatamodule"
 
 [dataset.train]
-s3dis_root_dir = "./data/hdf5"
 test_area = 5
 
 [dataset.validation]
-s3dis_root_dir = "./data/hdf5"
 test_area = 5
 
 [dataset.train.loader]
-batch_size = 150
+batch_size = 2
 shuffle = true
 num_workers = 4
 
 [dataset.validation.loader]
-batch_size = 150
+batch_size = 2
 shuffle = false
 num_workers = 4
 

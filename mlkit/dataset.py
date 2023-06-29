@@ -29,7 +29,7 @@ class MLKitAbstractDataModule(ABC, pl.LightningDataModule, LoggerMixin):
         for prediction
     """
 
-    def __init__(self, conf: DatasetConf, project_dir: str = "."):
+    def __init__(self, conf: DatasetConf):
         super().__init__()
         self.conf = conf
         self.train_dataset: Dataset | None = None
@@ -38,14 +38,14 @@ class MLKitAbstractDataModule(ABC, pl.LightningDataModule, LoggerMixin):
         self.predict_dataset: Dataset | None = None
         self._configure_logger()
 
-    def _configure_logger(self) -> logging.Logger:
+    def _configure_logger(self) -> None:
         self._logger = logging.getLogger("mlkit.dataset")
-        if context.LOG_FORMAT:
-            formatter = logging.Formatter(context.LOG_FORMAT)
+        if context.LOG_FORMAT:  # type: ignore[attr-defined]
+            formatter = logging.Formatter(context.LOG_FORMAT)  # type: ignore[attr-defined]
             for handler in self._logger.handlers:
                 handler.setFormatter(formatter)
         for handler in self._logger.handlers:
-            handler.setLevel(context.LOG_LEVEL)  # type: ignore[arg-type]
+            handler.setLevel(context.LOG_LEVEL)  # type: ignore[arg-type, attr-defined]
 
     def prepare_data(self):
         """Prepare dataset for train/validation/test/predict splits.
@@ -260,7 +260,10 @@ class MLKitAbstractDataModule(ABC, pl.LightningDataModule, LoggerMixin):
             "validation configuration is not defined. did you forget"
             " [dataset.validation] section in the configuration file?"
         )
-        assert self.train_dataset
+        assert self.train_dataset is not None, (
+            "did you forget to return `torch.utils.data.Dataset`instance from"
+            " the `prepare_traindataset` method?"
+        )
         return DataLoader(self.train_dataset, **self.conf.train.loader)
 
     def val_dataloader(self) -> DataLoader:
@@ -269,7 +272,10 @@ class MLKitAbstractDataModule(ABC, pl.LightningDataModule, LoggerMixin):
             "validation configuration is not defined. did you forget"
             " [dataset.validation] section in the configuration file?"
         )
-        assert self.val_dataset
+        assert self.val_dataset is not None, (
+            "did you forget to return `torch.utils.data.Dataset`instance from"
+            " the `prepare_valdataset` method?"
+        )
         return DataLoader(self.val_dataset, **self.conf.validation.loader)
 
     def test_dataloader(self) -> DataLoader:
@@ -278,7 +284,10 @@ class MLKitAbstractDataModule(ABC, pl.LightningDataModule, LoggerMixin):
             "validation configuration is not defined. did you forget"
             " [dataset.test] section in the configuration file?"
         )
-        assert self.test_dataset
+        assert self.test_dataset is not None, (
+            "did you forget to return `torch.utils.data.Dataset`instance from"
+            " the `prepare_testdataset` method?"
+        )
         return DataLoader(self.test_dataset, **self.conf.test.loader)
 
     def predict_dataloader(self) -> DataLoader:
@@ -287,7 +296,10 @@ class MLKitAbstractDataModule(ABC, pl.LightningDataModule, LoggerMixin):
             "validation configuration is not defined. did you forget"
             " [dataset.predict] section in the configuration file?"
         )
-        assert self.predict_dataset
+        assert self.predict_dataset is not None, (
+            "did you forget to return `torch.utils.data.Dataset`instance from"
+            " the `prepare_predictdataset` method?"
+        )
         return DataLoader(self.predict_dataset, **self.conf.predict.loader)
 
     def numpy_train_dataloader(self):

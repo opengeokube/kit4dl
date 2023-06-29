@@ -2,6 +2,7 @@
 import sys
 from typing import Any
 
+
 class _ImmutableAttribute:
     _value: Any = None
 
@@ -14,6 +15,13 @@ class _ImmutableAttribute:
         self._value = value
 
 
+# NOTE: below definitions will not be used, they are required
+# just for suntax suggestions
+PROJECT_DIR: Any
+LOG_LEVEL: Any
+LOG_FORMAT: Any
+
+
 class Context:
     """Current Python session."""
 
@@ -22,10 +30,26 @@ class Context:
     LOG_FORMAT: _ImmutableAttribute = _ImmutableAttribute()
 
     def __setattr__(self, name: str, value: Any) -> None:
+        """
+        Set the value for a context property.
+
+        Parameters
+        ----------
+        name : str
+            Name of the context property
+        value : Any
+            Value for the context property with the `key`
+
+        Raises
+        ------
+        RuntimeError
+            if the `name` is not defined (an attempt to create a new
+            property)
+        """
         if name not in Context.__dict__:
             # NOTE: maybe we can enable adding extra session arguments
             raise RuntimeError("Cannot set new session property!")
         super().__setattr__(name, value)
 
 
-sys.modules[__name__] = Context() # type: ignore[assignment]
+sys.modules[__name__] = Context()  # type: ignore[assignment]

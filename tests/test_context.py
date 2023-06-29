@@ -25,7 +25,6 @@ class TestSession:
         ):
             context.NEW_ATTR = 10
 
-
     def test_attribute_availability_when_setting_by_other_thread(self):
         # TODO
         pass

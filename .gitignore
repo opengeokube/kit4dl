@@ -6,6 +6,7 @@ __pycache__/
 # datasets
 examples/dgcnn_s3dis/data/
 examples/cnn_mnist_classification/mnist/
+lightning_logs
 
 # runs dirs
 mlruns/

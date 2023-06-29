@@ -30,9 +30,9 @@ requirements:
     - "typer[all]"
 
 channels:
-  - conda-forge
   - pytorch 
   - nvidia 
+  - conda-forge
 
 about:
   home:  https://github.com/opengeokube/ml-kit/

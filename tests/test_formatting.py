@@ -3,8 +3,8 @@ import toml
 
 from mlkit.formatting import substitute_symbols
 
-class TestFormatting:
 
+class TestFormatting:
     @pytest.fixture
     def load(self) -> str:
         return """
@@ -18,5 +18,7 @@ class TestFormatting:
         assert entries["section"]["target"] == "/work/usr/data.nc"
 
     def test_fail_on_missing_placeholder_definition(self, load):
-        with pytest.raises(KeyError, match=r"no value found for the placeholder `PROJECT_DIR`"):
-            _ = substitute_symbols(load, NOT_EXISTING="/work/usr")            
+        with pytest.raises(
+            KeyError, match=r"no value found for the placeholder `PROJECT_DIR`"
+        ):
+            _ = substitute_symbols(load, NOT_EXISTING="/work/usr")

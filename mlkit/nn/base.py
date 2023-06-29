@@ -168,9 +168,7 @@ class MLKitAbstractModule(
         """
         return self.run_step(batch, batch_idx)
 
-    def run_predict_step(
-        self, batch, batch_idx
-    ) -> torch.Tensor:
+    def run_predict_step(self, batch, batch_idx) -> torch.Tensor:
         """Carry out single predict step for the given `batch`.
 
         Return a `torch.Tensor` - the predicted scores.
@@ -203,7 +201,8 @@ class MLKitAbstractModule(
             return self(feature_input)
         ```
         """
-        return self.run_step(batch, batch_idx)
+        _, scores = self.run_step(batch, batch_idx)
+        return scores
 
     def configure_optimizers(
         self,

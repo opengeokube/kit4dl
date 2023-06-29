@@ -2,12 +2,13 @@
 import importlib
 import os
 import sys
-from typing import Any, Hashable
+from typing import Any
 
 from mlkit.mlkit_types import FullyQualifiedName
 
 _TARGET_SPLIT = "::"
 PROJECT_DIR = "PROJECT_DIR"
+
 
 def split_target(target: str | FullyQualifiedName) -> tuple[str, str]:
     """Split target name or fully qualified name by `::` to get the path and the attribute.

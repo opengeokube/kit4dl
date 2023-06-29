@@ -32,7 +32,8 @@ SEP = " "
 AREAS_NBR = 6
 COLUMN_NAMES = ["x", "y", "z", "r", "g", "b"]
 LABEL_COLUMN = "L"
-COLUMN_NAMES_LABEL = COLUMN_NAMES + [LABEL_COLUMN]
+INSTANCE_COLUMNT = "I"
+COLUMN_NAMES_LABEL = COLUMN_NAMES + [LABEL_COLUMN, INSTANCE_COLUMNT]
 CLASS_NAME_TO_LABEL = {
     "beam": 0,
     "board": 1,
@@ -40,6 +41,7 @@ CLASS_NAME_TO_LABEL = {
     "ceiling": 3,
     "chair": 4,
     "clutter": 5,
+    "stairs": 5,  # stairs are treated as clutter
     "column": 6,
     "door": 7,
     "floor": 8,
@@ -50,6 +52,10 @@ CLASS_NAME_TO_LABEL = {
     "window": 13,
 }
 S3DIS_ROOM_NBR = 273
+HDF5_FEATURES_KEY = "pts"
+HDF5_LABELS_KEY = "labels"
+HDF5_INSTANCE_KEY = "instance"
+
 
 def base_hdf5_dir() -> str:
     # NOTE: DO NOT use context attributes on the module level
@@ -74,17 +80,35 @@ def _get_label_from_path(path: str) -> int:
     return CLASS_NAME_TO_LABEL[path.split(os.sep)[-1].split("_")[0]]
 
 
-def _concat_pts_and_labels(pts: pd.DataFrame, obj_label: int) -> pd.DataFrame:
-    return pts.assign(**{LABEL_COLUMN: np.repeat(obj_label, len(pts))})
+def instance_id_generator():
+    ins_id: int = 0
+    while True:
+        yield ins_id
+        ins_id += 1
+
+
+def _concat_pts_and_labels(
+    pts: pd.DataFrame, obj_cls_label: int, obj_ins_label: int
+) -> pd.DataFrame:
+    return pts.assign(
+        **{
+            LABEL_COLUMN: np.repeat(obj_cls_label, len(pts)),
+            INSTANCE_COLUMNT: np.repeat(obj_ins_label, len(pts)),
+        }
+    )
 
 
 def _save_pt_to_hdf5(pt: pd.DataFrame, fname: str) -> None:
     with h5py.File(fname, "w") as file:
         file.create_dataset(
-            "pts", data=pt[COLUMN_NAMES].astype(np.float32).values
+            HDF5_FEATURES_KEY, data=pt[COLUMN_NAMES].astype(np.float32).values
         )
         file.create_dataset(
-            "labels", data=pt[LABEL_COLUMN].astype(np.int32).values
+            HDF5_LABELS_KEY, data=pt[LABEL_COLUMN].astype(np.int32).values
+        )
+        file.create_dataset(
+            HDF5_INSTANCE_KEY,
+            data=pt[INSTANCE_COLUMNT].astype(np.int32).values,
         )
 
 
@@ -111,21 +135,29 @@ def prepare_single_area(area_id: int, overwrite: bool = False) -> None:
     """
     pbar = tqdm(_get_rooms_names(area_id=area_id))
     for room_path in pbar:
+        inst_id_gen = instance_id_generator()
         pbar.set_description(f"processing room: {room_path}", refresh=True)
         hdf5_room_path = _get_res_hdf5_path(room_path)
         if os.path.exists(hdf5_room_path) and (not overwrite):
             continue
         room_pts: pd.DataFrame = pd.DataFrame(columns=COLUMN_NAMES_LABEL)
         for abs_obj_file in _get_files_for_room_path(room_path=room_path):
-            obj_label = _get_label_from_path(abs_obj_file)
+            obj_cls_label = _get_label_from_path(abs_obj_file)
+            obj_ins_label = next(inst_id_gen)
             obj_pts = pd.read_csv(abs_obj_file, sep=SEP, names=COLUMN_NAMES)
-            obj_pts = _concat_pts_and_labels(obj_pts, obj_label=obj_label)
+            obj_pts = _concat_pts_and_labels(
+                obj_pts,
+                obj_cls_label=obj_cls_label,
+                obj_ins_label=obj_ins_label,
+            )
             room_pts = pd.concat([room_pts, obj_pts])
         _save_pt_to_hdf5(room_pts, hdf5_room_path)
+
 
 def hdf5_files() -> list[str]:
     """Get all HDF5 files for S3DIS."""
     return glob.glob(os.path.join(base_hdf5_dir(), "*.h5"))
+
 
 def count_hdf5_rooms() -> int:
     """Return the number of HDF5 files for S3DIS dataset."""

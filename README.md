@@ -33,8 +33,12 @@ OpenGeokube Developers:
 }
 ```
 ## 🚧 Roadmap
+
+❗❗❗ MLKit is currently in its alpha stage. All recommendations are welcomed ❗❗❗
+
 - [ ] add handling sklearn-like models
 - [ ] add functionality to serve the model
+- [ ] enable custom metrics
 - [ ] write more unit tests
 
 
@@ -50,7 +54,7 @@ pip install mlkit
 or
 
 ```bash
-conda install ...
+conda install -c conda-forge mlkit
 ```
 
 For contributing:
@@ -99,6 +103,7 @@ The packuge does not yet support model serving.
 1. [Configuring training](#configuring-training)
 1. [Configuring optimizer](#configuring-optimizer)
 1. [Configuring criterion](#configuring-criterion)
+1. [Configuring checkpoint](#configuring-checkpoint)
 1. [Configuring metrics](#configuring-metrics)
 1. [Defining `target`](#defining-target)
 1. [Substitutable symbols](#substitutable-symbols)

@@ -310,6 +310,7 @@ class DatasetConf(BaseModel):
         from mlkit.dataset import (  # pylint: disable=import-outside-toplevel
             MLKitAbstractDataModule,
         )
+
         target_class = io_.import_and_get_attr_from_fully_qualified_name(value)
         assert issubclass(target_class, MLKitAbstractDataModule), (
             "target class of the dataset module must be a subclass of"
