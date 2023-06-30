@@ -333,8 +333,7 @@ class MLKitAbstractModule(
         """Carry out a single training step."""
         y_true, y_scores = self.run_step(batch, batch_idx)
         loss = self.compute_loss(y_scores, y_true)
-        predictions = y_scores.argmax(dim=-1)
-        self.update_train_metrics(true=y_true, predictions=predictions)
+        self.update_train_metrics(true=y_true, predictions=y_scores)
         return loss
 
     def validation_step(
@@ -343,14 +342,12 @@ class MLKitAbstractModule(
         """Carry out a single validation step."""
         y_true, y_scores = self.run_val_step(batch, batch_idx)
         loss = self.compute_loss(y_scores, y_true)
-        predictions = y_scores.argmax(dim=-1)
-        self.update_val_metrics(true=y_true, predictions=predictions)
+        self.update_val_metrics(true=y_true, predictions=y_scores)
         return loss
 
     def test_step(self, batch, batch_idx):  # pylint: disable=arguments-differ
         """Carry out a single test step."""
         y_true, y_scores = self.run_test_step(batch, batch_idx)
         loss = self.compute_loss(y_scores, y_true)
-        predictions = y_scores.argmax(dim=-1)
-        self.update_test_metrics(true=y_true, predictions=predictions)
+        self.update_test_metrics(true=y_true, predictions=y_scores)
         return loss

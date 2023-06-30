@@ -50,8 +50,9 @@ def init(
         shutil.copytree(empty_proj_path, name)
 
 
-def _get_conf_from_file(conf, root_dir: str | None = None):
-    with open(conf, "rt", encoding="utf-8") as file:
+def _get_conf_from_file(conf_path: str, root_dir: str | None = None):
+    assert conf_path and conf_path.endswith(".toml"), "`conf_path` needs to be TOML file!"
+    with open(conf_path, "rt", encoding="utf-8") as file:
         return Conf(root_dir=root_dir, **toml.load(file))  # type: ignore[arg-type]
 
 
