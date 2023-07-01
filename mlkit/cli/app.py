@@ -27,14 +27,14 @@ def update_context_from_runtime(
     prj_dir: str | None = None,
 ) -> None:
     """Update context properties."""
-    context.PROJECT_DIR = prj_dir  # type: ignore[attr-defined]
+    context.PROJECT_DIR = prj_dir
 
 
 def update_context_from_conf(conf: Conf | None = None) -> None:
     if not conf:
         return
-    context.LOG_LEVEL = conf.base.log_level  # type: ignore[attr-defined]
-    context.LOG_FORMAT = conf.base.log_format  # type: ignore[attr-defined]
+    context.LOG_LEVEL = conf.base.log_level
+    context.LOG_FORMAT = conf.base.log_format
 
 
 @_app.command()

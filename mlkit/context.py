@@ -16,10 +16,11 @@ class _ImmutableAttribute:
 
 
 # NOTE: below definitions will not be used, they are required
-# just for suntax suggestions
+# just for suntax suggestions and to avoid mypy [attr-defined] error
 PROJECT_DIR: Any
 LOG_LEVEL: Any
 LOG_FORMAT: Any
+get_dict = None
 
 
 class Context:
