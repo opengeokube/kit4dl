@@ -359,9 +359,9 @@ class Conf(BaseModel):
 
     @validator("metrics")
     def _validate_metrics_class_exist(cls, values):
-        from torchmetrics import (
+        from torchmetrics import ( # pylint: disable=import-outside-toplevel
             Metric,
-        )  # pylint: disable=import-outside-toplevel
+        )
 
         if not values:
             return None
