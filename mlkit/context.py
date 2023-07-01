@@ -22,8 +22,8 @@ LOG_LEVEL: Any
 LOG_FORMAT: Any
 
 
-def get_dict():  # pylint: disable=missing-function-docstring
-    pass
+def get_dict():
+    """Get dictionary of all available context-defined properties."""
 
 
 class Context:

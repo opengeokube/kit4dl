@@ -11,4 +11,5 @@ class Stage(Enum):
     PREDICT = "predict"
 
     def __str__(self) -> str:
+        """Get text representation fo the `Stage`."""
         return self.value

@@ -1,4 +1,5 @@
 import importlib
+import sys
 
 import pytest
 
@@ -383,6 +384,9 @@ class TestConf:
         """
         _ = Conf(**toml.loads(load))
 
+    @pytest.mark.skipif(
+        sys.version_info < (3, 11), reason="test for Python < 3.11"
+    )
     def test_fail_on_duplicated_key_name(self, base_conf_txt):
         load = base_conf_txt + """
         [metrics]
@@ -390,6 +394,18 @@ class TestConf:
         Precision = {target = "torchmetrics::Precision", task = "multiclass", num_classes=10}
         """
         with pytest.raises(ValueError, match="Duplicate keys!"):
+            _ = Conf(**toml.loads(load))
+
+    @pytest.mark.skipif(
+        sys.version_info > (3, 10), reason="test for Python > 3.10"
+    )
+    def test_fail_on_duplicated_key_name(self, base_conf_txt):
+        load = base_conf_txt + """
+        [metrics]
+        Precision = {target = "torchmetrics::Precision", task = "multiclass", num_classes=10}
+        Precision = {target = "torchmetrics::Precision", task = "multiclass", num_classes=10}
+        """
+        with pytest.raises(ValueError, match="Cannot overwrite a value.*"):
             _ = Conf(**toml.loads(load))
 
     @pytest.mark.skip(

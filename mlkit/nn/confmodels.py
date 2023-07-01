@@ -359,10 +359,6 @@ class Conf(BaseModel):
 
     @validator("metrics")
     def _validate_metrics_class_exist(cls, values):
-        from torchmetrics import ( # pylint: disable=import-outside-toplevel
-            Metric,
-        )
-
         if not values:
             return None
         for metric_name, metric_dict in values.items():
@@ -376,7 +372,7 @@ class Conf(BaseModel):
             # as __bases__ for metrics in `object`. Method issubclass
             # can be used for custom metrics
             _, attr_name = io_.split_target(metric_dict["target"])
-            assert issubclass(target_class, Metric) or hasattr(
+            assert issubclass(target_class, tm.Metric) or hasattr(
                 tm, attr_name
             ), (
                 "custom metrics need to be subclasses of `torchmetrics.Metric`"
