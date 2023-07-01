@@ -9,6 +9,7 @@ import torch
 from mlkit.metric import MetricStore
 from mlkit.mixins import LoggerMixin
 from mlkit.nn.confmodels import Conf
+from mlkit.stages import Stage
 
 
 class MLKitAbstractModule(
@@ -251,7 +252,7 @@ class MLKitAbstractModule(
             metric_name,
             metric_value,
         ) in self.train_metric_tracker.results.items():
-            stage_metric_name = f"train_{metric_name}"
+            stage_metric_name = f"{Stage.TRAIN}_{metric_name}"
             self.info(
                 "epoch: %d metric: %s value: %s",
                 self.current_epoch,
@@ -270,7 +271,7 @@ class MLKitAbstractModule(
             metric_name,
             metric_value,
         ) in self.val_metric_tracker.results.items():
-            stage_metric_name = f"val_{metric_name}"
+            stage_metric_name = f"{Stage.VALIDATION}_{metric_name}"
             self.info(
                 "epoch: %d metric: %s value: %s",
                 self.current_epoch,
@@ -289,7 +290,7 @@ class MLKitAbstractModule(
             metric_name,
             metric_value,
         ) in self.test_metric_tracker.results.items():
-            stage_metric_name = f"test_{metric_name}"
+            stage_metric_name = f"{Stage.TEST}_{metric_name}"
             self.info(
                 "epoch: %d metric: %s value: %s",
                 self.current_epoch,
@@ -332,8 +333,7 @@ class MLKitAbstractModule(
         """Carry out a single training step."""
         y_true, y_scores = self.run_step(batch, batch_idx)
         loss = self.compute_loss(y_scores, y_true)
-        predictions = y_scores.argmax(dim=-1)
-        self.update_train_metrics(true=y_true, predictions=predictions)
+        self.update_train_metrics(true=y_true, predictions=y_scores)
         return loss
 
     def validation_step(
@@ -342,14 +342,12 @@ class MLKitAbstractModule(
         """Carry out a single validation step."""
         y_true, y_scores = self.run_val_step(batch, batch_idx)
         loss = self.compute_loss(y_scores, y_true)
-        predictions = y_scores.argmax(dim=-1)
-        self.update_val_metrics(true=y_true, predictions=predictions)
+        self.update_val_metrics(true=y_true, predictions=y_scores)
         return loss
 
     def test_step(self, batch, batch_idx):  # pylint: disable=arguments-differ
         """Carry out a single test step."""
         y_true, y_scores = self.run_test_step(batch, batch_idx)
         loss = self.compute_loss(y_scores, y_true)
-        predictions = y_scores.argmax(dim=-1)
-        self.update_test_metrics(true=y_true, predictions=predictions)
+        self.update_test_metrics(true=y_true, predictions=y_scores)
         return loss

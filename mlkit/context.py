@@ -16,10 +16,14 @@ class _ImmutableAttribute:
 
 
 # NOTE: below definitions will not be used, they are required
-# just for suntax suggestions
+# just for suntax suggestions and to avoid mypy [attr-defined] error
 PROJECT_DIR: Any
 LOG_LEVEL: Any
 LOG_FORMAT: Any
+
+
+def get_dict():
+    """Get dictionary of all available context-defined properties."""
 
 
 class Context:
@@ -28,6 +32,14 @@ class Context:
     PROJECT_DIR: _ImmutableAttribute = _ImmutableAttribute()
     LOG_LEVEL: _ImmutableAttribute = _ImmutableAttribute()
     LOG_FORMAT: _ImmutableAttribute = _ImmutableAttribute()
+
+    def get_dict(self) -> dict:
+        """Get dictionary of all available context-defined properties."""
+        return {
+            key: getattr(self, key)
+            for key, value in type(self).__dict__.items()
+            if isinstance(value, _ImmutableAttribute)
+        }
 
     def __setattr__(self, name: str, value: Any) -> None:
         """

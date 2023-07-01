@@ -18,11 +18,12 @@ epochs = 10
 epoch_schedulers = [
     {target = "torch.optim.lr_scheduler::CosineAnnealingLR", T_max = 100}
 ]
+accumulate_grad_batches = 5
 
 [training.checkpoint]
 path = "{PROJECT_DIR}/chckpt"
-monitor = {"metric" = "Precision", "stage" = "val"}
-filename = "{epoch}_{val_precision:.2f}_cnn"
+monitor = {"metric" = "JaccardIndexMacro", "stage" = "val"}
+filename = "{epoch}_{val_jaccardindexmacro:.2f}_cnn"
 mode = "max"
 save_top_k = 1
 
@@ -48,15 +49,15 @@ test_area = 5
 test_area = 5
 
 [dataset.train.loader]
-batch_size = 2
+batch_size = 1
 shuffle = true
 num_workers = 4
 
 [dataset.validation.loader]
-batch_size = 2
+batch_size = 1
 shuffle = false
 num_workers = 4
 
 [metrics]
-Precision = {task = "multiclass", num_classes=10}
-FBetaScore = {task = "multiclass", num_classes=10, beta = 0.1}
+JaccardIndexMacro = {target = "torchmetrics::JaccardIndex", task = "multiclass", num_classes = 14, average = "micro"}
+JaccardIndexMicro = {target = "torchmetrics::JaccardIndex", task = "multiclass", num_classes = 14, average = "macro"}

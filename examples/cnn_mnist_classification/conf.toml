@@ -20,8 +20,8 @@ epoch_schedulers = [
 
 [training.checkpoint]
 path = "chckpt"
-monitor = {"metric" = "Precision", "stage" = "val"}
-filename = "{epoch}_{val_precision:.2f}_cnn"
+monitor = {"metric" = "MyPrecision", "stage" = "val"}
+filename = "{epoch}_{val_myprecision:.2f}_cnn"
 mode = "max"
 save_top_k = 1
 
@@ -54,5 +54,5 @@ shuffle = false
 num_workers = 4
 
 [metrics]
-Precision = {task = "multiclass", num_classes=10}
-FBetaScore = {task = "multiclass", num_classes=10, beta = 0.1}
+MyPrecision = {target = "torchmetrics::Precision", task = "multiclass", num_classes=10}
+FBetaScore = {target = "torchmetrics::FBetaScore", task = "multiclass", num_classes=10, beta = 0.1}

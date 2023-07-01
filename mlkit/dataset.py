@@ -40,12 +40,12 @@ class MLKitAbstractDataModule(ABC, pl.LightningDataModule, LoggerMixin):
 
     def _configure_logger(self) -> None:
         self._logger = logging.getLogger("mlkit.dataset")
-        if context.LOG_FORMAT:  # type: ignore[attr-defined]
-            formatter = logging.Formatter(context.LOG_FORMAT)  # type: ignore[attr-defined]
+        if context.LOG_FORMAT:
+            formatter = logging.Formatter(context.LOG_FORMAT)
             for handler in self._logger.handlers:
                 handler.setFormatter(formatter)
         for handler in self._logger.handlers:
-            handler.setLevel(context.LOG_LEVEL)  # type: ignore[arg-type, attr-defined]
+            handler.setLevel(context.LOG_LEVEL)  # type: ignore[arg-type]
 
     def prepare_data(self):
         """Prepare dataset for train/validation/test/predict splits.

@@ -118,10 +118,11 @@ mlkit train
 1. [Configuring training](#configuring-training)
 1. [Configuring optimizer](#configuring-optimizer)
 1. [Configuring criterion](#configuring-criterion)
-1. [Configuring checkpoint](#configuring-checkpoint)
 1. [Configuring metrics](#configuring-metrics)
+1. [Configuring checkpoint](#configuring-checkpoint)
 1. [Defining `target`](#defining-target)
 1. [Substitutable symbols](#substitutable-symbols)
+1. [Context constants](#context-constants)
 
 #### Configuring base setup
 Most of the training/validation procedure is managed by a configuration file in the TOML format (reccomended name is `conf.toml`).
@@ -384,47 +385,18 @@ weight = [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
 > ❗ The section `[training.criterion]` is **mandatory**.
 > ❗ You can always define the custom optimizer. Then, you just need to set the proper `target` value.
 
-#### Configuring checkpoint
-If you need to save your intermediate weights (do checkpoints) you can configure the optional subsection `[training.checkpoint]`.
-In the section, you can define the following proeprties:
-
-|   **Property** 	|  **Type**        |         **Details**              |
-|---------------	|----------------- | -------------------------------- | 
-|      `path`*      |   `str`          |    path to a directory where checkpoints should be stored	              | 
-|`monitor`* |  `dict`  |  a dictionary with two keys: `metric` and `stage`. `metrics` is a metric name as defined in the `[metrics]` section ([Configuring metrics](#configuring-metrics)), `stage` is one of the following: [`train`, `val`]  |
-|      `filename`*      |   `str`          |    filename pattern of the checkpoint (see (PyTorch Lightning `ModelCheckpoint`)[https://lightning.ai/docs/pytorch/stable/api/lightning.pytorch.callbacks.ModelCheckpoint.html])	              | 
-|      `mode`      |   `min` | `max`          |    to save checkpoint for `min`imum or `max`imum value of the metric being tracked (`monitor`). **default: `max`**	              | 
-|      `save_top_k`      |   `int`          |   save checkepoints for the top `k` values of the metric. **default: `1`**	              |
-|      `save_weights_only`      |   `bool`          |   if only weights should be saved (`True`) or other states (optimizer, scheduler) also (`False`). **default: `True`**	              |
-|      `every_n_epochs`     |   `int`          |    The number of training epochs between saving sucessive checkpoints. **default: `1`**	       | 
-|      `save_on_train_epoch_end`      |   `bool`          |    if `False` checkpointing is run at the end of the validation, otherwise - training   **default: `False`**	           | 
-
-> ❗ Arguments marked with `*` are obligatory!
-
-##### ✍️ Example
-```toml
-[training.checkpoint]
-path = "{PROJECT_DIR}/chckpt"
-monitor = {"metric" = "Precision", "stage" = "val"}
-filename = "{epoch}_{val_precision:.2f}_cnn"
-mode = "max"
-save_top_k = 1
-```
-
-> ❗ You can see we used substitutable symbol `{PROJECT_DIR}`. More about them in the Section [Substitutable symbols](#substitutable-symbols).
-
-
 #### Configuring metrics
-Metrics are configured in the section `[metrics]` of the configuration file. To use a given metric, just define them in the section,
-together with keyword arguments they require. All `torchmetrics` metrics are supported. **REMEMBER:** use the proper metric name as a key:
+Metrics are configured in the section `[metrics]` of the configuration file. You can define several metrics (including the custom ones). 
+The only thing you need to do is to define all desired metrics. For each metric dictionary, you need to set `target` (see Section [Defining `target`](#defining-target)) value and, eventually, extra arguments. **REMEMBER** to have metric names (here `MyPrecision` and `FBetaScore`) unique!
 
 ##### ✍️ Example
 ```toml
 [metrics]
-Precision = {task = "multiclass", num_classes=10}
-FBetaScore = {task = "multiclass", num_classes=10, beta = 0.1}
+MyPrecision = {target = "torchmetrics::Precision", task = "multiclass", num_classes=10}
+FBetaScore = {target = "torchmetrics::FBetaScore", task = "multiclass", num_classes=10, beta = 0.1}
 ```
-> ❗ Currently, custom metrics are not supported. The workaround (yet not recommended) is to provide the custom metric (according to (Torchmetrics custom metric)[https://torchmetrics.readthedocs.io/en/stable/pages/implement.html]) and add it to the `torchmetrics` module before the configuration file is parsed.
+> ❗ You can define custom metrics. Just properly set `target` value. **REMEMBER!** The custom metric need to be a subclass of `torchmetrics.Metric` class!
+
 ```python
 import torch
 import torchmetrics as tm
@@ -436,9 +408,39 @@ class MyMetric(tm.Metric):
         ...
      def compute(self):
         ...
-
-tm.MyMetric = MyMetric
 ```
+
+#### Configuring checkpoint
+If you need to save your intermediate weights (do checkpoints) you can configure the optional subsection `[training.checkpoint]`.
+In the section, you can define the following proeprties:
+
+|   **Property** 	|  **Type**        |         **Details**              |
+|---------------	|----------------- | -------------------------------- | 
+|      `path`*      |   `str`          |    path to a directory where checkpoints should be stored	              | 
+|`monitor`* |  `dict`  |  a dictionary with two keys: `metric` and `stage`. `metrics` is a metric name as defined in the `[metrics]` section ([Configuring metrics](#configuring-metrics)), `stage` is one of the following: [`train`, `val`]  |
+|      `filename`*      |   `str`          |    filename pattern of the checkpoint (see (PyTorch Lightning `ModelCheckpoint`)[https://lightning.ai/docs/pytorch/stable/api/lightning.pytorch.callbacks.ModelCheckpoint.html])	you can use value of the defined metric for the stage. if you want `MyPrecision` score for the validation stage, use `{val_myprecision}` in the filename               | 
+|      `mode`      |   `min` | `max`          |    to save checkpoint for `min`imum or `max`imum value of the metric being tracked (`monitor`). **default: `max`**	              | 
+|      `save_top_k`      |   `int`          |   save checkepoints for the top `k` values of the metric. **default: `1`**	              |
+|      `save_weights_only`      |   `bool`          |   if only weights should be saved (`True`) or other states (optimizer, scheduler) also (`False`). **default: `True`**	              |
+|      `every_n_epochs`     |   `int`          |    The number of training epochs between saving sucessive checkpoints. **default: `1`**	       | 
+|      `save_on_train_epoch_end`      |   `bool`          |    if `False` checkpointing is run at the end of the validation, otherwise - training   **default: `False`**	           | 
+
+> ❗ Arguments marked with `*` are obligatory!
+
+##### ✍️ Example
+```toml
+[training.checkpoint]
+path = "${PROJECT_DIR}/chckpt"
+monitor = {"metric" = "Precision", "stage" = "val"}
+filename = "{epoch}_{val_precision:.2f}_cnn"
+mode = "max"
+save_top_k = 1
+```
+
+> ❗ You can see we used substitutable symbol `${PROJECT_DIR}`. More about them in the Section [Substitutable symbols](#substitutable-symbols).
+
+
+
 
 #### Defining `target`
 Target property in the MLKit package is kind of extended fully qualified name pointing to the classes supposed to use in the
@@ -460,11 +462,29 @@ It might be set in several different ways:
 
 #### Substitutable symbols
 In the configuration file you can use symbols that will be substituted during the runtime.
-The symbols should be used in curly brackets (e.g. `{PROJECT_DIR}`.)
+The symbols should be used in curly brackets (e.g. `${PROJECT_DIR}`.)
 
 |   **Symbol** 	|            **Meaning of the symbol**                                   	|          **Example**                  |
 |-------------	|-----------------------------------------------------------------------	| -----------------------------------	|
-| `PROJECT_DIR`	| the home directory of the TOML configuration file (project directory) 	| `target = {PROJECT_DIR}/model.py`     |
+| `PROJECT_DIR`	| the home directory of the TOML configuration file (project directory) 	| `target = ${PROJECT_DIR}/model.py`     |
 
 
+
+#### Context constants
+When you run training using `mlkit train` command, all custom modules have access to context constant values (defined for the current Python interpreter session).
+You can access them via `context` module:
+
+##### ✍️ Example
+```python
+from mlkit import context
+
+print(context.PROJECT_DIR)
+```
+
+The constants currently available in `mlkit` are the following:
+|   **Symbol** 	|            **Meaning of the symbol**                                   	|          **Example**                  |
+|-------------	|-----------------------------------------------------------------------	| -----------------------------------	|
+| `PROJECT_DIR`	| the home directory of the TOML configuration file (project directory) 	| `context.PROJECT_DIR`                 |
+| `LOG_LEVEL`	| logging level as defined in the configuration TOML file                	| `context.LOG_LEVEL`                   |
+| `LOG_FORMAT`	| logging message format as defined in the configuration TOML file      	| `context.LOG_FORMAT`                  |
 

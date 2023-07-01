@@ -8,6 +8,7 @@ experiment_name = "my_new_awesome_experiment"
 
 [model]
 # path to you model given as an absolute path or a relative (with respect to the conf.toml file)
+# or just `target = "model::MyNewNetwork"` - as dir with conf file is added to PYTHONPATH
 target = "./model.py::MyNewNetwork"
 # here you pass any extra keword arguments required by your model - MyNewNetwork
 # like: input dimensions, dropout values, etc.
@@ -17,18 +18,18 @@ arg2 = ...
 [training]
 epochs = 100
 epoch_schedulers = [
-    {target = "torch.optim.schedulers::CosineAnnealing"}
+    {target = "torch.optim.schedulers::CosineAnnealing", T_max=100}
 ]
 
 [training.checkpoint]
 # directory where checkpoint should be saved
 path = "my_checkpoints"
 # metric being tracked and stage for which comparison is done. supported stages are: "train" or "val"
-monitor = {"metric" = "Precision", "stage" = "val"}
+monitor = {"metric" = "MyScore", "stage" = "val"}
 # filename pattern as described in https://lightning.ai/docs/pytorch/stable/api/lightning.pytorch.callbacks.ModelCheckpoint.html
 # metric value for use in `filename` is constructed as <stage>_<lowercase metric name>
 # REMEMBER! Define used metric in the `metrics` table in this file!
-filename = "{epoch}_{val_precision:.2f}_convlstm"
+filename = "{epoch}_{val_myscore:.2f}_some_name"
 # here you can define some other arguments accepted by ttps://lightning.ai/docs/pytorch/stable/api/lightning.pytorch.callbacks.ModelCheckpoint.html
 mode = "max"
 save_top_k = 1
@@ -42,7 +43,7 @@ weight_decay = 0.03
 
 [training.criterion]
 target = "torch.nn::NLLLoss"
-weight = [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
+weight = [0.1, 0.9]
 
 [validation]
 # how often validation should be run
@@ -81,7 +82,7 @@ shuffle = false
 num_workers = 4
 
 [metrics]
-# here you define metrics you want to log. use those defined
-# in the `torchmetrics` package.
-Precision = {task = "multiclass", num_classes=10}
-FBetaScore = {task = "multiclass", num_classes=10, beta = 2}
+# here you define metrics you want to log
+# you can use custom metrics (need to be subclasses of torchmetrics.Metric)
+MyScore = {target = "torchmetrics::Precision", task = "multiclass", num_classes=10}
+MySecondScore = {target = "torchmetrics::FBetaScore", task = "multiclass", num_classes=10, beta = 2}
