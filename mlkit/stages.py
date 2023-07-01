@@ -1,6 +1,7 @@
 """Module with stages utils."""
 from enum import Enum
 
+
 class Stage(Enum):
     TRAIN = "train"
     VALIDATION = "val"

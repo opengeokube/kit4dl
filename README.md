@@ -430,14 +430,14 @@ In the section, you can define the following proeprties:
 ##### ✍️ Example
 ```toml
 [training.checkpoint]
-path = "{PROJECT_DIR}/chckpt"
+path = "${PROJECT_DIR}/chckpt"
 monitor = {"metric" = "Precision", "stage" = "val"}
 filename = "{epoch}_{val_precision:.2f}_cnn"
 mode = "max"
 save_top_k = 1
 ```
 
-> ❗ You can see we used substitutable symbol `{PROJECT_DIR}`. More about them in the Section [Substitutable symbols](#substitutable-symbols).
+> ❗ You can see we used substitutable symbol `${PROJECT_DIR}`. More about them in the Section [Substitutable symbols](#substitutable-symbols).
 
 
 
@@ -462,11 +462,11 @@ It might be set in several different ways:
 
 #### Substitutable symbols
 In the configuration file you can use symbols that will be substituted during the runtime.
-The symbols should be used in curly brackets (e.g. `{PROJECT_DIR}`.)
+The symbols should be used in curly brackets (e.g. `${PROJECT_DIR}`.)
 
 |   **Symbol** 	|            **Meaning of the symbol**                                   	|          **Example**                  |
 |-------------	|-----------------------------------------------------------------------	| -----------------------------------	|
-| `PROJECT_DIR`	| the home directory of the TOML configuration file (project directory) 	| `target = {PROJECT_DIR}/model.py`     |
+| `PROJECT_DIR`	| the home directory of the TOML configuration file (project directory) 	| `target = ${PROJECT_DIR}/model.py`     |
 
 
 

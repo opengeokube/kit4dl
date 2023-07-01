@@ -347,9 +347,7 @@ class Conf(BaseModel):
 
     base: BaseConf
     model: ModelConf
-    metrics: dict[str, dict[str, Any]] | None = Field(
-        default_factory=dict
-    )
+    metrics: dict[str, dict[str, Any]] | None = Field(default_factory=dict)
     training: TrainingConf
     validation: ValidationConf
     dataset: DatasetConf
@@ -361,19 +359,30 @@ class Conf(BaseModel):
 
     @validator("metrics")
     def _validate_metrics_class_exist(cls, values):
-        from torchmetrics import Metric  # pylint: disable=import-outside-toplevel
-                 
+        from torchmetrics import (
+            Metric,
+        )  # pylint: disable=import-outside-toplevel
+
         if not values:
             return None
         for metric_name, metric_dict in values.items():
-            assert "target" in metric_dict, f"`target` is not defined for the metric `{metric_name}`"
-            target_class = io_.import_and_get_attr_from_fully_qualified_name(metric_dict["target"])
+            assert (
+                "target" in metric_dict
+            ), f"`target` is not defined for the metric `{metric_name}`"
+            target_class = io_.import_and_get_attr_from_fully_qualified_name(
+                metric_dict["target"]
+            )
             # TODO: issubclass for torchmetrics metric does not work
             # as __bases__ for metrics in `object`. Method issubclass
             # can be used for custom metrics
-            _, attr_name  = io_.split_target(metric_dict["target"])
-            assert issubclass(target_class, Metric) or hasattr(tm, attr_name), "custom metrics need to be subclasses of `torchmetrics.Metric` class!"
-        return values    
+            _, attr_name = io_.split_target(metric_dict["target"])
+            assert issubclass(target_class, Metric) or hasattr(
+                tm, attr_name
+            ), (
+                "custom metrics need to be subclasses of `torchmetrics.Metric`"
+                " class!"
+            )
+        return values
 
     @root_validator(skip_on_failure=True)
     def _check_metric_in_checkpoint_is_defined(cls, values):
@@ -392,7 +401,11 @@ class Conf(BaseModel):
         metric_obj: dict = {}
         for metric_name, metric_args in self.metrics.items():
             metric_args_copy = metric_args.copy()
-            metric_obj[metric_name.lower()] = io_.import_and_get_attr_from_fully_qualified_name(metric_args_copy.pop("target"))(**metric_args_copy)
+            metric_obj[metric_name.lower()] = (
+                io_.import_and_get_attr_from_fully_qualified_name(
+                    metric_args_copy.pop("target")
+                )(**metric_args_copy)
+            )
         return metric_obj
 
     @classmethod

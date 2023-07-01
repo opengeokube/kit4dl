@@ -29,6 +29,13 @@ class Context:
     LOG_LEVEL: _ImmutableAttribute = _ImmutableAttribute()
     LOG_FORMAT: _ImmutableAttribute = _ImmutableAttribute()
 
+    def get_dict(self) -> dict:
+        return {
+            key: getattr(self, key)
+            for key, value in type(self).__dict__.items()
+            if isinstance(value, _ImmutableAttribute)
+        }
+
     def __setattr__(self, name: str, value: Any) -> None:
         """
         Set the value for a context property.

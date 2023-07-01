@@ -18,6 +18,7 @@ docs:
 
 .PHONY: clean
 clean:
+	rm -rf build
 	rm -rf dist
 	rm -rf .pytest_cache
 	rm -rf .mypy_cache
@@ -25,4 +26,4 @@ clean:
 	find . -type d -name "__pycache__" | xargs rm -fr
 	find . -type d -name ".ipynb_checkpoints" | xargs rm -fr
 
-prepublish: format typehint docs test clean
+prepublish: clean format typehint docs test clean

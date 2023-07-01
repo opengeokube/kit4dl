@@ -14,6 +14,7 @@ import typer
 from typing_extensions import Annotated
 
 from mlkit import context
+from mlkit.formatting import escape_os_sep, substitute_symbols
 from mlkit.nn.confmodels import Conf
 from mlkit.nn.trainer import Trainer
 
@@ -22,9 +23,16 @@ _app = typer.Typer(name="MLKit")
 log = logging.getLogger("MLKit.CLI")
 
 
-def update_runtime_context(prj_dir: str, conf: Conf) -> None:
+def update_context_from_runtime(
+    prj_dir: str | None = None,
+) -> None:
     """Update context properties."""
     context.PROJECT_DIR = prj_dir  # type: ignore[attr-defined]
+
+
+def update_context_from_conf(conf: Conf | None = None) -> None:
+    if not conf:
+        return
     context.LOG_LEVEL = conf.base.log_level  # type: ignore[attr-defined]
     context.LOG_FORMAT = conf.base.log_format  # type: ignore[attr-defined]
 
@@ -51,9 +59,13 @@ def init(
 
 
 def _get_conf_from_file(conf_path: str, root_dir: str | None = None):
-    assert conf_path and conf_path.endswith(".toml"), "`conf_path` needs to be TOML file!"
+    assert conf_path and conf_path.endswith(
+        ".toml"
+    ), "`conf_path` needs to be TOML file!"
     with open(conf_path, "rt", encoding="utf-8") as file:
-        return Conf(root_dir=root_dir, **toml.load(file))  # type: ignore[arg-type]
+        text_load = substitute_symbols(file.read(), **context.get_dict())
+        text_load_escaped = escape_os_sep(text_load)
+        return Conf(root_dir=root_dir, **toml.loads(text_load_escaped))  # type: ignore[arg-type]
 
 
 def _get_default_conf_path() -> str:
@@ -85,8 +97,9 @@ def train(
         )
     prj_dir = os.path.join(os.getcwd(), root_dir)
     sys.path.append(prj_dir)
+    update_context_from_runtime(prj_dir=prj_dir)
     conf_ = _get_conf_from_file(conf, root_dir=root_dir)
-    update_runtime_context(prj_dir=prj_dir, conf=conf_)
+    update_context_from_conf(conf=conf_)
     log.info("Running trainer \U0001f3ac")
     Trainer(conf=conf_).prepare().fit()
     log.info("Training finished \U00002728")
