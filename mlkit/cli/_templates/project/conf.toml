@@ -25,7 +25,7 @@ epoch_schedulers = [
 # directory where checkpoint should be saved
 path = "my_checkpoints"
 # metric being tracked and stage for which comparison is done. supported stages are: "train" or "val"
-monitor = {"metric" = "MyScore", "stage" = "val"}
+monitor = {metric = "MyScore", stage = "val"}
 # filename pattern as described in https://lightning.ai/docs/pytorch/stable/api/lightning.pytorch.callbacks.ModelCheckpoint.html
 # metric value for use in `filename` is constructed as <stage>_<lowercase metric name>
 # REMEMBER! Define used metric in the `metrics` table in this file!
