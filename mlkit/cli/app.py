@@ -26,11 +26,12 @@ log = logging.getLogger("MLKit.CLI")
 def update_context_from_runtime(
     prj_dir: str | None = None,
 ) -> None:
-    """Update context properties."""
+    """Update context properties from the runtime variables."""
     context.PROJECT_DIR = prj_dir
 
 
 def update_context_from_conf(conf: Conf | None = None) -> None:
+    """Update context from the configuration file."""
     if not conf:
         return
     context.LOG_LEVEL = conf.base.log_level

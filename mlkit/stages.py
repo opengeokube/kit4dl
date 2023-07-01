@@ -3,6 +3,8 @@ from enum import Enum
 
 
 class Stage(Enum):
+    """ML procedure stages."""
+
     TRAIN = "train"
     VALIDATION = "val"
     TEST = "test"

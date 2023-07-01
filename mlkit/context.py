@@ -20,7 +20,10 @@ class _ImmutableAttribute:
 PROJECT_DIR: Any
 LOG_LEVEL: Any
 LOG_FORMAT: Any
-get_dict = None
+
+
+def get_dict():  # pylint: disable=missing-function-docstring
+    pass
 
 
 class Context:
@@ -31,6 +34,7 @@ class Context:
     LOG_FORMAT: _ImmutableAttribute = _ImmutableAttribute()
 
     def get_dict(self) -> dict:
+        """Get dictionary of all available context-defined properties."""
         return {
             key: getattr(self, key)
             for key, value in type(self).__dict__.items()

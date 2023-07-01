@@ -1,7 +1,11 @@
 from unittest.mock import patch
 
 import pytest
-import toml
+
+try:
+    import tomllib as toml
+except ModuleNotFoundError:
+    import toml  # type: ignore[no-redef]
 
 from mlkit.formatting import (
     _UNIX_PATHNAME_SEP,
