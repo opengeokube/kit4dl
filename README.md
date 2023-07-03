@@ -137,7 +137,7 @@ It has the following properties:
 |   `log_level`     |  `str`           | logging level, should be one out of `debug`, `info`, `warn`, `error`, `critical`                         |
 |  `log_format`     | `str`            | format of the logging message accoridng to Python's `logging` package  (e.g. `"%(asctime)s - %(name)s`)  |
 
-> ❗ Arguments marked with `*` are obligatory!
+> **Note**: Arguments marked with `*` are obligatory!
 
 
 ##### ✍️ Example
@@ -178,13 +178,13 @@ class SimpleCNN(MLKitAbstractModule):
         x, label = batch
         return label, self.l1(x)
 ```
-> ❗ Note that `run_step` method should return a tuple of two tensors, the ground-truth labels and the output of the network.
+> **Note**: Note that `run_step` method should return a tuple of two tensors, the ground-truth labels and the output of the network.
 
-> ❗ Note that `batch` argument can be unpacked depending on how you define your dataset for datamodule (see [Defining datamodule](#defining-datamodule))
+> **Note**: Note that `batch` argument can be unpacked depending on how you define your dataset for datamodule (see [Defining datamodule](#defining-datamodule))
 
 In the configuration file, in the dedicated `[model]` section, at least `target` property should be set. The extra arguments are treated as the arguments for the `configure` method.
 
-> ❗ Note that arguments' values of the `configure` method (i.e. `input_dims` and `output_dims`) are taken from the configuration files. Those names can be arbitrary.
+> **Note**: Note that arguments' values of the `configure` method (i.e. `input_dims` and `output_dims`) are taken from the configuration files. Those names can be arbitrary.
 
 ##### ✍️ Example
 ```toml
@@ -193,7 +193,7 @@ target = "./model.py::SimpleCNN"
 input_dims = 1
 output_dims = 10
 ```
-> ❗ `target` is a required parameter that **must** be set. It contains a path to the class (a subclass of `MLKitAbstractModule`). To learn how `target` could be defined, see Section [Defining `target`](#defining-target).
+> **Note**: `target` is a required parameter that **must** be set. It contains a path to the class (a subclass of `MLKitAbstractModule`). To learn how `target` could be defined, see Section [Defining `target`](#defining-target).
 
 If a forward pass for your model differs for the training, validation, test, or prediction stages, you can define separate methods for them:
 
@@ -215,7 +215,7 @@ class SimpleCNN(MLKitAbstractModule):
         pass            
 ```
 
-> ❗ If you need more customization of the process, you can always override the existing methods according to your needs.
+> **Note**: If you need more customization of the process, you can always override the existing methods according to your needs.
 
 #### Defining datamodule
 Similarily to the model, datamodule instance is fully defined by the Python class and its configuration.
@@ -264,7 +264,7 @@ class MNISTCustomDatamodule(MLKitAbstractDataModule):
         ...
 ```
 
-> ❗ **DO NOT** set state inside `prepare_data` method (~~`self.x = ...`~~).
+> **Note**: **DO NOT** set state inside `prepare_data` method (~~`self.x = ...`~~).
 
 If you need more customization, feel free to override the other methods of `MLKitAbstractDataModule` superclass.
 To force custom batch collation, override selected methods out of the following ones. They should return the proper callable object!
@@ -287,7 +287,7 @@ class MNISTCustomDatamodule(MLKitAbstractDataModule):
         return some_collate_func
 ```
 
-> ❗ **DO NOT** use nested function as a callation callable. It will fail due to pickling nested function error.
+> **Note**: **DO NOT** use nested function as a callation callable. It will fail due to pickling nested function error.
 
 If you need a custom batch collation but the same for each stage (train/val/test/predict), implement the method `get_collate_fn()`:
 ```python
@@ -324,7 +324,7 @@ Respectively, in the `[dataset.train]` you pass values for the parameters of the
 
 Besides dataset configuration, you need to specify data loader arguments as indicated in the PyTorch docs [torch.utils.data.DataLoader](https://pytorch.org/docs/stable/data.html#torch.utils.data.DataLoader).
 
-> ❗ You **cannot** specify loader arguments for in the `[dataset.trainval.loader]`. Loaders should be defined for each split separately.
+> **Note**: You **cannot** specify loader arguments for in the `[dataset.trainval.loader]`. Loaders should be defined for each split separately.
 
 
 #### Configuring training
@@ -336,7 +336,7 @@ You can define the following arguments.
 |      `epochs`*    |   `int > 0`      |  number of epochs	              | 
 |`epoch_schedulers` |  `list of dict`  |  list of schedulers definitions  |
 
-> ❗ Arguments marked with `*` are obligatory!
+> **Note**: Arguments marked with `*` are obligatory!
 
 Besides those listed in the table above, you can specify PyTorch Lightning-related `Trainer` arguments, like:
 1. `accumulate_grad_batches`
@@ -366,8 +366,8 @@ target = "torch.optim::Adam"
 lr = 0.001
 weight_decay = 0.01
 ```
-> ❗ The section `[training.optimizer]` is **mandatory**.
-> ❗ You can always define the custom optimizer. Then, you just need to set the proper `target` value.
+> **Note**: The section `[training.optimizer]` is **mandatory**.
+> **Note**: You can always define the custom optimizer. Then, you just need to set the proper `target` value.
 
 
 #### Configuring criterion
@@ -382,8 +382,8 @@ target = "torch.nn::CrossEntropyLoss"
 weight = [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
 ```
 
-> ❗ The section `[training.criterion]` is **mandatory**.
-> ❗ You can always define the custom optimizer. Then, you just need to set the proper `target` value.
+> **Note**: The section `[training.criterion]` is **mandatory**.
+> **Note**: You can always define the custom optimizer. Then, you just need to set the proper `target` value.
 
 #### Configuring metrics
 Metrics are configured in the section `[metrics]` of the configuration file. You can define several metrics (including the custom ones). 
@@ -395,7 +395,7 @@ The only thing you need to do is to define all desired metrics. For each metric 
 MyPrecision = {target = "torchmetrics::Precision", task = "multiclass", num_classes=10}
 FBetaScore = {target = "torchmetrics::FBetaScore", task = "multiclass", num_classes=10, beta = 0.1}
 ```
-> ❗ You can define custom metrics. Just properly set `target` value. **REMEMBER!** The custom metric need to be a subclass of `torchmetrics.Metric` class!
+> **Note**: You can define custom metrics. Just properly set `target` value. **REMEMBER!** The custom metric need to be a subclass of `torchmetrics.Metric` class!
 
 ```python
 import torch
@@ -425,7 +425,7 @@ In the section, you can define the following proeprties:
 |      `every_n_epochs`     |   `int`          |    The number of training epochs between saving sucessive checkpoints. **default: `1`**	       | 
 |      `save_on_train_epoch_end`      |   `bool`          |    if `False` checkpointing is run at the end of the validation, otherwise - training   **default: `False`**	           | 
 
-> ❗ Arguments marked with `*` are obligatory!
+> **Note**: Arguments marked with `*` are obligatory!
 
 ##### ✍️ Example
 ```toml
@@ -437,7 +437,7 @@ mode = "max"
 save_top_k = 1
 ```
 
-> ❗ You can see we used substitutable symbol `${PROJECT_DIR}`. More about them in the Section [Substitutable symbols](#substitutable-symbols).
+> **Note**: You can see we used substitutable symbol `${PROJECT_DIR}`. More about them in the Section [Substitutable symbols](#substitutable-symbols).
 
 
 
@@ -451,14 +451,14 @@ given context, like for:
 1. criterion (`target = "torch.nn::CrossEntropyLoss"`)
 1. schedulers (`target = "torch.optim.lr_scheduler::CosineAnnealingLR"`)
 
-> ❗ As a package/module - class separator the double colon is used `::`!
+> **Note**: As a package/module - class separator the double colon is used `::`!
 
 It might be set in several different ways:
 1. **By using a built-and installed package**. Then, you just need to specify the package/module name and the class name, like `target = "torch.nn::CrossEntropyLoss"`  (we use module `torch.nn` and class `CrossEntropyLoss` defined within).
 1. **By using a custom module in the project directory**. The project directory, i.e. the directory where the confguration TOML file is located, is added to the `PYTHONPATH`, so you can freely use `.py` files defined there as modules. Having the module `model.py` with the `SimpleCNN` class definition, we can write `target` as `target = "model::SimpleCNN"`.
 1. **By using a custom `.py` file.** In this case, you specify `target` as an absolute or relative (w.r.t. the configuration file) to a `.py` file, like `target = "./model.py::SimpleCNN"` or `target = "/usr/neural_nets/my_net/model.py::SimpleCNN"`.
 
-> ❗ For `target` definition you can use substitutable symbols defined below.
+> **Note**: For `target` definition you can use substitutable symbols defined below.
 
 #### Substitutable symbols
 In the configuration file you can use symbols that will be substituted during the runtime.
