@@ -125,7 +125,7 @@ mlkit train
 1. [Context constants](#context-constants)
 
 #### Configuring base setup
-Most of the training/validation procedure is managed by a configuration file in the TOML format (reccomended name is `conf.toml`).
+Most of the training/validation procedure is managed by a configuration file in the TOML format (recommended name is `conf.toml`).
 Each aspect is covered by separate sections. The general one is called `[base]`.
 It has the following properties:
 
@@ -178,13 +178,13 @@ class SimpleCNN(MLKitAbstractModule):
         x, label = batch
         return label, self.l1(x)
 ```
-> **Note**: Note that `run_step` method should return a tuple of two tensors, the ground-truth labels and the output of the network.
+> **Note**: `run_step` method should return a tuple of two tensors, the ground-truth labels and the output of the network.
 
-> **Note**: Note that `batch` argument can be unpacked depending on how you define your dataset for datamodule (see [Defining datamodule](#defining-datamodule))
+> **Note**: `batch` argument can be unpacked depending on how you define your dataset for datamodule (see [Defining datamodule](#defining-datamodule))
 
 In the configuration file, in the dedicated `[model]` section, at least `target` property should be set. The extra arguments are treated as the arguments for the `configure` method.
 
-> **Note**: Note that arguments' values of the `configure` method (i.e. `input_dims` and `output_dims`) are taken from the configuration files. Those names can be arbitrary.
+> **Note**: Arguments' values of the `configure` method (i.e. `input_dims` and `output_dims`) are taken from the configuration files. Those names can be arbitrary.
 
 ##### ✍️ Example
 ```toml
@@ -264,7 +264,7 @@ class MNISTCustomDatamodule(MLKitAbstractDataModule):
         ...
 ```
 
-> **Note**: **DO NOT** set state inside `prepare_data` method (~~`self.x = ...`~~).
+> **Warning**: **DO NOT** set state inside `prepare_data` method (~~`self.x = ...`~~).
 
 If you need more customization, feel free to override the other methods of `MLKitAbstractDataModule` superclass.
 To force custom batch collation, override selected methods out of the following ones. They should return the proper callable object!
@@ -287,7 +287,7 @@ class MNISTCustomDatamodule(MLKitAbstractDataModule):
         return some_collate_func
 ```
 
-> **Note**: **DO NOT** use nested function as a callation callable. It will fail due to pickling nested function error.
+> **Warning**: **DO NOT** use nested function as a callation callable. It will fail due to pickling nested function error.
 
 If you need a custom batch collation but the same for each stage (train/val/test/predict), implement the method `get_collate_fn()`:
 ```python
@@ -324,7 +324,7 @@ Respectively, in the `[dataset.train]` you pass values for the parameters of the
 
 Besides dataset configuration, you need to specify data loader arguments as indicated in the PyTorch docs [torch.utils.data.DataLoader](https://pytorch.org/docs/stable/data.html#torch.utils.data.DataLoader).
 
-> **Note**: You **cannot** specify loader arguments for in the `[dataset.trainval.loader]`. Loaders should be defined for each split separately.
+> **Warning**: You **cannot** specify loader arguments for in the `[dataset.trainval.loader]`. Loaders should be defined for each split separately.
 
 
 #### Configuring training
