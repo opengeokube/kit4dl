@@ -18,7 +18,7 @@ arg2 = ...
 [training]
 epochs = 100
 epoch_schedulers = [
-    {target = "torch.optim.schedulers::CosineAnnealing", T_max=100}
+    {target = "torch.optim.lr_scheduler::CosineAnnealing", T_max=100}
 ]
 
 [training.checkpoint]
