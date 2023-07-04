@@ -7,34 +7,31 @@ log_format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 [model]
 # The directory with conf.toml file is added to path, so we can treat .py
 # files there as the importable modules
-target = "dgcnn::DGCNN"
-input_dims = 1
-layers = 4
-dropout = 0.5
-output_dims = 10
+target = "net::SimpleSegmentationNetwork"
+input_dims = 6
+output_dims = 14
 
 [training]
-epochs = 10
+epochs = 20
 epoch_schedulers = [
-    {target = "torch.optim.lr_scheduler::CosineAnnealingLR", T_max = 100}
+    {target = "torch.optim.lr_scheduler::CosineAnnealingLR", T_max = 20}
 ]
 accumulate_grad_batches = 5
 
 [training.checkpoint]
-path = "{PROJECT_DIR}/chckpt"
+path = "${PROJECT_DIR}/chckpt"
 monitor = {"metric" = "JaccardIndexMacro", "stage" = "val"}
 filename = "{epoch}_{val_jaccardindexmacro:.2f}_cnn"
 mode = "max"
-save_top_k = 1
+save_top_k = 3
 
 [training.optimizer]
 target = "torch.optim::Adam"
 lr = 0.001
-weight_decay = 0.01
+weight_decay = 0.02
 
 [training.criterion]
 target = "torch.nn::CrossEntropyLoss"
-weight = [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
 
 [validation]
 run_every_epoch = 1
@@ -50,14 +47,12 @@ test_area = 5
 
 [dataset.train.loader]
 batch_size = 1
-shuffle = true
 num_workers = 4
 
 [dataset.validation.loader]
 batch_size = 1
-shuffle = false
 num_workers = 4
 
 [metrics]
-JaccardIndexMacro = {target = "torchmetrics::JaccardIndex", task = "multiclass", num_classes = 14, average = "micro"}
-JaccardIndexMicro = {target = "torchmetrics::JaccardIndex", task = "multiclass", num_classes = 14, average = "macro"}
+JaccardIndexMacro = {target = "torchmetrics::JaccardIndex", task = "multiclass", num_classes = 14, average = "macro"}
+JaccardIndexMicro = {target = "torchmetrics::JaccardIndex", task = "multiclass", num_classes = 14, average = "micro"}

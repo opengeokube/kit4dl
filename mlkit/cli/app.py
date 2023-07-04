@@ -38,6 +38,20 @@ def update_context_from_conf(conf: Conf | None = None) -> None:
     context.LOG_FORMAT = conf.base.log_format
 
 
+def _get_conf_from_file(conf_path: str, root_dir: str | None = None):
+    assert conf_path and conf_path.endswith(
+        ".toml"
+    ), "`conf_path` needs to be TOML file!"
+    with open(conf_path, "rt", encoding="utf-8") as file:
+        text_load = substitute_symbols(file.read(), **context.get_dict())
+        text_load_escaped = escape_os_sep(text_load)
+        return Conf(root_dir=root_dir, **toml.loads(text_load_escaped))  # type: ignore[arg-type]
+
+
+def _get_default_conf_path() -> str:
+    return os.path.join(os.getcwd(), "conf.toml")
+
+
 @_app.command()
 def init(
     name: Annotated[
@@ -59,18 +73,20 @@ def init(
         shutil.copytree(empty_proj_path, name)
 
 
-def _get_conf_from_file(conf_path: str, root_dir: str | None = None):
-    assert conf_path and conf_path.endswith(
-        ".toml"
-    ), "`conf_path` needs to be TOML file!"
-    with open(conf_path, "rt", encoding="utf-8") as file:
-        text_load = substitute_symbols(file.read(), **context.get_dict())
-        text_load_escaped = escape_os_sep(text_load)
-        return Conf(root_dir=root_dir, **toml.loads(text_load_escaped))  # type: ignore[arg-type]
+@_app.command()
+def resume(
+    checkpoint: Annotated[
+        str, typer.Option(help="Path to the checkpoint file")
+    ]
+):
+    """Resume learning from the checkpoint.
 
-
-def _get_default_conf_path() -> str:
-    return os.path.join(os.getcwd(), "conf.toml")
+    Parameters
+    ----------
+    checkpoint : str
+        Path to a checkpoint file
+    """
+    raise NotImplementedError
 
 
 @_app.command()
@@ -86,7 +102,7 @@ def train(
     conf : str, optional
         Path to the configuration TOML file.
         If skipped, the program will search for the `conf.toml` file
-        in the current working directoy.
+        in the current working directory.
     """
     log.info("Attept to run training...")
     root_dir = os.path.dirname(conf)

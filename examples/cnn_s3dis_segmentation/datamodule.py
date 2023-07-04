@@ -1,12 +1,8 @@
 # NOTE: we can import local modules as project directory (the directory
 # where the conf.toml file is located) is added to the path
-import glob
-import os
-from typing import Any, Callable
-
 import h5py
+import numpy as np
 import s3dis  # NOTE: local module s3dis.py
-from torch import Tensor
 from torch.utils.data import Dataset
 
 from mlkit import MLKitAbstractDataModule
@@ -17,27 +13,43 @@ class S3DISDataset(Dataset):
 
     __slots__ = ("files",)
 
-    def __init__(self, files: list[str]) -> None:
+    def __init__(self, files: list[str], max_pts: int = 3000000) -> None:
         super().__init__()
         self.files = files
+        self.max_pts = max_pts
+
+    def _limit_points(self, features, labels, instances):
+        assert (
+            len(features) == len(labels) == len(instances)
+        ), "shapes mismach!"
+        if len(features) <= self.max_pts:
+            return (features, labels, instances)
+        idx = np.arange(len(features))
+        np.random.shuffle(idx)
+        idx = idx[: self.max_pts]
+        return (features[idx], labels[idx], instances[idx])
 
     def __len__(self) -> int:
         return len(self.files)
+
+    def __getitem__(self, index):
+        features, labels, instances = S3DISDataset.load_hdfs_pt(
+            self.files[index]
+        )
+        features, labels, instances = self._limit_points(
+            features, labels, instances
+        )
+        return (features, labels, instances)
 
     @staticmethod
     def load_hdfs_pt(file: str):
         with h5py.File(file, "r") as h5:
             return (
                 h5[s3dis.HDF5_FEATURES_KEY][:],
-                h5[s3dis.HDF5_LABELS_KEY][:],
-                h5[s3dis.HDF5_INSTANCE_KEY][:],
+                h5[s3dis.HDF5_LABELS_KEY][:].astype(np.int64),
+                h5[s3dis.HDF5_INSTANCE_KEY][:].astype(np.int64),
             )
 
-    def __getitem__(self, idx: int) -> tuple[Tensor, Tensor]:
-        features, labels, instances = S3DISDataset.load_hdfs_pt(
-            self.files[idx]
-        )
-        return (features, labels, instances)
 
 class S3DISDatamodule(MLKitAbstractDataModule):
     """Datamodule managing S3DIS dataset."""

@@ -39,9 +39,24 @@ class Trainer(LoggerMixin):
         self._datamodule = self._configure_datamodule()
         return self
 
+    def load_checkpoint(self, path: str) -> "Trainer":
+        """Load model weights from the checkpoint."""
+        self._model = type(self._model).load_from_checkpoint(path)
+        return self
+
     def fit(self) -> "Trainer":
         """Fit the trainer making use of `lightning.pytorch.Trainer`."""
         self._trainer.fit(self._model, datamodule=self._datamodule)
+        return self
+
+    def test(self) -> "Trainer":
+        """Test the model."""
+        self._trainer.test(self._model, datamodule=self._datamodule)
+        return self
+
+    def predict(self) -> "Trainer":
+        """Predict values for the model."""
+        self._trainer.predict(self._model, datamodule=self._datamodule)
         return self
 
     def _new_metric_logger(self) -> pl_log.Logger:

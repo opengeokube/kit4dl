@@ -34,7 +34,7 @@ OpenGeokube Developers:
 ```
 ## 🚧 Roadmap
 
-❗❗❗ MLKit is currently in its alpha stage. All recommendations are welcomed ❗❗❗
+> **Warning**: MLKit is currently in its alpha stage. All recommendations are welcomed.
 
 - [ ] add handling sklearn-like models
 - [ ] add functionality to serve the model
@@ -105,7 +105,7 @@ mlkit train
 ```
 
 #### Point cloud instance segmentation
-Just navigate to the directory `/examples/dgcnn_s3dis` and run
+Just navigate to the directory `/examples/cnn_s3dis_segmentation` and run
 ```bash
 mlkit train
 ```

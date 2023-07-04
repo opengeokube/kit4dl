@@ -4,7 +4,7 @@ __pycache__/
 *$py.class
 
 # datasets
-examples/dgcnn_s3dis/data/
+examples/**/data/
 examples/cnn_mnist_classification/mnist/
 lightning_logs
 
