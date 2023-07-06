@@ -40,6 +40,7 @@ class MLKitAbstractDataModule(ABC, pl.LightningDataModule, LoggerMixin):
 
     def _configure_logger(self) -> None:
         self._logger = logging.getLogger("mlkit.dataset")
+        self._logger.setLevel(context.LOG_LEVEL)
         if context.LOG_FORMAT:
             formatter = logging.Formatter(context.LOG_FORMAT)
             for handler in self._logger.handlers:

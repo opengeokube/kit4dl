@@ -14,4 +14,4 @@ while being in the directory with `conf.toml` file, or specify configuration fil
 mlkit train --conf=<path_to_conf_file>
 ```
 
-> **NOTE**: The MNIST dataset will be downloaded automatically by `PyTorch`.
+> **Note**: The MNIST dataset will be downloaded automatically by `PyTorch`.

@@ -18,11 +18,35 @@ from mlkit.formatting import escape_os_sep, substitute_symbols
 from mlkit.nn.confmodels import Conf
 from mlkit.nn.trainer import Trainer
 
+# ##############################
+#         CREATE CLI
+# ##############################
 _app = typer.Typer(name="MLKit")
 
+# ##############################
+#       CONFIGURE LOGGER
+# ##############################
+_CLI_LOG_LEVEL = "INFO"
+_CLI_LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+
+
+def _configure_logger(logger: logging.Logger):
+    logger.setLevel(_CLI_LOG_LEVEL)
+    formatter = logging.Formatter(_CLI_LOG_FORMAT)
+    handler = logging.StreamHandler(sys.stdout)
+    logger.addHandler(handler)
+    for hdl in log.handlers:
+        hdl.setFormatter(formatter)
+        hdl.setLevel(_CLI_LOG_LEVEL)  # type: ignore[arg-type]
+
+
 log = logging.getLogger("MLKit.CLI")
+_configure_logger(log)
 
 
+# ##############################
+#         UTILS METHODS
+# ##############################
 def update_context_from_runtime(
     prj_dir: str | None = None,
 ) -> None:
@@ -52,6 +76,13 @@ def _get_default_conf_path() -> str:
     return os.path.join(os.getcwd(), "conf.toml")
 
 
+def _remove_redundant_items(path):
+    shutil.rmtree(os.path.join(path, "__pycache__"), ignore_errors=True)
+
+
+# ##############################
+#      COMMANDS DEFINITIONS
+# ##############################
 @_app.command()
 def init(
     name: Annotated[
@@ -67,10 +98,12 @@ def init(
         If skipped, the deafult `new_mlkit_project` will be used
     """
     log.info("MLKit Creating a new skeleton for the project: << %s >>", name)
+    assert not os.path.exists(name), f"The project `{name}` already exists!"
     with importlib.resources.path(
         "mlkit.cli._templates", "project"
     ) as empty_proj_path:
         shutil.copytree(empty_proj_path, name)
+    _remove_redundant_items(name)
 
 
 @_app.command()

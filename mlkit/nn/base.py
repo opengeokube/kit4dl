@@ -37,6 +37,7 @@ class MLKitAbstractModule(
         The methods configure the logger format and sets it to all
         the handlers.
         """
+        self._logger.setLevel(self._conf.base.log_level)  # type: ignore[arg-type]
         if self._conf.base.log_format:
             formatter = logging.Formatter(self._conf.base.log_format)
             for handler in self._logger.handlers:
