@@ -19,7 +19,7 @@ epoch_schedulers = [
 accumulate_grad_batches = 5
 
 [training.checkpoint]
-path = "${PROJECT_DIR}/chckpt"
+path = "{{ PROJECT_DIR }}/chckpt"
 monitor = {"metric" = "JaccardIndexMacro", "stage" = "val"}
 filename = "{epoch}_{val_jaccardindexmacro:.2f}_cnn"
 mode = "max"
