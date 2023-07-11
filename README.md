@@ -138,6 +138,8 @@ It has the following properties:
 
 > **Note**: Arguments marked with `*` are obligatory!
 
+> **Warning**: Remember to install the version of `pytorch-cuda` package compliant to your CUDA Toolkit version.
+
 
 ##### ✍️ Example
 ```toml
@@ -169,7 +171,7 @@ You can define following properties:
 type = "csv"
 # for CSVLogger, we need to define 'save_dir' argument and/or
 # other extra ones (https://lightning.ai/docs/pytorch/stable/api/lightning.pytorch.loggers.csv_logs.html#module-lightning.pytorch.loggers.csv_logs)
-save_dir = "${PROJECT_DIR}/my_metrics.csv"
+save_dir = "{{ PROJECT_DIR }}/my_metrics.csv"
 
 # then we define level and format for logging messages
 level = "info"
@@ -460,14 +462,14 @@ In the section, you can define the following proeprties:
 ##### ✍️ Example
 ```toml
 [training.checkpoint]
-path = "${PROJECT_DIR}/chckpt"
+path = "{{ PROJECT_DIR }}/chckpt"
 monitor = {"metric" = "Precision", "stage" = "val"}
 filename = "{epoch}_{val_precision:.2f}_cnn"
 mode = "max"
 save_top_k = 1
 ```
 
-> **Note**: You can see we used substitutable symbol `${PROJECT_DIR}`. More about them in the Section [Substitutable symbols](#substitutable-symbols).
+> **Note**: You can see we used substitutable symbol `{{ PROJECT_DIR }}`. More about them in the Section [Substitutable symbols](#substitutable-symbols).
 
 
 
@@ -492,13 +494,33 @@ It might be set in several different ways:
 
 #### Substitutable symbols
 In the configuration file you can use symbols that will be substituted during the runtime.
-The symbols should be used in curly brackets (e.g. `${PROJECT_DIR}`.)
+The symbols should be surrended by single spaces and in double curly brackets (e.g. `{{ PROJECT_DIR }}`.)
 
 |   **Symbol** 	|            **Meaning of the symbol**                                   	|          **Example**                  |
 |-------------	|-----------------------------------------------------------------------	| -----------------------------------	|
-| `PROJECT_DIR`	| the home directory of the TOML configuration file (project directory) 	| `target = ${PROJECT_DIR}/model.py`     |
+| `PROJECT_DIR`	| the home directory of the TOML configuration file (project directory) 	| `target = {{ PROJECT_DIR }}/model.py`     |
 
+> **Note**: You can also use environmental variables. Just use `env` dict, e.g.: `{{ env['your_var_name'] }}`.
 
+##### ✍️ Example
+First, let's define some environmental variable: using Python or system tool.
+```python
+import os
+
+os.environ["MY_LOG_LEVEL"] = "INFO"
+```
+or
+```bash
+export MY_LOG_LEVEL="MY_LOG_LEVEL"
+```
+Now, we can use the environmental variable `MY_LOG_LEVEL` in our config file:
+
+```toml
+[logging]
+level = "{{ env['MY_LOG_LEVEL'] }}"
+format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+```
+> **Warning**: If you use **double quote** for text values in TOML configuration file, then use **single quote** to access `env` values. 
 
 #### Context constants
 When you run training using `mlkit train` command, all custom modules have access to context constant values (defined for the current Python interpreter session).

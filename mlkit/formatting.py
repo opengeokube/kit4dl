@@ -1,13 +1,17 @@
 """Configuration formatting utils."""
 import os
-import string
+
+from jinja2 import StrictUndefined, Template, UndefinedError
 
 _WINDOWS_PATHNAME_SEP = "\\"
 _UNIX_PATHNAME_SEP = "/"
 
 
 def substitute_symbols(load: str, **kwargs) -> str:
-    """Replace placeholders with the provided keyword arguments.
+    """Replace placeholders with the provided keyword arguments and env vars.
+
+    The function replaces `load` text with the provided keyword arguments
+    and, eventually, all available environmental variables.
 
     Parameters
     ----------
@@ -29,20 +33,30 @@ def substitute_symbols(load: str, **kwargs) -> str:
     Examples
     --------
     ```python
-    >>> load = "hi {name}"
+    >>> load = "hi {{ name }}"
     >>> substitute_symbols(load, name="John")
     "hi John"
     ```
 
     ```python
-    >>> load = "hi {name}"
+    >>> load = "my env var has value {{ env['MY_ENV_VAR'] }}"
+    >>> substitute_symbols(load)
+    "my env var has value /usr/dataset"
+    ```
+
+    ```python
+    >>> load = "hi {{ name }}"
     >>> substitute_symbols(load, age=10)
     KeyError no value found for the placeholder `name`
     ```
     """
     assert load is not None, "`load` cannot be `None`!"
-    tmpl = string.Template(load)
-    return tmpl.substitute(**kwargs)
+    try:
+        return Template(load, undefined=StrictUndefined).render(
+            env=os.environ, **kwargs
+        )
+    except UndefinedError as err:
+        raise ValueError(err.message) from err
 
 
 def escape_os_sep(load: str) -> str:

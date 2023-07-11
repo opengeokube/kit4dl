@@ -6,7 +6,7 @@ channels:
 dependencies:
   - python=3.10
   - pytorch
-  - pytorch-cuda=11.8
+  - pytorch-cuda
   - torchvision 
   - torchmetrics
   - lightning
@@ -20,6 +20,7 @@ dependencies:
   - isort
   - pydocstyle
   - pytest
+  - jinja2
   - conda-build
   - pip
   - pip:
