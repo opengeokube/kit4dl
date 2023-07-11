@@ -25,7 +25,12 @@ from mlkit.nn.confmodels import (
     OptimizerConf,
     _AbstractClassWithArgumentsConf,
 )
-from tests.fixtures import base_conf_txt, dummy_optimizer, true_conf
+from tests.fixtures import (
+    base_conf_txt,
+    base_conf_txt_full,
+    dummy_optimizer,
+    true_conf,
+)
 from tests.utils import skipnocuda
 
 
@@ -524,6 +529,30 @@ class TestConf:
             torch.optim.lr_scheduler.MultiStepLR,
         )
 
+    def test_use_base_exp_name_for_metric_logging(self, base_conf_txt_full):
+        load = base_conf_txt_full + """
+        [logging]
+        type = "csv"
+        """
+        conf = Conf(**toml.loads(load))
+        assert "name" in conf.logging.arguments
+        assert (
+            conf.logging.arguments["name"]
+            == "handwritten_digit_classification"
+        )
+
+    def test_dont_override_exp_name_with_base_if_provided(
+        self, base_conf_txt_full
+    ):
+        load = base_conf_txt_full + """
+        [logging]
+        type = "csv"
+        name = "logging_exp_name"
+        """
+        conf = Conf(**toml.loads(load))
+        assert "name" in conf.logging.arguments
+        assert conf.logging.arguments["name"] == "logging_exp_name"
+
 
 class TestLogging:
     @pytest.mark.parametrize(
@@ -587,7 +616,7 @@ class TestLogging:
             type = "{log_nick}"
         """
         conf = LoggingConf(**toml.loads(load))
-        assert conf.metric_logger == log_class
+        assert conf._metric_logger_type == log_class
 
     def test_default_on_empty_string(self):
         load = ""
@@ -595,3 +624,47 @@ class TestLogging:
         assert conf.level
         assert conf.format_
         assert conf.type_
+
+    @pytest.mark.parametrize(
+        "log_nick, attr_name",
+        [
+            ("comet", "experiment_name"),
+            ("csv", "name"),
+            ("mlflow", "experiment_name"),
+            ("neptune", "name"),
+            ("tensorboard", "name"),
+            ("wandb", "name"),
+        ],
+    )
+    def test_update_project_name_if_undefined(self, log_nick, attr_name):
+        EXP_NAME = "new_exp_name"
+        load = f"""
+            type = "{log_nick}"
+        """
+        conf = LoggingConf(**toml.loads(load))
+        conf.maybe_update_experiment_name(EXP_NAME)
+        assert conf.arguments[attr_name] == EXP_NAME
+
+    @pytest.mark.parametrize(
+        "log_nick, attr_name",
+        [
+            ("comet", "experiment_name"),
+            ("csv", "name"),
+            ("mlflow", "experiment_name"),
+            ("neptune", "name"),
+            ("tensorboard", "name"),
+            ("wandb", "name"),
+        ],
+    )
+    def test_does_not_override_project_name_if_defined(
+        self, log_nick, attr_name
+    ):
+        EXP_NAME = "another_new_exp"
+        OVERRIDE_EXP_NAME = "new_exp_name"
+        load = f"""
+            type = "{log_nick}"
+            {attr_name} = "{EXP_NAME}"
+        """
+        conf = LoggingConf(**toml.loads(load))
+        conf.maybe_update_experiment_name(OVERRIDE_EXP_NAME)
+        assert conf.arguments[attr_name] == EXP_NAME

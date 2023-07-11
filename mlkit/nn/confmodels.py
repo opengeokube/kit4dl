@@ -348,6 +348,8 @@ _LOGGERS_NICKNAMES: dict[str, str] = {
 class LoggingConf(
     BaseModel, allow_population_by_field_name=True, extra="allow"
 ):
+    """Logging configuration class."""
+
     type_: Literal[
         "comet", "csv", "mlflow", "neptune", "tensorboard", "wandb"
     ] = Field("csv", alias="type")
@@ -355,7 +357,7 @@ class LoggingConf(
         "INFO"
     )
     format_: str | None = Field("%(asctime)s - %(message)s", alias="type")
-    arguments: dict[str, Any] | None = Field(default_factory=dict)
+    arguments: dict[str, Any] = Field(default_factory=dict)
 
     @root_validator(pre=False)
     def _build_model_arguments(cls, values: dict[str, Any]) -> dict[str, Any]:
@@ -369,25 +371,30 @@ class LoggingConf(
     @validator("level", pre=True)
     def _match_log_level(cls, item):
         return item.upper()
-    
-    def update_project_name(self, experiment_name: str) -> None:
-        """Update project name for metric logger."""
-        match self._metric_logger_type:
-            case pl_logs.CometLogger() | pl_logs.MLFlowLogger():
-                self.arguments["experiment_name"] = experiment_name
-            case pl_logs.CSVLogger() | pl_logs.NeptuneLogger() | pl_logs.TensorBoardLogger() | pl_logs.WandbLogger():
-                self.arguments["name"] = experiment_name
-            case _:
-                raise TypeError(f"logger of type `{self._metric_logger_type}` is undefined!")
+
+    def maybe_update_experiment_name(self, experiment_name: str) -> None:
+        """Update experiment name for the chosen metric logger."""
+        ltype = self._metric_logger_type
+        if issubclass(ltype, (pl_logs.CometLogger, pl_logs.MLFlowLogger)):
+            self.arguments.setdefault("experiment_name", experiment_name)
+        elif issubclass(
+            ltype,
+            (
+                pl_logs.CSVLogger,
+                pl_logs.NeptuneLogger,
+                pl_logs.TensorBoardLogger,
+                pl_logs.WandbLogger,
+            ),
+        ):
+            self.arguments.setdefault("name", experiment_name)
+        else:
+            raise TypeError(
+                f"logger of type `{self._metric_logger_type}` is undefined!"
+            )
 
     @property
     def _metric_logger_type(self) -> type:
         return getattr(pl_logs, _LOGGERS_NICKNAMES[self.type_])
-    
-    @property
-    def metric_logger(self) -> type:
-        """Get instance of the requested metric logger."""
-        return 
 
 
 # ################################
@@ -408,6 +415,13 @@ class Conf(BaseModel):
         if root_dir:
             kwargs = Conf.override_with_abs_target(root_dir, kwargs)
         super().__init__(**kwargs)
+
+    @validator("logging")
+    def _update_experiment_name_if_undefined(cls, value: LoggingConf, values):
+        if "base" not in values:
+            return value
+        value.maybe_update_experiment_name(values["base"].experiment_name)
+        return value
 
     @validator("metrics")
     def _validate_metrics_class_exist(cls, values):
