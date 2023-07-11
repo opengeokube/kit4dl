@@ -22,8 +22,8 @@ def conf():
     conf.base.accelerator_device_and_id = PropertyMock(
         return_value="cuda"
     ), PropertyMock(return_value=0)
-    conf.base.log_level = "INFO"
-    conf.base.log_format = (
+    conf.logging.level = "INFO"
+    conf.logging.format_ = (
         "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     )
     conf.base.seed = 0

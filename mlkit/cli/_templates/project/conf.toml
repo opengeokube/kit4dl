@@ -6,6 +6,15 @@ cuda_id = 0
 # your experiment's name
 experiment_name = "my_new_awesome_experiment"
 
+[logging]
+# metric logger type, one of the following ("comet", "csv", "mlflow", "neptune", "tensorboard", "wandb")
+type = "comet"
+# logging level...
+level = "info"
+# ... and format
+format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+
+
 [model]
 # path to you model given as an absolute path or a relative (with respect to the conf.toml file)
 # or just `target = "model::MyNewNetwork"` - as dir with conf file is added to PYTHONPATH

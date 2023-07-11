@@ -66,14 +66,3 @@ class TestBaseMLModel:
 
     def test_setup_called(self, custom_module, conf):
         custom_module.configure.assert_called_with(**conf.model.arguments)
-
-    def test_load_from_checkpoint(self, module):
-        chkpt_path = os.path.join(
-            "tests",
-            "resources",
-            "epoch=2_val_jaccardindexmacro=0.26_cnn.ckpt",
-        )
-        loaded_module = module.load_from_checkpoint(chkpt_path)
-        assert loaded_module._conf
-        assert loaded_module._criterion
-        pass

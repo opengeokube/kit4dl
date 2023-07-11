@@ -5,6 +5,7 @@ from functools import partial
 from inspect import signature
 from typing import Any, Callable, Literal
 
+import lightning.pytorch.loggers as pl_logs
 import torch
 import torchmetrics as tm
 from pydantic import BaseModel, Field, root_validator, validator
@@ -52,18 +53,10 @@ class BaseConf(BaseModel):
     seed: int = Field(default=0, ge=0)
     cuda_id: int | None = None
     experiment_name: str
-    log_level: Literal["DEBUG", "INFO", "WARN", "ERROR", "CRITICAL"] | None = (
-        "INFO"
-    )
-    log_format: str | None = None
 
     _assert_cuda_device = validator("cuda_id", allow_reuse=True)(
         validate_cuda_device_exists
     )
-
-    @validator("log_level", pre=True)
-    def _match_log_level(cls, item):
-        return item.upper()
 
     @property
     def device(self) -> torch.device:
@@ -340,12 +333,71 @@ class DatasetConf(BaseModel):
 
 
 # ################################
+#     Logging configuration
+# ################################
+_LOGGERS_NICKNAMES: dict[str, str] = {
+    "comet": "CometLogger",
+    "csv": "CSVLogger",
+    "mlflow": "MLFlowLogger",
+    "neptune": "NeptuneLogger",
+    "tensorboard": "TensorBoardLogger",
+    "wandb": "WandbLogger",
+}
+
+
+class LoggingConf(
+    BaseModel, allow_population_by_field_name=True, extra="allow"
+):
+    type_: Literal[
+        "comet", "csv", "mlflow", "neptune", "tensorboard", "wandb"
+    ] = Field("csv", alias="type")
+    level: Literal["DEBUG", "INFO", "WARN", "ERROR", "CRITICAL"] | None = (
+        "INFO"
+    )
+    format_: str | None = Field("%(asctime)s - %(message)s", alias="type")
+    arguments: dict[str, Any] | None = Field(default_factory=dict)
+
+    @root_validator(pre=False)
+    def _build_model_arguments(cls, values: dict[str, Any]) -> dict[str, Any]:
+        arguments = {
+            k: v for k, v in values.items() if k not in cls.__fields__
+        }
+        values = {k: v for k, v in values.items() if k in cls.__fields__}
+        values["arguments"] = arguments
+        return values
+
+    @validator("level", pre=True)
+    def _match_log_level(cls, item):
+        return item.upper()
+    
+    def update_project_name(self, experiment_name: str) -> None:
+        """Update project name for metric logger."""
+        match self._metric_logger_type:
+            case pl_logs.CometLogger() | pl_logs.MLFlowLogger():
+                self.arguments["experiment_name"] = experiment_name
+            case pl_logs.CSVLogger() | pl_logs.NeptuneLogger() | pl_logs.TensorBoardLogger() | pl_logs.WandbLogger():
+                self.arguments["name"] = experiment_name
+            case _:
+                raise TypeError(f"logger of type `{self._metric_logger_type}` is undefined!")
+
+    @property
+    def _metric_logger_type(self) -> type:
+        return getattr(pl_logs, _LOGGERS_NICKNAMES[self.type_])
+    
+    @property
+    def metric_logger(self) -> type:
+        """Get instance of the requested metric logger."""
+        return 
+
+
+# ################################
 #     Complete configuration
 # ################################
 class Conf(BaseModel):
     """Conf class being the reflection of the configuration TOML file."""
 
     base: BaseConf
+    logging: LoggingConf = Field(default_factory=LoggingConf)  # type: ignore[arg-type]
     model: ModelConf
     metrics: dict[str, dict[str, Any]] | None = Field(default_factory=dict)
     training: TrainingConf
