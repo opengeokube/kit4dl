@@ -1,8 +1,10 @@
 [base]
 seed = 0
 experiment_name = "handwritten_digit_classification"
-log_level = "info"
-log_format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+
+[logging]
+level = "info"
+format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 
 [model]
 # We can use relative path (w.r.t. the conf.toml file) to the .py file

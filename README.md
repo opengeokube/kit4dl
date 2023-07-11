@@ -113,6 +113,7 @@ mlkit train
 
 ## 💡 Instruction
 1. [Configuring base setup](#configuring-base-setup)
+1. [Configuring logging](#configuring-logging)
 1. [Defining model](#defining-model)
 1. [Defining datamodule](#defining-datamodule)
 1. [Configuring training](#configuring-training)
@@ -134,8 +135,6 @@ It has the following properties:
 |      `seed`	    |   `int`          |  seed of the random numbers generators for `NumPy` and `PyTorch`                                       	| 
 |     `cuda_id`     |  `int` or `None` |  ID of the cuda device (if available) or `None` for `CPU`                                                |
 |`experiment_name`* | `str`            |  name of the experiment                                                                                  |
-|   `log_level`     |  `str`           | logging level, should be one out of `debug`, `info`, `warn`, `error`, `critical`                         |
-|  `log_format`     | `str`            | format of the logging message accoridng to Python's `logging` package  (e.g. `"%(asctime)s - %(name)s`)  |
 
 > **Note**: Arguments marked with `*` are obligatory!
 
@@ -144,10 +143,41 @@ It has the following properties:
 ```toml
 [base]
 seed = 0
+cuda_id = 1
 experiment_name = "point_clout_segmentation"
-log_level = "info"
-log_format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 ```
+
+#### Configuring logging
+Logging section is optional but it provides you with some extra flexibility regarding the logging.
+All configuration related to logging is included in the `[logging]` section of the configuration file. 
+You can define following properties:
+
+|   **Property** 	|  **Type**        |                                                   **Details**                                          	|
+|---------------	|----------------- | -------------------------------------------------------------------------------------------------------	| 
+|      `type`	    |   `str`          |  type of metric logger (one of the value: `"comet"`, `"csv"`, `"mlflow"`, `"neptune"`, `"tensorboard"`, `"wandb"` - metric loggers supported by PyTorch Lightning [https://lightning.ai/docs/pytorch/stable/api_references.html#loggers](https://lightning.ai/docs/pytorch/stable/api_references.html#loggers). **DEFAULT:** `csv`)                                       	| 
+|     `level`     |  `str` |  Python-supported logging levels (i.e. `"DEBUG"`, `"INFO"`, `"WARN"`, `"ERROR"`, `"CRITICAL"`)  **DEFAULT:** `INFO`                                               |
+|`format` | `str`            |  logging message format as defined for the Python `logging` package (see [https://docs.python.org/3/library/logging.html#logging.LogRecord](https://docs.python.org/3/library/logging.html#logging.LogRecord))                                                                               |
+
+> **Warning**: Logger `level` and `format` are related to the Python `logging` Loggers you can use in your model and datamodule classes with approperiate methods `self.debure`, `self.info`, etc. In `type`, in turn, you just specify the metric logger as used in PyTorch Lightning package!
+
+> **Note**: All required arguments for metric logger can be specified as extra arguments in the `[logging]`section.
+
+##### ✍️ Example
+```toml
+[logging]
+# we gonna use CSVLogger
+type = "csv"
+# for CSVLogger, we need to define 'save_dir' argument and/or
+# other extra ones (https://lightning.ai/docs/pytorch/stable/api/lightning.pytorch.loggers.csv_logs.html#module-lightning.pytorch.loggers.csv_logs)
+save_dir = "${PROJECT_DIR}/my_metrics.csv"
+
+# then we define level and format for logging messages
+level = "info"
+format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+```
+
+> **Note**: If you don't pass a `name` or `experiment_name` argument explicitly for the metric logger, the `experiment_name` value defined in the `[base]` section will be applied as, respectively: `name` argument for `csv`, `neptune`, `tensorboard`, `wandb`, and as `experiment_name` for `comet` and `mlflow`.
+
 
 #### Defining model
 The machine learning/deep learning model definition is realized in two aspects. 

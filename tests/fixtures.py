@@ -22,8 +22,8 @@ def conf():
     conf.base.accelerator_device_and_id = PropertyMock(
         return_value="cuda"
     ), PropertyMock(return_value=0)
-    conf.base.log_level = "INFO"
-    conf.base.log_format = (
+    conf.logging.level = "INFO"
+    conf.logging.format_ = (
         "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     )
     conf.base.seed = 0
@@ -106,6 +106,14 @@ def base_conf_txt():
     batch_size = 10
     shuffle = false
     num_workers = 4
+    """
+
+
+@pytest.fixture
+def base_conf_txt_full(base_conf_txt):
+    return base_conf_txt + """
+        [metrics]
+        Precision = {target = "torchmetrics::Precision", task = "multiclass", num_classes = 10}
     """
 
 

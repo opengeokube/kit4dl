@@ -58,8 +58,8 @@ def update_context_from_conf(conf: Conf | None = None) -> None:
     """Update context from the configuration file."""
     if not conf:
         return
-    context.LOG_LEVEL = conf.base.log_level
-    context.LOG_FORMAT = conf.base.log_format
+    context.LOG_LEVEL = conf.logging.level
+    context.LOG_FORMAT = conf.logging.format_
 
 
 def _get_conf_from_file(conf_path: str, root_dir: str | None = None):

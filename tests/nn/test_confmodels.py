@@ -8,6 +8,7 @@ try:
 except ModuleNotFoundError:
     import toml
 
+import lightning.pytorch.loggers as pl_logs
 import torch
 import torchmetrics as tm
 from pydantic import ValidationError
@@ -19,11 +20,17 @@ from mlkit.nn.confmodels import (
     Conf,
     CriterionConf,
     DatasetConf,
+    LoggingConf,
     ModelConf,
     OptimizerConf,
     _AbstractClassWithArgumentsConf,
 )
-from tests.fixtures import base_conf_txt, dummy_optimizer, true_conf
+from tests.fixtures import (
+    base_conf_txt,
+    base_conf_txt_full,
+    dummy_optimizer,
+    true_conf,
+)
 from tests.utils import skipnocuda
 
 
@@ -104,24 +111,6 @@ class TestBaseConfAndAccessor:
         dev = BaseConf(**toml.loads(load)).device
         assert dev.type == "cpu"
         assert dev.index is None
-
-    @pytest.mark.parametrize(
-        "lvl", ["debug", "warn", "info", "critical", "error"]
-    )
-    def test_get_log_lowercase(self, lvl):
-        load = f"""
-    experiment_name = "handwritten_digit_classification"
-    log_level = "{lvl}"
-        """
-        assert BaseConf(**toml.loads(load)).log_level == lvl.upper()
-
-    def test_get_log_fail_on_wrong_lvl(self):
-        load = f"""
-    experiment_name = "handwritten_digit_classification"
-    log_level = "not-existing"
-        """
-        with pytest.raises(ValidationError, match=r""):
-            _ = BaseConf(**toml.loads(load)).log_level
 
 
 @pytest.mark.skipif(
@@ -539,3 +528,143 @@ class TestConf:
             conf.training.preconfigured_schedulers_classes[1](dummy_optimizer),
             torch.optim.lr_scheduler.MultiStepLR,
         )
+
+    def test_use_base_exp_name_for_metric_logging(self, base_conf_txt_full):
+        load = base_conf_txt_full + """
+        [logging]
+        type = "csv"
+        """
+        conf = Conf(**toml.loads(load))
+        assert "name" in conf.logging.arguments
+        assert (
+            conf.logging.arguments["name"]
+            == "handwritten_digit_classification"
+        )
+
+    def test_dont_override_exp_name_with_base_if_provided(
+        self, base_conf_txt_full
+    ):
+        load = base_conf_txt_full + """
+        [logging]
+        type = "csv"
+        name = "logging_exp_name"
+        """
+        conf = Conf(**toml.loads(load))
+        assert "name" in conf.logging.arguments
+        assert conf.logging.arguments["name"] == "logging_exp_name"
+
+
+class TestLogging:
+    @pytest.mark.parametrize(
+        "lvl", ["debug", "warn", "info", "critical", "error"]
+    )
+    def test_get_log_lowercase(self, lvl):
+        load = f"""
+    level = "{lvl}"
+        """
+        assert LoggingConf(**toml.loads(load)).level == lvl.upper()
+
+    def test_get_log_fail_on_wrong_lvl(self):
+        load = f"""
+    level = "not-existing"
+        """
+        with pytest.raises(ValidationError, match=r""):
+            _ = LoggingConf(**toml.loads(load)).level
+
+    @pytest.mark.parametrize(
+        "metric_logger_nick",
+        ["comet", "csv", "mlflow", "neptune", "tensorboard", "wandb"],
+    )
+    def test_metric_logger_type_available(self, metric_logger_nick):
+        load = f"""
+            type = "{metric_logger_nick}"
+        """
+        LoggingConf(**toml.loads(load))
+
+    def test_fail_on_wrong_metric_logger_type(self):
+        load = """
+            type = "not_supported"
+        """
+        with pytest.raises(
+            ValidationError, match=".*unexpected value; permitted:.*"
+        ):
+            LoggingConf(**toml.loads(load))
+
+    def test_provide_kwargs_for_metric_logger(self):
+        load = """
+            type = "csv"
+            arg1 = 1
+            arg2 = "2"
+        """
+        conf = LoggingConf(**toml.loads(load))
+        assert conf.arguments.get("arg1") == 1
+        assert conf.arguments.get("arg2") == "2"
+
+    @pytest.mark.parametrize(
+        "log_nick, log_class",
+        [
+            ("comet", pl_logs.CometLogger),
+            ("csv", pl_logs.CSVLogger),
+            ("mlflow", pl_logs.MLFlowLogger),
+            ("neptune", pl_logs.NeptuneLogger),
+            ("tensorboard", pl_logs.TensorBoardLogger),
+            ("wandb", pl_logs.WandbLogger),
+        ],
+    )
+    def test_metric_logger_class(self, log_nick, log_class):
+        load = f"""
+            type = "{log_nick}"
+        """
+        conf = LoggingConf(**toml.loads(load))
+        assert conf._metric_logger_type == log_class
+
+    def test_default_on_empty_string(self):
+        load = ""
+        conf = LoggingConf(**toml.loads(load))
+        assert conf.level
+        assert conf.format_
+        assert conf.type_
+
+    @pytest.mark.parametrize(
+        "log_nick, attr_name",
+        [
+            ("comet", "experiment_name"),
+            ("csv", "name"),
+            ("mlflow", "experiment_name"),
+            ("neptune", "name"),
+            ("tensorboard", "name"),
+            ("wandb", "name"),
+        ],
+    )
+    def test_update_project_name_if_undefined(self, log_nick, attr_name):
+        EXP_NAME = "new_exp_name"
+        load = f"""
+            type = "{log_nick}"
+        """
+        conf = LoggingConf(**toml.loads(load))
+        conf.maybe_update_experiment_name(EXP_NAME)
+        assert conf.arguments[attr_name] == EXP_NAME
+
+    @pytest.mark.parametrize(
+        "log_nick, attr_name",
+        [
+            ("comet", "experiment_name"),
+            ("csv", "name"),
+            ("mlflow", "experiment_name"),
+            ("neptune", "name"),
+            ("tensorboard", "name"),
+            ("wandb", "name"),
+        ],
+    )
+    def test_does_not_override_project_name_if_defined(
+        self, log_nick, attr_name
+    ):
+        EXP_NAME = "another_new_exp"
+        OVERRIDE_EXP_NAME = "new_exp_name"
+        load = f"""
+            type = "{log_nick}"
+            {attr_name} = "{EXP_NAME}"
+        """
+        conf = LoggingConf(**toml.loads(load))
+        conf.maybe_update_experiment_name(OVERRIDE_EXP_NAME)
+        assert conf.arguments[attr_name] == EXP_NAME
