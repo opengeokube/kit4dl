@@ -297,7 +297,8 @@ my_variable = 10
 ```python
 ...
 class MNISTCustomDatamodule(MLKitAbstractDataModule):
-    ...
+    my_variable: int # NOTE: To make attribute visible, we can declare it here
+
     def prepare_data(self):
         result = self.my_variable * 2
 ```
