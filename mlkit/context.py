@@ -5,9 +5,13 @@ from typing import Any
 
 class _ImmutableAttribute:
     _value: Any = None
+    _default: Any = None
+
+    def __init__(self, default: Any) -> None:
+        self._default = default
 
     def __get__(self, obj, objtype=None) -> Any:
-        return self._value
+        return self._value if self._value else self._default
 
     def __set__(self, obj, value: Any) -> None:
         if self._value is not None:
@@ -29,9 +33,11 @@ def get_dict():
 class Context:
     """Current Python session."""
 
-    PROJECT_DIR: _ImmutableAttribute = _ImmutableAttribute()
-    LOG_LEVEL: _ImmutableAttribute = _ImmutableAttribute()
-    LOG_FORMAT: _ImmutableAttribute = _ImmutableAttribute()
+    PROJECT_DIR: _ImmutableAttribute = _ImmutableAttribute(default=".")
+    LOG_LEVEL: _ImmutableAttribute = _ImmutableAttribute(default="INFO")
+    LOG_FORMAT: _ImmutableAttribute = _ImmutableAttribute(
+        default="%(asctime)s - %(levelname)s - %(message)s"
+    )
 
     def get_dict(self) -> dict:
         """Get dictionary of all available context-defined properties."""

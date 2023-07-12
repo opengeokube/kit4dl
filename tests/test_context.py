@@ -1,14 +1,17 @@
+from unittest.mock import patch
+
 import pytest
 
 from mlkit import context
 
 
 class TestSession:
-    @pytest.fixture(autouse=True, scope="session")
+    @pytest.fixture(autouse=True, scope="class")
     def set_session_attributes(self):
-        context.LOG_LEVEL = "info"
-        context.LOG_FORMAT = "..."
+        context.LOG_LEVEL = "INFO"
+        context.LOG_FORMAT = "%(asctime)s"
         context.PROJECT_DIR = "/work/my_dir"
+        yield
 
     @pytest.mark.parametrize(
         "session_attr", ["LOG_LEVEL", "LOG_FORMAT", "PROJECT_DIR"]

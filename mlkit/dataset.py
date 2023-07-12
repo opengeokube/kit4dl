@@ -37,6 +37,13 @@ class MLKitAbstractDataModule(ABC, pl.LightningDataModule, LoggerMixin):
         self.test_dataset: Dataset | None = None
         self.predict_dataset: Dataset | None = None
         self._configure_logger()
+        for extra_arg_key, extra_arg_value in self.conf.arguments.items():
+            self.debug(
+                "setting extra user-defined argument: %s:%s",
+                extra_arg_key,
+                extra_arg_value,
+            )
+            setattr(self, extra_arg_key, extra_arg_value)
 
     def _configure_logger(self) -> None:
         self._logger = logging.getLogger("mlkit.dataset")

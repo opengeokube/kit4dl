@@ -309,6 +309,18 @@ class DatasetConf(BaseModel):
     trainval: SplitDatasetConf | None = None
     test: SplitDatasetConf | None = None
     predict: SplitDatasetConf | None = None
+    arguments: dict[str, Any]
+
+    @root_validator(pre=True)
+    def _build_model_arguments(cls, values: dict[str, Any]) -> dict[str, Any]:
+        if "arguments" in values:
+            return values
+        arguments = {
+            k: v for k, v in values.items() if k not in cls.__fields__
+        }
+        values = {k: v for k, v in values.items() if k in cls.__fields__}
+        values["arguments"] = arguments
+        return values
 
     @validator("target")
     def _check_if_target_has_expected_parent_class(cls, value):

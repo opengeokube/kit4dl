@@ -285,15 +285,21 @@ class MNISTCustomDatamodule(MLKitAbstractDataModule):
         )
 ```
 
-If you need to acquire data or do some other processing, implement `prepare_data` method.
+If you need to acquire data or do some other processing, implement `prepare_data` method. In that method you can use extra attributes you defined in the `[dataset]` section of the configuration file.
 
 ##### ✍️ Example
+```toml
+[dataset]
+target = "./datamodule.py::MNISTCustomDatamodule"
+my_variable = 10
+```
+
 ```python
 ...
 class MNISTCustomDatamodule(MLKitAbstractDataModule):
     ...
     def prepare_data(self):
-        ...
+        result = self.my_variable * 2
 ```
 
 > **Warning**: **DO NOT** set state inside `prepare_data` method (~~`self.x = ...`~~).
@@ -326,7 +332,6 @@ If you need a custom batch collation but the same for each stage (train/val/test
 def get_collate_fn(self):
     return some_collate_func
 ```
-
 
 In the configuration file, there are dedicated `[dataset]`-related sections.
 
