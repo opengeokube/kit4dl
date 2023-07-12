@@ -66,10 +66,9 @@ def _get_conf_from_file(conf_path: str, root_dir: str | None = None):
     assert conf_path and conf_path.endswith(
         ".toml"
     ), "`conf_path` needs to be TOML file!"
-    with open(conf_path, "rt", encoding="utf-8") as file:
-        text_load = substitute_symbols(file.read(), **context.get_dict())
-        text_load_escaped = escape_os_sep(text_load)
-        return Conf(root_dir=root_dir, **toml.loads(text_load_escaped))  # type: ignore[arg-type]
+    text_load = substitute_symbols(conf_path, **context.get_dict())
+    text_load_escaped = escape_os_sep(text_load)
+    return Conf(root_dir=root_dir, **toml.loads(text_load_escaped))  # type: ignore[arg-type]
 
 
 def _get_default_conf_path() -> str:

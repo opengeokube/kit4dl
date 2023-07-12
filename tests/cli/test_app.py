@@ -32,6 +32,6 @@ class TestApp:
         init(name=experiment_name)
         files = os.listdir(experiment_name)
         assert len(files) == 3
-        assert "dataset.py" in files
+        assert "datamodule.py" in files
         assert "model.py" in files
         assert "conf.toml" in files

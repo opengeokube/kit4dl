@@ -21,13 +21,13 @@ format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 target = "./model.py::MyNewNetwork"
 # here you pass any extra keword arguments required by your model - MyNewNetwork
 # like: input dimensions, dropout values, etc.
-arg1 = ...
-arg2 = ...
+arg1 = "..."
+arg2 = "..."
 
 [training]
 epochs = 100
 epoch_schedulers = [
-    {target = "torch.optim.lr_scheduler::CosineAnnealing", T_max=100}
+    {target = "torch.optim.lr_scheduler::CosineAnnealingLR", T_max=100}
 ]
 
 [training.checkpoint]
@@ -60,7 +60,7 @@ run_every_epoch = 1
 
 [dataset]
 # target class of you dataset module for training. it should be given as an absolute path or a relative (with respect to the conf.toml file)
-target = "./dataset.py::MyCustomDatamodule"
+target = "./datamodule.py::MyCustomDatamodule"
 
 # if there is a common procedure for generating train/validation split
 # like, random split the input data, you can define arguments in the table [dataset.trainval]
@@ -93,5 +93,5 @@ num_workers = 4
 [metrics]
 # here you define metrics you want to log
 # you can use custom metrics (need to be subclasses of torchmetrics.Metric)
-MyScore = {target = "torchmetrics::Precision", task = "multiclass", num_classes=10}
-MySecondScore = {target = "torchmetrics::FBetaScore", task = "multiclass", num_classes=10, beta = 2}
+MyScore = {target = "torchmetrics::Precision", task = "multiclass", num_classes = 10}
+MySecondScore = {target = "torchmetrics::FBetaScore", task = "multiclass", num_classes = 10, beta = 0.1}

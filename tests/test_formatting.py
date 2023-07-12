@@ -17,20 +17,43 @@ from mlkit.formatting import (
 
 class TestFormatting:
     @pytest.fixture
-    def load(self) -> str:
-        return """
+    def load_path(self) -> str:
+        import os
+        from uuid import uuid4
+
+        load = """
         [section]
         target = "{{ PROJECT_DIR }}/data.nc"
         """
+        path = f"{uuid4()}.toml"
+        with open(path, "wt") as file:
+            file.writelines(load)
+        yield path
+        os.remove(path)
 
-    def test_substitute_symbols(self, load):
-        result = substitute_symbols(load, PROJECT_DIR="/work/usr")
+    @pytest.fixture
+    def load_path_env(self) -> str:
+        import os
+        from uuid import uuid4
+
+        load = """
+        [section]
+        target = "{{ env['env_path'] }}/data.nc"
+        """
+        path = f"{uuid4()}.toml"
+        with open(path, "wt") as file:
+            file.writelines(load)
+        yield path
+        os.remove(path)
+
+    def test_substitute_symbols(self, load_path):
+        result = substitute_symbols(load_path, PROJECT_DIR="/work/usr")
         entries = toml.loads(result)
         assert entries["section"]["target"] == "/work/usr/data.nc"
 
-    def test_fail_on_missing_placeholder_definition(self, load):
+    def test_fail_on_missing_placeholder_definition(self, load_path):
         with pytest.raises(ValueError, match=r"'PROJECT_DIR' is undefined"):
-            _ = substitute_symbols(load)
+            _ = substitute_symbols(load_path)
 
     @patch("os.sep", _UNIX_PATHNAME_SEP)
     def test_substitute_windows_path_to_unix(self):
@@ -62,14 +85,10 @@ class TestFormatting:
         escaped = escape_os_sep(load)
         assert escaped == "D:/Program Files/dir1/dir2/file.txt"
 
-    def test_use_env_var_in_conf(self):
+    def test_use_env_var_in_conf(self, load_path_env):
         import os
 
         os.environ["env_path"] = "/usr/new_path"
-        load: str = """
-        [section]
-        target = "{{ env['env_path'] }}/data.nc"
-        """
-        result = substitute_symbols(load)
+        result = substitute_symbols(load_path_env)
         entries = toml.loads(result)
         assert entries["section"]["target"] == "/usr/new_path/data.nc"

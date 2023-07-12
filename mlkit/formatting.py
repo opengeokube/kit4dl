@@ -1,13 +1,18 @@
 """Configuration formatting utils."""
 import os
 
-from jinja2 import StrictUndefined, Template, UndefinedError
+from jinja2 import (
+    Environment,
+    FileSystemLoader,
+    StrictUndefined,
+    UndefinedError,
+)
 
 _WINDOWS_PATHNAME_SEP = "\\"
 _UNIX_PATHNAME_SEP = "/"
 
 
-def substitute_symbols(load: str, **kwargs) -> str:
+def substitute_symbols(path: str, **kwargs) -> str:
     """Replace placeholders with the provided keyword arguments and env vars.
 
     The function replaces `load` text with the provided keyword arguments
@@ -15,8 +20,8 @@ def substitute_symbols(load: str, **kwargs) -> str:
 
     Parameters
     ----------
-    load : str
-        String with placeholders
+    path : str
+        Path to the file with placeholders
     **kwargs : Any
         Keword arguments to replace in `load`
 
@@ -50,11 +55,13 @@ def substitute_symbols(load: str, **kwargs) -> str:
     KeyError no value found for the placeholder `name`
     ```
     """
-    assert load is not None, "`load` cannot be `None`!"
+    assert path is not None, "`path` cannot be `None`!"
+    base_path, filename = os.path.split(path)
+    tmpl_env = Environment(
+        loader=FileSystemLoader(base_path), undefined=StrictUndefined
+    )
     try:
-        return Template(load, undefined=StrictUndefined).render(
-            env=os.environ, **kwargs
-        )
+        return tmpl_env.get_template(filename).render(env=os.environ, **kwargs)
     except UndefinedError as err:
         raise ValueError(err.message) from err
 

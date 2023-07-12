@@ -368,8 +368,8 @@ class TestConf:
     def test_conf_parse(self, base_conf_txt):
         load = base_conf_txt + """
         [metrics]
-        Precision = {target = "torchmetrics::Precision", task = "multiclass", num_classes=10}
-        FBetaScore = {target = "torchmetrics::Recall", task = "multiclass", num_classes=10, beta = 2}        
+        Precision = {target = "torchmetrics::Precision", task = "multiclass", num_classes = 10}
+        FBetaScore = {target = "torchmetrics::Recall", task = "multiclass", num_classes = 10, beta = 0.1}        
         """
         _ = Conf(**toml.loads(load))
 
@@ -379,8 +379,8 @@ class TestConf:
     def test_fail_on_duplicated_key_name(self, base_conf_txt):
         load = base_conf_txt + """
         [metrics]
-        Precision = {target = "torchmetrics::Precision", task = "multiclass", num_classes=10}
-        Precision = {target = "torchmetrics::Precision", task = "multiclass", num_classes=10}
+        Precision = {target = "torchmetrics::Precision", task = "multiclass", num_classes = 10}
+        Precision = {target = "torchmetrics::Precision", task = "multiclass", num_classes = 10}
         """
         with pytest.raises(ValueError, match="Duplicate keys!"):
             _ = Conf(**toml.loads(load))
@@ -668,3 +668,17 @@ class TestLogging:
         conf = LoggingConf(**toml.loads(load))
         conf.maybe_update_experiment_name(OVERRIDE_EXP_NAME)
         assert conf.arguments[attr_name] == EXP_NAME
+
+    def test_properly_parse_attributes(self):
+        load = """
+        type = "csv"
+        level = "info"
+        format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+        """
+        conf = LoggingConf(**toml.loads(load))
+        assert conf.type_ == "csv"
+        assert conf.level == "INFO"
+        assert (
+            conf.format_
+            == "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+        )

@@ -52,4 +52,4 @@ num_workers = 4
 
 [metrics]
 Precision = {task = "multiclass", num_classes = 10}
-FBetaScore = {task = "multiclass", num_classes = 10, beta = 2}
+FBetaScore = {task = "multiclass", num_classes = 10, beta = 0.1}

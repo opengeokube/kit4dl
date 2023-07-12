@@ -368,7 +368,7 @@ class LoggingConf(
     level: Literal["DEBUG", "INFO", "WARN", "ERROR", "CRITICAL"] | None = (
         "INFO"
     )
-    format_: str | None = Field("%(asctime)s - %(message)s", alias="type")
+    format_: str | None = Field("%(asctime)s - %(message)s", alias="format")
     arguments: dict[str, Any] = Field(default_factory=dict)
 
     @root_validator(pre=False)
