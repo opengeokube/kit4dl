@@ -386,7 +386,7 @@ class LoggingConf(
 
     def maybe_update_experiment_name(self, experiment_name: str) -> None:
         """Update experiment name for the chosen metric logger."""
-        ltype = self._metric_logger_type
+        ltype = self.metric_logger_type
         if issubclass(ltype, (pl_logs.CometLogger, pl_logs.MLFlowLogger)):
             self.arguments.setdefault("experiment_name", experiment_name)
         elif issubclass(
@@ -401,11 +401,12 @@ class LoggingConf(
             self.arguments.setdefault("name", experiment_name)
         else:
             raise TypeError(
-                f"logger of type `{self._metric_logger_type}` is undefined!"
+                f"logger of type `{self.metric_logger_type}` is undefined!"
             )
 
     @property
-    def _metric_logger_type(self) -> type:
+    def metric_logger_type(self) -> type:
+        """Get type of the selected logger."""
         return getattr(pl_logs, _LOGGERS_NICKNAMES[self.type_])
 
 

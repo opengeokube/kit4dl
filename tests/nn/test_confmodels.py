@@ -575,13 +575,13 @@ class TestLogging:
         "metric_logger_nick",
         ["comet", "csv", "mlflow", "neptune", "tensorboard", "wandb"],
     )
-    def test_metric_logger_type_available(self, metric_logger_nick):
+    def testmetric_logger_type_available(self, metric_logger_nick):
         load = f"""
             type = "{metric_logger_nick}"
         """
         LoggingConf(**toml.loads(load))
 
-    def test_fail_on_wrong_metric_logger_type(self):
+    def test_fail_on_wrongmetric_logger_type(self):
         load = """
             type = "not_supported"
         """
@@ -616,7 +616,7 @@ class TestLogging:
             type = "{log_nick}"
         """
         conf = LoggingConf(**toml.loads(load))
-        assert conf._metric_logger_type == log_class
+        assert conf.metric_logger_type == log_class
 
     def test_default_on_empty_string(self):
         load = ""
