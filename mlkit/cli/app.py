@@ -136,7 +136,7 @@ def train(
         If skipped, the program will search for the `conf.toml` file
         in the current working directory.
     """
-    log.info("Attept to run training...")
+    log.info("Attempt to run training...")
     root_dir = os.path.dirname(conf)
     if not os.path.exists(conf):
         raise RuntimeError(
