@@ -335,6 +335,7 @@ class MLKitAbstractModule(
         y_true, y_scores = self.run_step(batch, batch_idx)
         loss = self.compute_loss(y_scores, y_true)
         self.update_train_metrics(true=y_true, predictions=y_scores)
+        self.log(name=f"{Stage.TRAIN}_loss", value=loss, logger=True)
         return loss
 
     def validation_step(
@@ -344,6 +345,7 @@ class MLKitAbstractModule(
         y_true, y_scores = self.run_val_step(batch, batch_idx)
         loss = self.compute_loss(y_scores, y_true)
         self.update_val_metrics(true=y_true, predictions=y_scores)
+        self.log(name=f"{Stage.VALIDATION}_loss", value=loss, logger=True)
         return loss
 
     def test_step(self, batch, batch_idx):  # pylint: disable=arguments-differ
@@ -351,4 +353,5 @@ class MLKitAbstractModule(
         y_true, y_scores = self.run_test_step(batch, batch_idx)
         loss = self.compute_loss(y_scores, y_true)
         self.update_test_metrics(true=y_true, predictions=y_scores)
+        self.log(name=f"{Stage.TEST}_loss", value=loss, logger=True)
         return loss
