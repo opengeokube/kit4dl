@@ -1,5 +1,6 @@
 """A module with configuration classes."""
 import os
+import warnings
 from abc import ABC
 from functools import partial
 from inspect import signature
@@ -146,10 +147,11 @@ class CheckpointConf(BaseModel):
     save_on_train_epoch_end: bool = False
 
     @validator("path")
-    def _assert_path_not_exists_or_is_empty(cls, path):
-        assert (
-            not os.path.exists(path) or len(os.listdir(path)) == 0
-        ), f"dir `{path}` exists but it's not empty!"
+    def _warn_on_existing_path(cls, path):
+        if os.path.exists(path) and len(os.listdir(path)) > 0:
+            warnings.warn(
+                f"directory {path} exists and is not empty", ResourceWarning
+            )
         return path
 
     @validator("monitor")
