@@ -388,11 +388,11 @@ class MLKitAbstractModule(
     ):  # pylint: disable=arguments-differ
         """Carry out a single training step."""
         res = self.run_step(batch, batch_idx)
-        match len(res):
-            case 3:
-                y_true, y_scores, y_pred = res
-            case _ as entries if entries > 3:
-                y_true, y_scores, y_pred, loss = res
+        match res:
+            case (y_true, y_scores, y_pred):
+                loss = self.compute_loss(y_scores, y_true)
+            case (y_true, y_scores, y_pred, loss, *_):
+                pass
             case _:
                 self.error("wrong size of tuple returned by `run_step`")
                 raise ValueError("wrong size of tuple returned by `run_step`")
@@ -405,16 +405,14 @@ class MLKitAbstractModule(
     ):  # pylint: disable=arguments-differ
         """Carry out a single validation step."""
         res = self.run_val_step(batch, batch_idx)
-        match len(res):
-            case 3:
-                y_true, y_scores, y_pred = res
-            case _ as entries if entries > 3:
-                y_true, y_scores, y_pred, loss = res
+        match res:
+            case (y_true, y_scores, y_pred):
+                loss = self.compute_loss(y_scores, y_true)
+            case (y_true, y_scores, y_pred, loss, *_):
+                pass
             case _:
-                self.error("wrong size of tuple returned by `run_val_step`")
-                raise ValueError(
-                    "wrong size of tuple returned by `run_val_step`"
-                )
+                self.error("wrong size of tuple returned by `run_step`")
+                raise ValueError("wrong size of tuple returned by `run_step`")
         loss = self.compute_loss(y_scores, y_true)
         self.update_val_metrics(true=y_true, predictions=y_pred, loss=loss)
         return loss
@@ -422,16 +420,13 @@ class MLKitAbstractModule(
     def test_step(self, batch, batch_idx):  # pylint: disable=arguments-differ
         """Carry out a single test step."""
         res = self.run_test_step(batch, batch_idx)
-        match len(res):
-            case 3:
-                y_true, y_scores, y_pred = res
-            case _ as entries if entries > 3:
-                y_true, y_scores, y_pred, loss = res
+        match res:
+            case (y_true, y_scores, y_pred):
+                loss = self.compute_loss(y_scores, y_true)
+            case (y_true, y_scores, y_pred, loss, *_):
+                pass
             case _:
-                self.error("wrong size of tuple returned by `run_test_step`")
-                raise ValueError(
-                    "wrong size of tuple returned by `run_test_step`"
-                )
-        loss = self.compute_loss(y_scores, y_true)
+                self.error("wrong size of tuple returned by `run_step`")
+                raise ValueError("wrong size of tuple returned by `run_step`")
         self.update_test_metrics(true=y_true, predictions=y_pred, loss=loss)
         return loss
