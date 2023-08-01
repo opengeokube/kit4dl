@@ -396,7 +396,6 @@ class MLKitAbstractModule(
             case _:
                 self.error("wrong size of tuple returned by `run_step`")
                 raise ValueError("wrong size of tuple returned by `run_step`")
-        loss = self.compute_loss(y_scores, y_true)
         self.update_train_metrics(true=y_true, predictions=y_pred, loss=loss)
         return loss
 
@@ -413,7 +412,6 @@ class MLKitAbstractModule(
             case _:
                 self.error("wrong size of tuple returned by `run_step`")
                 raise ValueError("wrong size of tuple returned by `run_step`")
-        loss = self.compute_loss(y_scores, y_true)
         self.update_val_metrics(true=y_true, predictions=y_pred, loss=loss)
         return loss
 
