@@ -212,7 +212,7 @@ class SimpleCNN(MLKitAbstractModule):
         preds = logits.argmax(dim=-1)
         return label, logits, preds
 ```
-> **Note**: `run_step` method should return a tuple of 3 (ground-truth, scores, predictions) or 4 (ground-truth, scores, predictions, loss) tensors.
+> **Note**: `run_step` method should return a tuple of 2 (ground-truth, scores) or 3 (ground-truth, scores, loss) tensors.
 
 > **Note**: `batch` argument can be unpacked depending on how you define your dataset for datamodule (see [Defining datamodule](#defining-datamodule))
 

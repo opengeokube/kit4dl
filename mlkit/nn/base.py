@@ -89,15 +89,13 @@ class MLKitAbstractModule(
         Returns
         -------
         result : tuple of `torch.Tensor`
-            A tuple of 3 or 4 items:
+            A tuple of 2 or 3 items:
+            - if a tuple of 2 elements:
+                1. `torch.Tensor` of ground-truth labels,
+                2. `torch.Tensor` output of the network,
             - if a tuple of 3 elements:
                 1. `torch.Tensor` of ground-truth labels,
                 2. `torch.Tensor` output of the network,
-                3. `torch.Tensor` of the predicted labels.
-            - if a tuple of 4 elements:
-                1. `torch.Tensor` of ground-truth labels,
-                2. `torch.Tensor` output of the network,
-                3. `torch.Tensor` of the predicted labels,
                 4. `torch.Tensor` with loss value.
 
         Examples
@@ -107,7 +105,7 @@ class MLKitAbstractModule(
         def run_step(self, batch, batch_idx) -> tuple[torch.Tensor,  ...]:
             feature_input, label_input = batch
             scores = self(feature_input)
-            return (label_input, scores, scores.argmax(dim=-1))
+            return (label_input, scores)
         ```
 
         ```python
@@ -116,7 +114,7 @@ class MLKitAbstractModule(
             feature_input, label_input = batch
             scores = self(feature_input)
             loss = super().compute_loss(prediction=logits, target=is_fire)
-            return (label_input, scores, scores.argmax(dim=-1), loss)
+            return (label_input, scores, loss)
         ```
         """
         raise NotImplementedError
@@ -138,15 +136,13 @@ class MLKitAbstractModule(
         Returns
         -------
         result : tuple of `torch.Tensor`
-            A tuple of 3 or 4 items:
+            A tuple of 2 or 3 items:
+            - if a tuple of 2 elements:
+                1. `torch.Tensor` of ground-truth labels,
+                2. `torch.Tensor` output of the network,
             - if a tuple of 3 elements:
                 1. `torch.Tensor` of ground-truth labels,
                 2. `torch.Tensor` output of the network,
-                3. `torch.Tensor` of the predicted labels.
-            - if a tuple of 4 elements:
-                1. `torch.Tensor` of ground-truth labels,
-                2. `torch.Tensor` output of the network,
-                3. `torch.Tensor` of the predicted labels,
                 4. `torch.Tensor` with loss value.
 
         Examples
@@ -156,7 +152,7 @@ class MLKitAbstractModule(
         def run_val_step(self, batch, batch_idx) -> tuple[torch.Tensor,  ...]:
             feature_input, label_input = batch
             scores = self(feature_input)
-            return (label_input, scores, scores.argmax(dim=-1))
+            return (label_input, scores)
         ```
 
         ```python
@@ -165,7 +161,7 @@ class MLKitAbstractModule(
             feature_input, label_input = batch
             scores = self(feature_input)
             loss = super().compute_loss(prediction=logits, target=is_fire)
-            return (label_input, scores, scores.argmax(dim=-1), loss)
+            return (label_input, scores, loss)
         ```
         """
         return self.run_step(batch, batch_idx)
@@ -187,15 +183,13 @@ class MLKitAbstractModule(
         Returns
         -------
         result : tuple of `torch.Tensor`
-            A tuple of 3 or 4 items:
+            A tuple of 2 or 3items:
+            - if a tuple of 2 elements:
+                1. `torch.Tensor` of ground-truth labels,
+                2. `torch.Tensor` output of the network,
             - if a tuple of 3 elements:
                 1. `torch.Tensor` of ground-truth labels,
                 2. `torch.Tensor` output of the network,
-                3. `torch.Tensor` of the predicted labels.
-            - if a tuple of 4 elements:
-                1. `torch.Tensor` of ground-truth labels,
-                2. `torch.Tensor` output of the network,
-                3. `torch.Tensor` of the predicted labels,
                 4. `torch.Tensor` with loss value.
 
         Examples
@@ -205,7 +199,7 @@ class MLKitAbstractModule(
         def run_test_step(self, batch, batch_idx) -> tuple[torch.Tensor,  ...]:
             feature_input, label_input = batch
             scores = self(feature_input)
-            return (label_input, scores, scores.argmax(dim=-1))
+            return (label_input, scores)
         ```
 
         ```python
@@ -214,7 +208,7 @@ class MLKitAbstractModule(
             feature_input, label_input = batch
             scores = self(feature_input)
             loss = super().compute_loss(prediction=logits, target=is_fire)
-            return (label_input, scores, scores.argmax(dim=-1), loss)
+            return (label_input, scores, loss)
         ```
         """
         return self.run_step(batch, batch_idx)
@@ -389,9 +383,9 @@ class MLKitAbstractModule(
         """Carry out a single training step."""
         res = self.run_step(batch, batch_idx)
         match res:
-            case (y_true, y_scores, y_pred):
+            case (y_true, y_scores):
                 loss = self.compute_loss(y_scores, y_true)
-            case (y_true, y_scores, y_pred, loss, *_):
+            case (y_true, y_scores, loss):
                 pass
             case _:
                 self.error("wrong size of tuple returned by `run_step`")
@@ -405,9 +399,9 @@ class MLKitAbstractModule(
         """Carry out a single validation step."""
         res = self.run_val_step(batch, batch_idx)
         match res:
-            case (y_true, y_scores, y_pred):
+            case (y_true, y_scores):
                 loss = self.compute_loss(y_scores, y_true)
-            case (y_true, y_scores, y_pred, loss, *_):
+            case (y_true, y_scores, loss):
                 pass
             case _:
                 self.error("wrong size of tuple returned by `run_step`")
@@ -419,9 +413,9 @@ class MLKitAbstractModule(
         """Carry out a single test step."""
         res = self.run_test_step(batch, batch_idx)
         match res:
-            case (y_true, y_scores, y_pred):
+            case (y_true, y_scores):
                 loss = self.compute_loss(y_scores, y_true)
-            case (y_true, y_scores, y_pred, loss, *_):
+            case (y_true, y_scores, loss):
                 pass
             case _:
                 self.error("wrong size of tuple returned by `run_step`")
