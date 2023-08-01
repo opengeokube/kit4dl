@@ -72,7 +72,7 @@ class MLKitAbstractModule(
         raise NotImplementedError
 
     @abstractmethod
-    def run_step(self, batch, batch_idx) -> tuple[torch.Tensor, torch.Tensor]:
+    def run_step(self, batch, batch_idx) -> tuple[torch.Tensor, ...]:
         """Carry out single train/validation/test step for the given `batch`.
 
         Return a tuple of two `torch.Tensor`'s: true labels and predicted scores.
@@ -89,28 +89,44 @@ class MLKitAbstractModule(
         Returns
         -------
         result : tuple of `torch.Tensor`
-            A tuple whose 1st element is `torch.Tensor` of ground-truth labels
-            and the 2nd - output of the network
+            A tuple of 3 or 4 items:
+            - if a tuple of 3 elements:
+                1. `torch.Tensor` of ground-truth labels,
+                2. `torch.Tensor` output of the network,
+                3. `torch.Tensor` of the predicted labels.
+            - if a tuple of 4 elements:
+                1. `torch.Tensor` of ground-truth labels,
+                2. `torch.Tensor` output of the network,
+                3. `torch.Tensor` of the predicted labels,
+                4. `torch.Tensor` with loss value.
 
         Examples
         --------
         ```python
         ...
-        def run_step(self, batch, batch_idx) -> tuple[torch.Tensor, torch.Tensor]:
+        def run_step(self, batch, batch_idx) -> tuple[torch.Tensor,  ...]:
             feature_input, label_input = batch
             scores = self(feature_input)
-            return (label_input, scores)
+            return (label_input, scores, scores.argmax(dim=-1))
+        ```
+
+        ```python
+        ...
+        def run_step(self, batch, batch_idx) -> tuple[torch.Tensor, ...]:
+            feature_input, label_input = batch
+            scores = self(feature_input)
+            loss = super().compute_loss(prediction=logits, target=is_fire)
+            return (label_input, scores, scores.argmax(dim=-1), loss)
         ```
         """
         raise NotImplementedError
 
-    def run_val_step(
-        self, batch, batch_idx
-    ) -> tuple[torch.Tensor, torch.Tensor]:
+    def run_val_step(self, batch, batch_idx) -> tuple[torch.Tensor, ...]:
         """Carry out single validation step for the given `batch`.
 
         Return a tuple of two `torch.Tensor`'s: true labels and predicted scores.
-        If not overriden, the implementation of `step` method is used.
+        If you need to define separate logic for validation or test step,
+        implement `val_step` or `test_step` methods, respectivelly.
 
         Parameters
         ----------
@@ -122,28 +138,44 @@ class MLKitAbstractModule(
         Returns
         -------
         result : tuple of `torch.Tensor`
-            A tuple whose 1st element is `torch.Tensor` of ground-truth labels
-            and the 2nd - output of the network
+            A tuple of 3 or 4 items:
+            - if a tuple of 3 elements:
+                1. `torch.Tensor` of ground-truth labels,
+                2. `torch.Tensor` output of the network,
+                3. `torch.Tensor` of the predicted labels.
+            - if a tuple of 4 elements:
+                1. `torch.Tensor` of ground-truth labels,
+                2. `torch.Tensor` output of the network,
+                3. `torch.Tensor` of the predicted labels,
+                4. `torch.Tensor` with loss value.
 
         Examples
         --------
         ```python
         ...
-        def run_step(self, batch, batch_idx) -> tuple[torch.Tensor, torch.Tensor]:
+        def run_val_step(self, batch, batch_idx) -> tuple[torch.Tensor,  ...]:
             feature_input, label_input = batch
             scores = self(feature_input)
-            return (label_input, scores)
+            return (label_input, scores, scores.argmax(dim=-1))
+        ```
+
+        ```python
+        ...
+        def run_val_step(self, batch, batch_idx) -> tuple[torch.Tensor, ...]:
+            feature_input, label_input = batch
+            scores = self(feature_input)
+            loss = super().compute_loss(prediction=logits, target=is_fire)
+            return (label_input, scores, scores.argmax(dim=-1), loss)
         ```
         """
         return self.run_step(batch, batch_idx)
 
-    def run_test_step(
-        self, batch, batch_idx
-    ) -> tuple[torch.Tensor, torch.Tensor]:
+    def run_test_step(self, batch, batch_idx) -> tuple[torch.Tensor, ...]:
         """Carry out single test step for the given `batch`.
 
         Return a tuple of two `torch.Tensor`'s: true labels and predicted scores.
-        If not overriden, the implementation of `step` method is used.
+        If you need to define separate logic for validation or test step,
+        implement `val_step` or `test_step` methods, respectivelly.
 
         Parameters
         ----------
@@ -155,17 +187,34 @@ class MLKitAbstractModule(
         Returns
         -------
         result : tuple of `torch.Tensor`
-            A tuple whose 1st element is `torch.Tensor` of ground-truth labels
-            and the 2nd - output of the network
+            A tuple of 3 or 4 items:
+            - if a tuple of 3 elements:
+                1. `torch.Tensor` of ground-truth labels,
+                2. `torch.Tensor` output of the network,
+                3. `torch.Tensor` of the predicted labels.
+            - if a tuple of 4 elements:
+                1. `torch.Tensor` of ground-truth labels,
+                2. `torch.Tensor` output of the network,
+                3. `torch.Tensor` of the predicted labels,
+                4. `torch.Tensor` with loss value.
 
         Examples
         --------
         ```python
         ...
-        def run_step(self, batch, batch_idx) -> tuple[torch.Tensor, torch.Tensor]:
+        def run_test_step(self, batch, batch_idx) -> tuple[torch.Tensor,  ...]:
             feature_input, label_input = batch
             scores = self(feature_input)
-            return (label_input, scores)
+            return (label_input, scores, scores.argmax(dim=-1))
+        ```
+
+        ```python
+        ...
+        def run_test_step(self, batch, batch_idx) -> tuple[torch.Tensor, ...]:
+            feature_input, label_input = batch
+            scores = self(feature_input)
+            loss = super().compute_loss(prediction=logits, target=is_fire)
+            return (label_input, scores, scores.argmax(dim=-1), loss)
         ```
         """
         return self.run_step(batch, batch_idx)
@@ -198,7 +247,7 @@ class MLKitAbstractModule(
         --------
         ```python
         ...
-        def run_step(self, batch, batch_idx) -> tuple[torch.Tensor, torch.Tenso]:
+        def run_predict_step(self, batch, batch_idx) -> torch.Tensor:
             feature_input = batch
             return self(feature_input)
         ```
@@ -304,23 +353,29 @@ class MLKitAbstractModule(
                 logger=True,
             )
 
-    def update_val_metrics(
-        self, true: torch.Tensor, predictions: torch.Tensor
-    ) -> None:
-        """Update validation metrics with true and prediction values."""
-        self.val_metric_tracker.update(true=true, predictions=predictions)
-
     def update_train_metrics(
-        self, true: torch.Tensor, predictions: torch.Tensor
+        self, true: torch.Tensor, predictions: torch.Tensor, loss: torch.Tensor
     ) -> None:
         """Update train metrics with true and prediction values."""
         self.train_metric_tracker.update(true=true, predictions=predictions)
+        if loss:
+            self.log(name=f"{Stage.TRAIN}_loss", value=loss, logger=True)
+
+    def update_val_metrics(
+        self, true: torch.Tensor, predictions: torch.Tensor, loss: torch.Tensor
+    ) -> None:
+        """Update validation metrics with true and prediction values."""
+        self.val_metric_tracker.update(true=true, predictions=predictions)
+        if loss:
+            self.log(name=f"{Stage.VALIDATION}_loss", value=loss, logger=True)
 
     def update_test_metrics(
-        self, true: torch.Tensor, predictions: torch.Tensor
+        self, true: torch.Tensor, predictions: torch.Tensor, loss: torch.Tensor
     ) -> None:
         """Update test metrics with true and prediction values."""
         self.test_metric_tracker.update(true=true, predictions=predictions)
+        if loss:
+            self.log(name=f"{Stage.TEST}_loss", value=loss, logger=True)
 
     def reset_metric_trackers(self) -> None:
         """Reset all metric trackers: train, validation, and test."""
@@ -332,26 +387,51 @@ class MLKitAbstractModule(
         self, batch, batch_idx
     ):  # pylint: disable=arguments-differ
         """Carry out a single training step."""
-        y_true, y_scores = self.run_step(batch, batch_idx)
+        res = self.run_step(batch, batch_idx)
+        match len(res):
+            case 3:
+                y_true, y_scores, y_pred = res
+            case _ as entries if entries > 3:
+                y_true, y_scores, y_pred, loss = res
+            case _:
+                self.error("wrong size of tuple returned by `run_step`")
+                raise ValueError("wrong size of tuple returned by `run_step`")
         loss = self.compute_loss(y_scores, y_true)
-        self.update_train_metrics(true=y_true, predictions=y_scores)
-        self.log(name=f"{Stage.TRAIN}_loss", value=loss, logger=True)
+        self.update_train_metrics(true=y_true, predictions=y_pred, loss=loss)
         return loss
 
     def validation_step(
         self, batch, batch_idx
     ):  # pylint: disable=arguments-differ
         """Carry out a single validation step."""
-        y_true, y_scores = self.run_val_step(batch, batch_idx)
+        res = self.run_val_step(batch, batch_idx)
+        match len(res):
+            case 3:
+                y_true, y_scores, y_pred = res
+            case _ as entries if entries > 3:
+                y_true, y_scores, y_pred, loss = res
+            case _:
+                self.error("wrong size of tuple returned by `run_val_step`")
+                raise ValueError(
+                    "wrong size of tuple returned by `run_val_step`"
+                )
         loss = self.compute_loss(y_scores, y_true)
-        self.update_val_metrics(true=y_true, predictions=y_scores)
-        self.log(name=f"{Stage.VALIDATION}_loss", value=loss, logger=True)
+        self.update_val_metrics(true=y_true, predictions=y_pred, loss=loss)
         return loss
 
     def test_step(self, batch, batch_idx):  # pylint: disable=arguments-differ
         """Carry out a single test step."""
-        y_true, y_scores = self.run_test_step(batch, batch_idx)
+        res = self.run_test_step(batch, batch_idx)
+        match len(res):
+            case 3:
+                y_true, y_scores, y_pred = res
+            case _ as entries if entries > 3:
+                y_true, y_scores, y_pred, loss = res
+            case _:
+                self.error("wrong size of tuple returned by `run_test_step`")
+                raise ValueError(
+                    "wrong size of tuple returned by `run_test_step`"
+                )
         loss = self.compute_loss(y_scores, y_true)
-        self.update_test_metrics(true=y_true, predictions=y_scores)
-        self.log(name=f"{Stage.TEST}_loss", value=loss, logger=True)
+        self.update_test_metrics(true=y_true, predictions=y_pred, loss=loss)
         return loss

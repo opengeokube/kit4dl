@@ -206,11 +206,13 @@ class SimpleCNN(MLKitAbstractModule):
             nn.ReLU(),
         )
 
-    def run_step(self, batch, batch_idx) -> tuple[torch.Tensor, torch.Tensor]:
+    def run_step(self, batch, batch_idx) -> tuple[torch.Tensor, ...]:
         x, label = batch
-        return label, self.l1(x)
+        logits = self.l1(x)
+        preds = logits.argmax(dim=-1)
+        return label, logits, preds
 ```
-> **Note**: `run_step` method should return a tuple of two tensors, the ground-truth labels and the output of the network.
+> **Note**: `run_step` method should return a tuple of 3 (ground-truth, scores, predictions) or 4 (ground-truth, scores, predictions, loss) tensors.
 
 > **Note**: `batch` argument can be unpacked depending on how you define your dataset for datamodule (see [Defining datamodule](#defining-datamodule))
 
