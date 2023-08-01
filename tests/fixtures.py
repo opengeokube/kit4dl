@@ -42,6 +42,9 @@ def conf():
 
     conf.dataset = PropertyMock()
     conf.dataset.datamodule_class = PropertyMock()
+
+    conf.dict = Mock()
+    conf.dict.return_value = {}
     yield conf
 
 

@@ -29,7 +29,7 @@ class MLKitAbstractModule(
         self._configure_metrics()
         self._configure_criterion()
         self.configure(**self._conf.model.arguments)
-        self.save_hyperparameters()
+        self.save_hyperparameters(self._conf.dict())
 
     def configure_logger(self) -> None:
         """Configure logger based on the configuration passed to the class.
