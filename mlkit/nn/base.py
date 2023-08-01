@@ -396,7 +396,7 @@ class MLKitAbstractModule(
             case _:
                 self.error("wrong size of tuple returned by `run_step`")
                 raise ValueError("wrong size of tuple returned by `run_step`")
-        self.update_train_metrics(true=y_true, predictions=y_pred, loss=loss)
+        self.update_train_metrics(true=y_true, predictions=y_scores, loss=loss)
         return loss
 
     def validation_step(
@@ -412,7 +412,7 @@ class MLKitAbstractModule(
             case _:
                 self.error("wrong size of tuple returned by `run_step`")
                 raise ValueError("wrong size of tuple returned by `run_step`")
-        self.update_val_metrics(true=y_true, predictions=y_pred, loss=loss)
+        self.update_val_metrics(true=y_true, predictions=y_scores, loss=loss)
         return loss
 
     def test_step(self, batch, batch_idx):  # pylint: disable=arguments-differ
@@ -426,5 +426,5 @@ class MLKitAbstractModule(
             case _:
                 self.error("wrong size of tuple returned by `run_step`")
                 raise ValueError("wrong size of tuple returned by `run_step`")
-        self.update_test_metrics(true=y_true, predictions=y_pred, loss=loss)
+        self.update_test_metrics(true=y_true, predictions=y_scores, loss=loss)
         return loss
