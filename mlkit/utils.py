@@ -1,4 +1,6 @@
 """Module with utilities functions and structures."""
+import os
+import random
 from typing import Callable, Hashable
 
 import numpy as np
@@ -13,8 +15,12 @@ def set_seed(seed: int) -> None:
     seed : int
         Seed value
     """
+    os.environ["PL_GLOBAL_SEED"] = str(seed)
+    os.environ["PL_SEED_WORKERS"] = "1"
+    random.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
 
 
 def replace_item_recursively(
