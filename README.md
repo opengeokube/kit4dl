@@ -63,7 +63,7 @@ For contributing:
 git clone https://github.com/opengeokube/ml-kit
 cd ml-kit
 conda env create -f dev-env.yaml
-pip install .
+pip install -e .
 ```
 
 #### Preparing simple project
@@ -84,6 +84,8 @@ To run the training just type the following command:
 ```bash
 mlkit train
 ```
+> **Note**: If you want to run also test for best saved weight, use flag `--test`
+
 
 If the `conf.toml` file is present in your current working directory, the training will start.
 
