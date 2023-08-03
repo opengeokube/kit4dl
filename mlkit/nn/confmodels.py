@@ -405,6 +405,8 @@ class LoggingConf(
             raise TypeError(
                 f"logger of type `{self.metric_logger_type}` is undefined!"
             )
+        if issubclass(ltype, pl_logs.CSVLogger):
+            self.arguments.setdefault("save_dir", "./csv_logs")
 
     @property
     def metric_logger_type(self) -> type:

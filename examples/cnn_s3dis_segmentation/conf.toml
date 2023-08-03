@@ -1,8 +1,12 @@
 [base]
 seed = 0
 experiment_name = "point_clout_segmentation"
-log_level = "info"
-log_format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+
+[logging]
+level = "info"
+format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+type = "csv"
+save_dir = "csv_metrics"
 
 [model]
 # The directory with conf.toml file is added to path, so we can treat .py
