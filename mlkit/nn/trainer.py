@@ -48,16 +48,30 @@ class Trainer(LoggerMixin):
 
     def fit(self) -> "Trainer":
         """Fit the trainer making use of `lightning.pytorch.Trainer`."""
+        assert self._trainer, (
+            "trainer is not configured. did you forget to call `prepare()`"
+            " method first?"
+        )
         self._trainer.fit(self._model, datamodule=self._datamodule)
         return self
 
     def test(self) -> "Trainer":
         """Test the model."""
-        self._trainer.test(self._model, datamodule=self._datamodule)
+        assert self._trainer, (
+            "trainer is not configured. did you forget to call `prepare()`"
+            " method first?"
+        )
+        self._trainer.test(
+            self._model, datamodule=self._datamodule, ckpt_path="best"
+        )
         return self
 
     def predict(self) -> "Trainer":
         """Predict values for the model."""
+        assert self._trainer, (
+            "trainer is not configured. did you forget to call `prepare()`"
+            " method first?"
+        )
         self._trainer.predict(self._model, datamodule=self._datamodule)
         return self
 

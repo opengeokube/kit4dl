@@ -125,7 +125,10 @@ def resume(
 def train(
     conf: Annotated[
         str, typer.Option(help="Path to the configuration TOML file")
-    ] = _get_default_conf_path()
+    ] = _get_default_conf_path(),
+    test: Annotated[
+        bool, typer.Option(help="If perform testing using best weights")
+    ] = True,
 ) -> None:
     """Train using the configuration file.
 
@@ -135,6 +138,7 @@ def train(
         Path to the configuration TOML file.
         If skipped, the program will search for the `conf.toml` file
         in the current working directory.
+    test
     """
     log.info("Attempt to run training...")
     root_dir = os.path.dirname(conf)
@@ -150,8 +154,13 @@ def train(
     conf_ = _get_conf_from_file(conf, root_dir=root_dir)
     update_context_from_conf(conf=conf_)
     log.info("Running trainer \U0001f3ac")
-    Trainer(conf=conf_).prepare().fit()
+    trainer = Trainer(conf=conf_).prepare()
+    trainer.fit()
     log.info("Training finished \U00002728")
+    if test:
+        log.info("Running testing \U00002728")
+        trainer.test()
+        log.info("Testing finished \U00002728")
 
 
 def run():
