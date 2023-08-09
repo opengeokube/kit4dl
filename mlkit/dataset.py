@@ -233,7 +233,7 @@ class MLKitAbstractDataModule(ABC, pl.LightningDataModule, LoggerMixin):
             "configuration for test phase is not defined. did you forget to"
             " define `[dataset.test]` section in the configuration file?"
         )
-        self.val_dataset = self.prepare_testdataset(**self.conf.test.arguments)
+        self.test_dataset = self.prepare_testdataset(**self.conf.test.arguments)
 
     def _handle_predict_stage(self) -> None:
         assert self.conf.predict, (
@@ -285,8 +285,8 @@ class MLKitAbstractDataModule(ABC, pl.LightningDataModule, LoggerMixin):
     def train_dataloader(self) -> DataLoader:
         """Prepare loader for train data."""
         assert self.conf.train, (
-            "validation configuration is not defined. did you forget"
-            " [dataset.validation] section in the configuration file?"
+            "train configuration is not defined. did you forget"
+            " [dataset.train] section in the configuration file?"
         )
         assert self.train_dataset is not None, (
             "did you forget to return `torch.utils.data.Dataset`instance from"
@@ -317,7 +317,7 @@ class MLKitAbstractDataModule(ABC, pl.LightningDataModule, LoggerMixin):
     def test_dataloader(self) -> DataLoader:
         """Prepare loader for test data."""
         assert self.conf.test, (
-            "validation configuration is not defined. did you forget"
+            "test configuration is not defined. did you forget"
             " [dataset.test] section in the configuration file?"
         )
         assert self.test_dataset is not None, (
