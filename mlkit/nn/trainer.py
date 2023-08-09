@@ -29,17 +29,26 @@ class Trainer(LoggerMixin):
         self._device = self._conf.base.device
         self._metric_logger = self._new_metric_logger()
         set_seed(self._conf.base.seed)
-        self._log_hparams()
 
     def prepare(self) -> "Trainer":
         """Prepare trainer by configuring the model and data modules."""
         self._model = self._configure_model()
         self._trainer = self._configure_trainer()
         self._datamodule = self._configure_datamodule()
+        self._log_hparams()
         return self
 
     def _log_hparams(self) -> None:
         self._metric_logger.log_hyperparams(self._conf.dict())
+        self._metric_logger.log_hyperparam(
+            {
+                "trainable_parameters": sum(
+                    p.numel()
+                    for p in self._model.parameters()
+                    if p.requires_grad
+                )
+            }
+        )
 
     def load_checkpoint(self, path: str) -> "Trainer":
         """Load model weights from the checkpoint."""

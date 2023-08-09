@@ -233,7 +233,9 @@ class MLKitAbstractDataModule(ABC, pl.LightningDataModule, LoggerMixin):
             "configuration for test phase is not defined. did you forget to"
             " define `[dataset.test]` section in the configuration file?"
         )
-        self.test_dataset = self.prepare_testdataset(**self.conf.test.arguments)
+        self.test_dataset = self.prepare_testdataset(
+            **self.conf.test.arguments
+        )
 
     def _handle_predict_stage(self) -> None:
         assert self.conf.predict, (
