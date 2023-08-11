@@ -54,7 +54,7 @@ pip install opengeokube-mlkit
 or
 
 ```bash
-conda install -c conda-forge mlkit
+TODO
 ```
 
 For contributing:
