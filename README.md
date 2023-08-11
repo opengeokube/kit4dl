@@ -38,7 +38,7 @@ OpenGeokube Developers:
 
 - [ ] add handling sklearn-like models
 - [ ] add functionality to serve the model
-- [ ] enable custom metrics
+- [x] enable custom metrics
 - [ ] write more unit tests
 
 
@@ -48,13 +48,13 @@ OpenGeokube Developers:
 
 #### Installation
 ```bash
-pip install mlkit
+pip install opengeokube-mlkit
 ```
 
 or
 
 ```bash
-conda install -c conda-forge mlkit
+TODO
 ```
 
 For contributing:
