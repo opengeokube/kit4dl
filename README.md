@@ -38,7 +38,7 @@ OpenGeokube Developers:
 
 - [ ] add handling sklearn-like models
 - [ ] add functionality to serve the model
-- [ ] enable custom metrics
+- [x] enable custom metrics
 - [ ] write more unit tests
 
 
