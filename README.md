@@ -48,7 +48,7 @@ OpenGeokube Developers:
 
 #### Installation
 ```bash
-pip install mlkit
+pip install opengeokube-mlkit
 ```
 
 or

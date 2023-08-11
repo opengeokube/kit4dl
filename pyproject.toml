@@ -3,7 +3,7 @@ requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "mlkit"
+name = "opengeokube-mlkit"
 version = "2023.08a0"
 description = "MLKit - A quick way to start with machine and deep learning"
 requires-python = ">=3.10"
