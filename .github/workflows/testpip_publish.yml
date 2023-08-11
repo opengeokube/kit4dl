@@ -1,21 +1,17 @@
-name: Publish MLKit package to PyPI
+name: Publish MLKit package to TestPyPI
 
 on: 
   release:
-    types: [published]  
+    types: [prereleased]  
   workflow_dispatch:
 
 jobs:
   build-and-publish:
-    name: Build MLKit and publish to PyPI
+    name: Build MLKit and publish to TestPyPI
     strategy:
       matrix:
         python-version: ["3.10", "3.11"]
-<<<<<<< HEAD
-        os: [ubuntu-latest]
-=======
         os: [ubuntu-latest, windows-latest, macos-latest]
->>>>>>> 59679b04fc16cd2ad97cb78d5d6667e82dd57517
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
@@ -27,8 +23,9 @@ jobs:
         run: python3 -m pip install build --user
       - name: Build wheels
         run: python -m build --sdist --wheel --outdir=dist/ .
-      - name: Publish MLKit to PyPI
-        if: startsWith(github.ref, 'refs/tags')
+      - name: Publish MLKit to Test PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
-          password: ${{ secrets.PYPI_API_TOKEN }}
+          password: ${{ secrets.TESTPYPI_API_TOKEN }}
+          repository-url: https://test.pypi.org/legacy/
+          
