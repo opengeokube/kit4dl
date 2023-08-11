@@ -4,9 +4,10 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mlkit"
-version = "2023.05a0"
+version = "2023.05a5"
 description = "MLKit - A quick way to start with machine and deep learning"
 requires-python = ">=3.10"
+readme = "README.md"
 license = {file = "LICENSE"}
 keywords = ["deep learning", "training pipeline"]
 authors = [
@@ -35,7 +36,6 @@ dependencies = [
     "typer[all]",
     "toml; python_version<'3.11'"
 ]
-dynamic = ["readme"]
 
 [tool.setuptools]
 include-package-data = true
@@ -44,16 +44,12 @@ include-package-data = true
 where = ["."]
 exclude = ["examples*"]
 
-[tool.setuptools.dynamic]
-readme = {file = "README.MD"}
-
-
 [tool.pydocstyle]
 
 
 [tool.mypy]
 files = [
-    "mlkit",
+    "mlkit", "."
 ]
 exclude = ["tests/", "examples/"]
 
