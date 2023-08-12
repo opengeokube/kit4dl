@@ -13,7 +13,12 @@
 [![license](https://img.shields.io/badge/License-MIT-green.svg?labelColor=gray)](https://github.com/opengeokube/kit4dl/blob/main/LICENSE)
 
 [![pytest](https://github.com/opengeokube/kit4dl/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/opengeokube/kit4dl/actions/workflows/test.yml)
+
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.8241376.svg)](https://doi.org/10.5281/zenodo.8241376)
 </div>
+
+
+
 
 ## 🖋️ Authors
 OpenGeokube Developers:
