@@ -124,7 +124,6 @@ class Trainer(LoggerMixin):
         if self._conf.training.checkpoint:
             callbacks.append(self._get_model_checkpoint())
         return pl.Trainer(
-            precision=self._conf.training.precision,
             accelerator=accelerator_device,
             devices=device,
             max_epochs=self._conf.training.epochs,

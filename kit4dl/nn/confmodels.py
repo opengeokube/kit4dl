@@ -231,7 +231,6 @@ class TrainingConf(BaseModel):
     optimizer: OptimizerConf
     criterion: CriterionConf
     arguments: dict[str, Any]
-    precision: Literal[16, 32, 64, 128] = 16
 
     @root_validator(pre=True)
     def _build_model_arguments(cls, values: dict[str, Any]) -> dict[str, Any]:
