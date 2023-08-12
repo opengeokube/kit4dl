@@ -8,7 +8,7 @@ import sklearn.metrics as smt
 import torch
 import torchmetrics as tm
 
-from mlkit.metric import MetricStore
+from kit4dl.metric import MetricStore
 
 
 class TestMetricStore:

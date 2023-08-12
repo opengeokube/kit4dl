@@ -3,7 +3,7 @@ from unittest.mock import patch
 
 import pytest
 
-import mlkit.io as io_
+import kit4dl.io as io_
 
 
 class TestIO:
@@ -12,7 +12,7 @@ class TestIO:
         [
             "torch.optim::Adam",
             "os::PathLike",
-            "mlkit.nn.base::MLKitAbstractModule",
+            "kit4dl.nn.base::MLKitAbstractModule",
         ],
     )
     def test_import_from_fully_qualified_name(self, fc_name):
@@ -54,11 +54,11 @@ class TestIO:
         assert os.path.exists(file)
 
     @pytest.mark.skipif(
-        not os.path.exists(r"D:\Projekty\CMCC\ml-kit\tests\dummy_module2.py"),
+        not os.path.exists(r"D:\Projekty\CMCC\kit4dl\tests\dummy_module2.py"),
         reason="file does not exists. absolute path is not correct",
     )
     def test_import_from_absolute_pyfile(self):
-        path = r"D:\Projekty\CMCC\ml-kit\tests\dummy_module2.py::T1"
+        path = r"D:\Projekty\CMCC\kit4dl\tests\dummy_module2.py::T1"
         target_class = io_.import_and_get_attr_from_fully_qualified_name(path)
         assert isinstance(target_class, type)
         file, class_name = path.rsplit("::")

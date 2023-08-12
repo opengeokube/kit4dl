@@ -2,7 +2,7 @@ from unittest.mock import patch
 
 import pytest
 
-from mlkit import context
+from kit4dl import context
 
 
 class TestSession:

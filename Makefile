@@ -1,7 +1,7 @@
 .PHONY: typehint
 typehint:
 	mypy --ignore-missing-imports .
-	pylint mlkit
+	pylint kit4dl
 
 .PHONY: test
 test:
@@ -14,7 +14,7 @@ format:
 
 .PHONY: docs
 docs:
-	pydocstyle -e --convention=numpy mlkit
+	pydocstyle -e --convention=numpy kit4dl
 
 .PHONY: clean
 clean:

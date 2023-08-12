@@ -1,4 +1,4 @@
-name: Publish MLKit package to TestPyPI
+name: Publish Kit4DL package to TestPyPI
 
 on: 
   release:
@@ -7,7 +7,7 @@ on:
 
 jobs:
   build-and-publish:
-    name: Build MLKit and publish to TestPyPI
+    name: Build Kit4DL and publish to TestPyPI
     strategy:
       matrix:
         python-version: ["3.10"]
@@ -23,7 +23,7 @@ jobs:
         run: python3 -m pip install build --user
       - name: Build wheels
         run: python -m build --sdist --wheel --outdir=dist/ .
-      - name: Publish MLKit to Test PyPI
+      - name: Publish Kit4DL to Test PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           password: ${{ secrets.TESTPYPI_API_TOKEN }}

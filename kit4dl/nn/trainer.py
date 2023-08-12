@@ -6,12 +6,12 @@ import lightning.pytorch as pl
 from lightning.pytorch import callbacks as pl_callbacks
 from lightning.pytorch import loggers as pl_log
 
-from mlkit.dataset import MLKitAbstractDataModule
-from mlkit.mixins import LoggerMixin
-from mlkit.nn.base import MLKitAbstractModule
-from mlkit.nn.callbacks import MetricCallback, ModelCheckpoint
-from mlkit.nn.confmodels import Conf
-from mlkit.utils import set_seed
+from kit4dl.dataset import MLKitAbstractDataModule
+from kit4dl.mixins import LoggerMixin
+from kit4dl.nn.base import MLKitAbstractModule
+from kit4dl.nn.callbacks import MetricCallback, ModelCheckpoint
+from kit4dl.nn.confmodels import Conf
+from kit4dl.utils import set_seed
 
 
 class Trainer(LoggerMixin):
@@ -124,6 +124,7 @@ class Trainer(LoggerMixin):
         if self._conf.training.checkpoint:
             callbacks.append(self._get_model_checkpoint())
         return pl.Trainer(
+            precision=self._conf.training.precision,
             accelerator=accelerator_device,
             devices=device,
             max_epochs=self._conf.training.epochs,

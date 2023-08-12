@@ -1,8 +1,8 @@
 """A module with resuable validators."""
 import torch
 
-from mlkit.io import import_and_get_attr_from_fully_qualified_name
-from mlkit.mlkit_types import FullyQualifiedName
+from kit4dl.io import import_and_get_attr_from_fully_qualified_name
+from kit4dl.mlkit_types import FullyQualifiedName
 
 
 def validate_cuda_device_exists(cuda_id: int | None = None) -> int | None:

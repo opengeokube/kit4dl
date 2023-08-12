@@ -2,7 +2,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from mlkit.dataset import MLKitAbstractDataModule
+from kit4dl.dataset import MLKitAbstractDataModule
 
 
 class TestDatamodule:

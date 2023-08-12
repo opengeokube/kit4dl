@@ -1,7 +1,7 @@
 import torchmetrics as tm
 
-from mlkit.dataset import MLKitAbstractDataModule
-from mlkit.nn.base import MLKitAbstractModule
+from kit4dl.dataset import MLKitAbstractDataModule
+from kit4dl.nn.base import MLKitAbstractModule
 
 
 class A:

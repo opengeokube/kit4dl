@@ -1,4 +1,4 @@
-"""A module with the base class of modules supported by MLKit."""
+"""A module with the base class of modules supported by Kit4DL."""
 import logging
 from abc import ABC, abstractmethod
 from typing import Any
@@ -6,16 +6,16 @@ from typing import Any
 import lightning.pytorch as pl
 import torch
 
-from mlkit.metric import MetricStore
-from mlkit.mixins import LoggerMixin
-from mlkit.nn.confmodels import Conf
-from mlkit.stages import Stage
+from kit4dl.metric import MetricStore
+from kit4dl.mixins import LoggerMixin
+from kit4dl.nn.confmodels import Conf
+from kit4dl.stages import Stage
 
 
 class MLKitAbstractModule(
     ABC, pl.LightningModule, LoggerMixin
 ):  # pylint: disable=too-many-ancestors
-    """Base abstract class for MLKit modules."""
+    """Base abstract class for Kit4DL modules."""
 
     def __init__(self, *, conf: Conf) -> None:
         super().__init__()

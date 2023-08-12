@@ -18,7 +18,7 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Install mlkit and dependencies
+      - name: Install kit4dl and dependencies
         run: pip install .
       - name: Install pytest
         run: pip install pytest

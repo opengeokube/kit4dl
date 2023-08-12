@@ -1,7 +1,7 @@
 import pytest
 import torch
 
-from mlkit.nn import validators
+from kit4dl.nn import validators
 from tests.utils import skipnocuda
 
 

@@ -1,7 +1,7 @@
 from torch.utils.data import random_split
 from torchvision.datasets import MNIST
 
-from mlkit import MLKitAbstractDataModule
+from kit4dl import MLKitAbstractDataModule
 
 
 class MNISTCustomDataset(MLKitAbstractDataModule):

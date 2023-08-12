@@ -11,7 +11,7 @@ except ModuleNotFoundError:
 import torch
 import torchmetrics as tm
 
-from mlkit.nn.base import MLKitAbstractModule
+from kit4dl.nn.base import MLKitAbstractModule
 from tests.fixtures import conf
 
 

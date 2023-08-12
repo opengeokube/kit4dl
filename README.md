@@ -1,5 +1,5 @@
 <div align="center">
-<img src="https://raw.githubusercontent.com/opengeokube/ml-kit/0e9d23ab33e9a8c3d7eaa39c8f2f93b7100add48/static/logo.svg">
+<img src="https://raw.githubusercontent.com/opengeokube/ml-kit/56dc56c1be7f6332c0f75cdfb3160d29cebc3c58/static/logo.svg" width="20%" height="20%">
 
 # A quick way to start with machine and deep learning
 [![python](https://img.shields.io/badge/-Python_3.10%7C3.11-blue?logo=python&logoColor=white)](https://www.python.org/downloads)
@@ -10,9 +10,9 @@
 [![Checked with mypy](http://www.mypy-lang.org/static/mypy_badge.svg)](http://mypy-lang.org/)
 [![pydocstyle](https://img.shields.io/badge/pydocstyle-enabled-AD4CD3)](http://www.pydocstyle.org/en/stable/)
 
-[![license](https://img.shields.io/badge/License-MIT-green.svg?labelColor=gray)](https://github.com/opengeokube/ml-kit/blob/main/LICENSE)
+[![license](https://img.shields.io/badge/License-MIT-green.svg?labelColor=gray)](https://github.com/opengeokube/kit4dl/blob/main/LICENSE)
 
-[![pytest](https://github.com/opengeokube/ml-kit/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/opengeokube/ml-kit/actions/workflows/test.yml)
+[![pytest](https://github.com/opengeokube/kit4dl/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/opengeokube/kit4dl/actions/workflows/test.yml)
 </div>
 
 ## 🖋️ Authors
@@ -24,17 +24,17 @@ OpenGeokube Developers:
 
 ## 📜 Cite Us
 ```bibtex
-@ONLINE{ml-kit,
+@ONLINE{kit4dl,
   author = {Walczak, J., Mancini, M., Stojiljkovic, M., Alvi, S.},
-  title = {{MLKit}: A quick way to start with machine and deep learning},
+  title = {{Kit4DL}: A quick way to start with machine and deep learning},
   year = 2023,
-  url = {https://github.com/opengeokube/ml-kit},
+  url = {https://github.com/opengeokube/kit4dl},
   urldate = {<access date here>}
 }
 ```
 ## 🚧 Roadmap
 
-> **Warning**: MLKit is currently in its alpha stage. All recommendations are welcomed.
+> **Warning**: Kit4DL is currently in its alpha stage. All recommendations are welcomed.
 
 - [ ] add handling sklearn-like models
 - [ ] add functionality to serve the model
@@ -48,7 +48,7 @@ OpenGeokube Developers:
 
 #### Installation
 ```bash
-pip install opengeokube-mlkit
+pip install kit4dl
 ```
 
 or
@@ -60,8 +60,8 @@ TODO
 For contributing:
  
 ```text
-git clone https://github.com/opengeokube/ml-kit
-cd ml-kit
+git clone https://github.com/opengeokube/kit4dl
+cd kit4dl
 conda env create -f dev-env.yaml
 pip install -e .
 ```
@@ -70,7 +70,7 @@ pip install -e .
 To start the new project in the current working directory, just run the following command:
 
 ```bash
-mlkit init --name=my-new-project
+kit4dl init --name=my-new-project
 ```
 
 It will create a directory with the name `my-new-project` where you'll find sample files.
@@ -82,7 +82,7 @@ That's all 🎉
 To run the training just type the following command:
 
 ```bash
-mlkit train
+kit4dl train
 ```
 > **Note**: If you want to run also test for best saved weight, use flag `--test`
 
@@ -91,25 +91,25 @@ If the `conf.toml` file is present in your current working directory, the traini
 
 If you need to specify the path to the configuration file, use `--conf` argument:
 ```bash
-mlkit train --conf=/path/to/your/conf.toml
+kit4dl train --conf=/path/to/your/conf.toml
 ```
 
 #### Serving the model
 The packuge does not yet support model serving.
 
 ## 🪁 Playground
-At first, install `mlkit` package as indicated in the Section [Installation](#installation).
+At first, install `kit4dl` package as indicated in the Section [Installation](#installation).
 
 #### Handwritten digit recognition
 Just navigate to the directory `/examples/cnn_mnist_classification` and run
 ```bash
-mlkit train
+kit4dl train
 ```
 
 #### Point cloud instance segmentation
 Just navigate to the directory `/examples/cnn_s3dis_segmentation` and run
 ```bash
-mlkit train
+kit4dl train
 ```
 
 
@@ -188,7 +188,7 @@ The machine learning/deep learning model definition is realized in two aspects.
 1. The definition of the model (e.g. PyTorch model) in the `.py` file.
 1. The configuration in the `[model]` section of the configuration file.
 
-The file with the model definition should contain a subclass of `MLKitAbstractModule` abstract class of the `mlkit` package.
+The file with the model definition should contain a subclass of `MLKitAbstractModule` abstract class of the `kit4dl` package.
 The subclass should implement, at least, abstract methods `configure` and `run_step`.
 In the `configure` method, the architecture of the network should be defined. 
 In `run_step` method, it turn, the logic for single forward pass should be implemented.
@@ -197,7 +197,7 @@ In `run_step` method, it turn, the logic for single forward pass should be imple
 ```python
 import torch
 from torch import nn
-from mlkit import MLKitAbstractModule
+from kit4dl import MLKitAbstractModule
 
 class SimpleCNN(MLKitAbstractModule):
     def configure(self, input_dims, output_dims) -> None:
@@ -237,7 +237,7 @@ If a forward pass for your model differs for the training, validation, test, or 
 ```python
 import torch
 from torch import nn
-from mlkit import MLKitAbstractModule
+from kit4dl import MLKitAbstractModule
 
 class SimpleCNN(MLKitAbstractModule):
     ...
@@ -255,7 +255,7 @@ class SimpleCNN(MLKitAbstractModule):
 
 #### Defining datamodule
 Similarily to the model, datamodule instance is fully defined by the Python class and its configuration.
-The datamodule need to be a subclass of the `MLKitAbstractDataModule` abstract class from the `mlkit` package.
+The datamodule need to be a subclass of the `MLKitAbstractDataModule` abstract class from the `kit4dl` package.
 The class has to implement, at least, `prepare_trainvaldataset` (if preparing is the same for the train and validation splits) or `prepare_traindataset` and `prepare_valdataset` (if preparing data differs). Besides those, you can define `prepare_testdataset` and `prepare_predictdataset`, for test and prediction, respectively.
 
 ##### ✍️ Example
@@ -264,7 +264,7 @@ from torch.utils.data import Dataset, random_split
 from torchvision import transforms
 from torchvision.datasets import MNIST
 
-from mlkit import MLKitAbstractDataModule
+from kit4dl import MLKitAbstractDataModule
 
 
 class MNISTCustomDatamodule(MLKitAbstractDataModule):
@@ -485,7 +485,7 @@ save_top_k = 1
 
 
 #### Defining `target`
-Target property in the MLKit package is kind of extended fully qualified name pointing to the classes supposed to use in the
+Target property in the Kit4DL package is kind of extended fully qualified name pointing to the classes supposed to use in the
 given context, like for:
 1. neural network class (`target = "./model.py::SimpleCNN"`)
 1. datamodule (`target = "./datamodule.py::MNISTCustomDatamodule"`)
@@ -533,17 +533,17 @@ format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 > **Warning**: If you use **double quote** for text values in TOML configuration file, then use **single quote** to access `env` values. 
 
 #### Context constants
-When you run training using `mlkit train` command, all custom modules have access to context constant values (defined for the current Python interpreter session).
+When you run training using `kit4dl train` command, all custom modules have access to context constant values (defined for the current Python interpreter session).
 You can access them via `context` module:
 
 ##### ✍️ Example
 ```python
-from mlkit import context
+from kit4dl import context
 
 print(context.PROJECT_DIR)
 ```
 
-The constants currently available in `mlkit` are the following:
+The constants currently available in `kit4dl` are the following:
 |   **Symbol** 	|            **Meaning of the symbol**                                   	|          **Example**                  |
 |-------------	|-----------------------------------------------------------------------	| -----------------------------------	|
 | `PROJECT_DIR`	| the home directory of the TOML configuration file (project directory) 	| `context.PROJECT_DIR`                 |
