@@ -3,7 +3,7 @@ from typing import Any
 
 from torch.utils.data import Dataset
 
-from mlkit import MLKitAbstractDataModule
+from kit4dl import MLKitAbstractDataModule
 
 
 class MyCustomDatamodule(MLKitAbstractDataModule):

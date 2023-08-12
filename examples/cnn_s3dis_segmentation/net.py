@@ -2,7 +2,7 @@
 import torch
 import torch.nn as nn
 
-from mlkit import MLKitAbstractModule
+from kit4dl import MLKitAbstractModule
 
 
 class SimpleSegmentationNetwork(MLKitAbstractModule):

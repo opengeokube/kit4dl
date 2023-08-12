@@ -1,4 +1,4 @@
-"""Module with CLI for MLKit."""
+"""Module with CLI for Kit4DL."""
 import importlib.resources
 import logging
 import os
@@ -13,15 +13,15 @@ except ModuleNotFoundError:
 import typer
 from typing_extensions import Annotated
 
-from mlkit import context
-from mlkit.formatting import escape_os_sep, substitute_symbols
-from mlkit.nn.confmodels import Conf
-from mlkit.nn.trainer import Trainer
+from kit4dl import context
+from kit4dl.formatting import escape_os_sep, substitute_symbols
+from kit4dl.nn.confmodels import Conf
+from kit4dl.nn.trainer import Trainer
 
 # ##############################
 #         CREATE CLI
 # ##############################
-_app = typer.Typer(name="MLKit")
+_app = typer.Typer(name="Kit4DL")
 
 # ##############################
 #       CONFIGURE LOGGER
@@ -40,7 +40,7 @@ def _configure_logger(logger: logging.Logger):
         hdl.setLevel(_CLI_LOG_LEVEL)  # type: ignore[arg-type]
 
 
-log = logging.getLogger("MLKit.CLI")
+log = logging.getLogger("Kit4DL.CLI")
 _configure_logger(log)
 
 
@@ -88,7 +88,7 @@ def init(
         str, typer.Option(help="The name of your new project")
     ] = "new_mlkit_project"
 ) -> None:
-    """Create a new MLKit project.
+    """Create a new Kit4DL project.
 
     Parameters
     ----------
@@ -96,10 +96,10 @@ def init(
         The optional name of the project.
         If skipped, the deafult `new_mlkit_project` will be used
     """
-    log.info("MLKit Creating a new skeleton for the project: << %s >>", name)
+    log.info("Kit4DL Creating a new skeleton for the project: << %s >>", name)
     assert not os.path.exists(name), f"The project `{name}` already exists!"
     with importlib.resources.path(
-        "mlkit.cli._templates", "project"
+        "kit4dl.cli._templates", "project"
     ) as empty_proj_path:
         shutil.copytree(empty_proj_path, name)
     _remove_redundant_items(name)

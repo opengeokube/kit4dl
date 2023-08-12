@@ -3,7 +3,7 @@ from typing import Any
 
 import torch
 
-from mlkit import MLKitAbstractModule
+from kit4dl import MLKitAbstractModule
 
 
 class MyNewNetwork(MLKitAbstractModule):

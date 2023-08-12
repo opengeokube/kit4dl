@@ -3,21 +3,21 @@ requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "opengeokube-mlkit"
+name = "kit4dl"
 version = "2023.08a0"
-description = "MLKit - A quick way to start with machine and deep learning"
+description = "Kit4DL - A quick way to start with machine and deep learning"
 requires-python = ">=3.10"
 readme = "README.md"
 license = {file = "LICENSE"}
 keywords = ["deep learning", "training pipeline"]
 authors = [
-    {name = "Jakub Walczak", email = "jakub.walczak@p.lodz.pl"},
+    {name = "Jakub Walczak"},
     {name = "Marco Mancini"},
     {name = "Mirko Stojiljkovic"},
     {name = "Shahbaz Alvi"},
 ]
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 4 - Beta",
     "Programming Language :: Python",
     "Operating System :: Microsoft :: Windows",
     "Operating System :: Unix",
@@ -49,12 +49,12 @@ exclude = ["examples*"]
 
 [tool.mypy]
 files = [
-    "mlkit", "."
+    "kit4dl", "."
 ]
 exclude = ["tests/", "examples/"]
 
 [project.scripts]
-mlkit = "mlkit.cli.app:run"
+kit4dl = "kit4dl.cli.app:run"
 
 [tool.pytest.ini_options]
 filterwarnings = [

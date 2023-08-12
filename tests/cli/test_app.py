@@ -3,7 +3,7 @@ import shutil
 
 import pytest
 
-from mlkit.cli.app import init, train
+from kit4dl.cli.app import init, train
 
 
 @pytest.fixture

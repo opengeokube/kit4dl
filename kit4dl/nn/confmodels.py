@@ -11,10 +11,10 @@ import torch
 import torchmetrics as tm
 from pydantic import BaseModel, Field, root_validator, validator
 
-import mlkit.io as io_
-from mlkit import utils as ut
-from mlkit.mlkit_types import FullyQualifiedName
-from mlkit.nn.validators import (
+import kit4dl.io as io_
+from kit4dl import utils as ut
+from kit4dl.mlkit_types import FullyQualifiedName
+from kit4dl.nn.validators import (
     validate_class_exists,
     validate_cuda_device_exists,
 )
@@ -86,7 +86,7 @@ class ModelConf(_AbstractClassWithArgumentsConf):
 
     @validator("target")
     def _check_if_target_has_expected_parent_class(cls, value):
-        from mlkit.nn.base import (  # pylint: disable=import-outside-toplevel
+        from kit4dl.nn.base import (  # pylint: disable=import-outside-toplevel
             MLKitAbstractModule,
         )
 
@@ -231,6 +231,7 @@ class TrainingConf(BaseModel):
     optimizer: OptimizerConf
     criterion: CriterionConf
     arguments: dict[str, Any]
+    precision: Literal[16, 32, 64, 128] = 16
 
     @root_validator(pre=True)
     def _build_model_arguments(cls, values: dict[str, Any]) -> dict[str, Any]:
@@ -326,7 +327,7 @@ class DatasetConf(BaseModel):
 
     @validator("target")
     def _check_if_target_has_expected_parent_class(cls, value):
-        from mlkit.dataset import (  # pylint: disable=import-outside-toplevel
+        from kit4dl.dataset import (  # pylint: disable=import-outside-toplevel
             MLKitAbstractDataModule,
         )
 

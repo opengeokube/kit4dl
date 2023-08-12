@@ -2,7 +2,7 @@ from torch.utils.data import Dataset, random_split
 from torchvision import transforms
 from torchvision.datasets import MNIST
 
-from mlkit import MLKitAbstractDataModule
+from kit4dl import MLKitAbstractDataModule
 
 
 class MNISTCustomDatamodule(MLKitAbstractDataModule):

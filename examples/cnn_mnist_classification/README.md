@@ -5,13 +5,13 @@
 
 ### 1. Run
 ```bash
-mlkit train
+kit4dl train
 ```
 
 while being in the directory with `conf.toml` file, or specify configuration file explicitly:
 
 ```bash
-mlkit train --conf=<path_to_conf_file>
+kit4dl train --conf=<path_to_conf_file>
 ```
 
 > **Note**: The MNIST dataset will be downloaded automatically by `PyTorch`.

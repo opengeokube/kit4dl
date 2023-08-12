@@ -7,7 +7,7 @@ try:
 except ModuleNotFoundError:
     import toml  # type: ignore[no-redef]
 
-from mlkit.formatting import (
+from kit4dl.formatting import (
     _UNIX_PATHNAME_SEP,
     _WINDOWS_PATHNAME_SEP,
     escape_os_sep,

@@ -12,7 +12,7 @@ from unittest.mock import MagicMock, Mock, PropertyMock
 import torch
 import torchmetrics as tm
 
-from mlkit.nn.confmodels import Conf
+from kit4dl.nn.confmodels import Conf
 
 
 @pytest.fixture

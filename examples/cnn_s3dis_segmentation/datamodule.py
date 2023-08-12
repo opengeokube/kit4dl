@@ -5,7 +5,7 @@ import numpy as np
 import s3dis  # NOTE: local module s3dis.py
 from torch.utils.data import Dataset
 
-from mlkit import MLKitAbstractDataModule
+from kit4dl import MLKitAbstractDataModule
 
 
 class S3DISDataset(Dataset):

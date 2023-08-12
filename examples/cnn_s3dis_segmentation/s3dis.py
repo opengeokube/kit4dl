@@ -26,7 +26,7 @@ except ModuleNotFoundError as err:
 import numpy as np
 import pandas as pd
 
-from mlkit import context
+from kit4dl import context
 
 SEP = " "
 AREAS_NBR = 6
@@ -65,7 +65,7 @@ def base_hdf5_dir() -> str:
 
 
 def _get_rooms_names(area_id: int) -> list[str]:
-    # NOTE: avoid passing relative path either use `mlkit.session` attributes
+    # NOTE: avoid passing relative path either use `kit4dl.session` attributes
     # or pass absolute path directly
     return glob.glob(
         os.path.join(context.PROJECT_DIR, "data", f"Area_{area_id}", "*")

@@ -13,8 +13,8 @@ import torch
 import torchmetrics as tm
 from pydantic import ValidationError
 
-from mlkit.nn.base import MLKitAbstractModule
-from mlkit.nn.confmodels import (
+from kit4dl.nn.base import MLKitAbstractModule
+from kit4dl.nn.confmodels import (
     BaseConf,
     CheckpointConf,
     Conf,
