@@ -29,12 +29,19 @@ OpenGeokube Developers:
 
 ## 📜 Cite Us
 ```bibtex
-@ONLINE{kit4dl,
-  author = {Walczak, J., Mancini, M., Stojiljkovic, M., Alvi, S.},
-  title = {{Kit4DL}: A quick way to start with machine and deep learning},
+@SOFTWARE{kit4dl,
+  author = {Walczak, Jakub and
+            Mancini, Marco and
+            Stojiljković, Mirko and
+            Alvi, Shahbaz},
+  title = {Kit4DL},
+  month = aug,
   year = 2023,
-  url = {https://github.com/opengeokube/kit4dl},
-  urldate = {<access date here>}
+  note = {{Available in GitHub: https://github.com/opengeokube/kit4dl}},
+  publisher = {Zenodo},
+  version = {2023.08b0},
+  doi = {10.5281/zenodo.8241376},
+  url = {https://doi.org/10.5281/zenodo.8241376}
 }
 ```
 ## 🚧 Roadmap
