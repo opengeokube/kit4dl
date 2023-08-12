@@ -1,5 +1,5 @@
 <div align="center">
-<img src="https://raw.githubusercontent.com/opengeokube/ml-kit/56dc56c1be7f6332c0f75cdfb3160d29cebc3c58/static/logo.svg">
+<img src="https://raw.githubusercontent.com/opengeokube/ml-kit/56dc56c1be7f6332c0f75cdfb3160d29cebc3c58/static/logo.svg" width="20%" height="20%">
 
 # A quick way to start with machine and deep learning
 [![python](https://img.shields.io/badge/-Python_3.10%7C3.11-blue?logo=python&logoColor=white)](https://www.python.org/downloads)
