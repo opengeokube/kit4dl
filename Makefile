@@ -9,8 +9,8 @@ test:
 
 .PHONY: format
 format:
-	isort --profile black .
-	black -l 79 --preview .
+	isort .
+	black .
 
 .PHONY: docs
 docs:
