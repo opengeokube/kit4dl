@@ -66,11 +66,13 @@ pip install kit4dl
 or
 
 ```bash
-TODO
+conda install -c conda-forge kit4dl
 ```
 
 For contributing:
- 
+
+Download and install the `make` tool unless it is already available in your system. 
+
 ```text
 git clone https://github.com/opengeokube/kit4dl
 cd kit4dl
@@ -200,7 +202,7 @@ The machine learning/deep learning model definition is realized in two aspects.
 1. The definition of the model (e.g. PyTorch model) in the `.py` file.
 1. The configuration in the `[model]` section of the configuration file.
 
-The file with the model definition should contain a subclass of `MLKitAbstractModule` abstract class of the `kit4dl` package.
+The file with the model definition should contain a subclass of `Kit4DLAbstractModule` abstract class of the `kit4dl` package.
 The subclass should implement, at least, abstract methods `configure` and `run_step`.
 In the `configure` method, the architecture of the network should be defined. 
 In `run_step` method, it turn, the logic for single forward pass should be implemented.
@@ -209,9 +211,9 @@ In `run_step` method, it turn, the logic for single forward pass should be imple
 ```python
 import torch
 from torch import nn
-from kit4dl import MLKitAbstractModule
+from kit4dl import Kit4DLAbstractModule
 
-class SimpleCNN(MLKitAbstractModule):
+class SimpleCNN(Kit4DLAbstractModule):
     def configure(self, input_dims, output_dims) -> None:
         self.l1 = nn.Sequential(
             nn.Conv2d(
@@ -241,7 +243,7 @@ target = "./model.py::SimpleCNN"
 input_dims = 1
 output_dims = 10
 ```
-> **Note**: `target` is a required parameter that **must** be set. It contains a path to the class (a subclass of `MLKitAbstractModule`). To learn how `target` could be defined, see Section [Defining `target`](#defining-target).
+> **Note**: `target` is a required parameter that **must** be set. It contains a path to the class (a subclass of `Kit4DLAbstractModule`). To learn how `target` could be defined, see Section [Defining `target`](#defining-target).
 
 If a forward pass for your model differs for the training, validation, test, or prediction stages, you can define separate methods for them:
 
@@ -249,9 +251,9 @@ If a forward pass for your model differs for the training, validation, test, or 
 ```python
 import torch
 from torch import nn
-from kit4dl import MLKitAbstractModule
+from kit4dl import Kit4DLAbstractModule
 
-class SimpleCNN(MLKitAbstractModule):
+class SimpleCNN(Kit4DLAbstractModule):
     ...
     def run_val_step(self, batch, batch_idx) -> tuple[torch.Tensor, torch.Tensor]:
         pass
@@ -267,7 +269,7 @@ class SimpleCNN(MLKitAbstractModule):
 
 #### Defining datamodule
 Similarily to the model, datamodule instance is fully defined by the Python class and its configuration.
-The datamodule need to be a subclass of the `MLKitAbstractDataModule` abstract class from the `kit4dl` package.
+The datamodule need to be a subclass of the `Kit4DLAbstractDataModule` abstract class from the `kit4dl` package.
 The class has to implement, at least, `prepare_trainvaldataset` (if preparing is the same for the train and validation splits) or `prepare_traindataset` and `prepare_valdataset` (if preparing data differs). Besides those, you can define `prepare_testdataset` and `prepare_predictdataset`, for test and prediction, respectively.
 
 ##### ✍️ Example
@@ -276,10 +278,10 @@ from torch.utils.data import Dataset, random_split
 from torchvision import transforms
 from torchvision.datasets import MNIST
 
-from kit4dl import MLKitAbstractDataModule
+from kit4dl import Kit4DLAbstractDataModule
 
 
-class MNISTCustomDatamodule(MLKitAbstractDataModule):
+class MNISTCustomDatamodule(Kit4DLAbstractDataModule):
     def prepare_trainvaldataset(
         self, root_dir: str
     ) -> tuple[Dataset, Dataset]:
@@ -312,7 +314,7 @@ my_variable = 10
 
 ```python
 ...
-class MNISTCustomDatamodule(MLKitAbstractDataModule):
+class MNISTCustomDatamodule(Kit4DLAbstractDataModule):
     my_variable: int # NOTE: To make attribute visible, we can declare it here
 
     def prepare_data(self):
@@ -321,13 +323,13 @@ class MNISTCustomDatamodule(MLKitAbstractDataModule):
 
 > **Warning**: **DO NOT** set state inside `prepare_data` method (~~`self.x = ...`~~).
 
-If you need more customization, feel free to override the other methods of `MLKitAbstractDataModule` superclass.
+If you need more customization, feel free to override the other methods of `Kit4DLAbstractDataModule` superclass.
 To force custom batch collation, override selected methods out of the following ones. They should return the proper callable object!
 
 ```python
 def some_collate_func(samples: list): ...
 
-class MNISTCustomDatamodule(MLKitAbstractDataModule):
+class MNISTCustomDatamodule(Kit4DLAbstractDataModule):
     ...
     def get_train_collate_fn(self):
         return some_collate_func
@@ -371,7 +373,7 @@ shuffle = false
 num_workers = 4
 ```
 
-In the root `[dataset]` you should define `target` property being a path to the subclass of the `MLKitAbstractDataModule` module (see [Defining `target`](#defining-target)).
+In the root `[dataset]` you should define `target` property being a path to the subclass of the `Kit4DLAbstractDataModule` module (see [Defining `target`](#defining-target)).
 Then, you need to define either `[dataset.trainval]` section or two separate sections: `[dataset.train]`, `[dataset.validation]`. There are also optional sections: `[dataset.test]` and `[dataset.predict]`.
 In `[dataset.trainval]` you pass values for parameters of the `prepare_trainvaldataset` method.
 Respectively, in the `[dataset.train]` you pass values for the parameters of the `prepare_traindataset` method, in `[dataset.validation]` — `prepare_valdataset`, `[dataset.test]` — `prepare_testdataset`, `[dataset.predict]` — `prepare_predictdataset`.
