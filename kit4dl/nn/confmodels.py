@@ -13,7 +13,7 @@ from pydantic import BaseModel, Field, root_validator, validator
 
 import kit4dl.io as io_
 from kit4dl import utils as ut
-from kit4dl.mlkit_types import FullyQualifiedName
+from kit4dl.kit4dl_types import FullyQualifiedName
 from kit4dl.nn.validators import (
     validate_class_exists,
     validate_cuda_device_exists,
@@ -87,13 +87,14 @@ class ModelConf(_AbstractClassWithArgumentsConf):
     @validator("target")
     def _check_if_target_has_expected_parent_class(cls, value):
         from kit4dl.nn.base import (  # pylint: disable=import-outside-toplevel
-            MLKitAbstractModule,
+            Kit4DLAbstractModule,
         )
 
         target_class = io_.import_and_get_attr_from_fully_qualified_name(value)
-        assert issubclass(
-            target_class, MLKitAbstractModule
-        ), f"target class must be a subclass of `{MLKitAbstractModule}` class!"
+        assert issubclass(target_class, Kit4DLAbstractModule), (
+            f"target class must be a subclass of `{Kit4DLAbstractModule}`"
+            " class!"
+        )
         return value
 
     @property
@@ -327,13 +328,13 @@ class DatasetConf(BaseModel):
     @validator("target")
     def _check_if_target_has_expected_parent_class(cls, value):
         from kit4dl.dataset import (  # pylint: disable=import-outside-toplevel
-            MLKitAbstractDataModule,
+            Kit4DLAbstractDataModule,
         )
 
         target_class = io_.import_and_get_attr_from_fully_qualified_name(value)
-        assert issubclass(target_class, MLKitAbstractDataModule), (
+        assert issubclass(target_class, Kit4DLAbstractDataModule), (
             "target class of the dataset module must be a subclass of"
-            f" `{MLKitAbstractDataModule}` class!"
+            f" `{Kit4DLAbstractDataModule}` class!"
         )
         return value
 

@@ -13,7 +13,7 @@ import torch
 import torchmetrics as tm
 from pydantic import ValidationError
 
-from kit4dl.nn.base import MLKitAbstractModule
+from kit4dl.nn.base import Kit4DLAbstractModule
 from kit4dl.nn.confmodels import (
     BaseConf,
     CheckpointConf,
@@ -155,7 +155,7 @@ class TestModelConf:
             output_dims = 10
         """
         conf = ModelConf(**toml.loads(load))
-        assert issubclass(conf.model_class, MLKitAbstractModule)
+        assert issubclass(conf.model_class, Kit4DLAbstractModule)
 
     def test_get_model_failed_on_wrong_parent_class(self):
         load = """

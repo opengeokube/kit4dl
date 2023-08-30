@@ -4,7 +4,7 @@ import os
 import sys
 from typing import Any
 
-from kit4dl.mlkit_types import FullyQualifiedName
+from kit4dl.kit4dl_types import FullyQualifiedName
 
 _TARGET_SPLIT = "::"
 PROJECT_DIR = "PROJECT_DIR"

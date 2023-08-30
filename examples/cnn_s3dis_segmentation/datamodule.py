@@ -5,7 +5,7 @@ import numpy as np
 import s3dis  # NOTE: local module s3dis.py
 from torch.utils.data import Dataset
 
-from kit4dl import MLKitAbstractDataModule
+from kit4dl import Kit4DLAbstractDataModule
 
 
 class S3DISDataset(Dataset):
@@ -51,7 +51,7 @@ class S3DISDataset(Dataset):
             )
 
 
-class S3DISDatamodule(MLKitAbstractDataModule):
+class S3DISDatamodule(Kit4DLAbstractDataModule):
     """Datamodule managing S3DIS dataset."""
 
     def prepare_data(self):
@@ -64,7 +64,7 @@ class S3DISDatamodule(MLKitAbstractDataModule):
         # NOTE: fast check to skip data collection
         if s3dis.count_hdf5_rooms() == s3dis.S3DIS_ROOM_NBR:
             # NOTE: you can use logger-like methods for
-            # MLKitAbstractDataModule subclasses
+            # Kit4DLAbstractDataModule subclasses
             self.info("all room files are ready. skipping!")
             return
         for area_id in range(1, s3dis.AREAS_NBR + 1):

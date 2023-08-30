@@ -85,10 +85,16 @@ shuffle = true
 num_workers = 4
 
 [dataset.validation.loader]
-# here you define arguments of data loader for train dataset
+# here you define arguments of data loader for validation dataset
 batch_size = 10
 shuffle = false
 num_workers = 4
+
+# we can define also arguments for test data loader
+# [dataset.test.loader]
+# batch_size = 10
+# shuffle = false
+# num_workers = 4
 
 [metrics]
 # here you define metrics you want to log
