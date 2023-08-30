@@ -2,10 +2,10 @@
 import torch
 import torch.nn as nn
 
-from kit4dl import MLKitAbstractModule
+from kit4dl import Kit4DLAbstractModule
 
 
-class SimpleSegmentationNetwork(MLKitAbstractModule):
+class SimpleSegmentationNetwork(Kit4DLAbstractModule):
     def configure(self, input_dims, output_dims) -> None:
         self.l1 = nn.Sequential(
             nn.Conv1d(

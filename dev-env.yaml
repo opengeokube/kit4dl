@@ -12,7 +12,7 @@ dependencies:
   - lightning
   - scikit-learn
   - mlflow
-  - pydantic
+  - pydantic<2.0.0
   - tqdm
   - toml
   - pylint 

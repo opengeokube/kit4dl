@@ -86,7 +86,7 @@ def _remove_redundant_items(path):
 def init(
     name: Annotated[
         str, typer.Option(help="The name of your new project")
-    ] = "new_mlkit_project"
+    ] = "new_kit4dl_project"
 ) -> None:
     """Create a new Kit4DL project.
 
@@ -94,7 +94,7 @@ def init(
     ----------
     name : str, optional
         The optional name of the project.
-        If skipped, the deafult `new_mlkit_project` will be used
+        If skipped, the deafult `new_kit4dl_project` will be used
     """
     log.info("Kit4DL Creating a new skeleton for the project: << %s >>", name)
     assert not os.path.exists(name), f"The project `{name}` already exists!"

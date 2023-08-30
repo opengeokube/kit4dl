@@ -3,10 +3,10 @@ from typing import Any
 
 import torch
 
-from kit4dl import MLKitAbstractModule
+from kit4dl import Kit4DLAbstractModule
 
 
-class MyNewNetwork(MLKitAbstractModule):
+class MyNewNetwork(Kit4DLAbstractModule):
     """My network module."""
 
     def configure(self, *args: Any, **kwargs: Any) -> None:

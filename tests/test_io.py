@@ -12,7 +12,7 @@ class TestIO:
         [
             "torch.optim::Adam",
             "os::PathLike",
-            "kit4dl.nn.base::MLKitAbstractModule",
+            "kit4dl.nn.base::Kit4DLAbstractModule",
         ],
     )
     def test_import_from_fully_qualified_name(self, fc_name):

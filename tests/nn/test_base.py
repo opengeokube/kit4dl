@@ -11,14 +11,14 @@ except ModuleNotFoundError:
 import torch
 import torchmetrics as tm
 
-from kit4dl.nn.base import MLKitAbstractModule
+from kit4dl.nn.base import Kit4DLAbstractModule
 from tests.fixtures import conf
 
 
 class TestBaseMLModel:
     @pytest.fixture
     def custom_module(self, conf):
-        class CustomModule(MLKitAbstractModule):
+        class CustomModule(Kit4DLAbstractModule):
             configure = MagicMock()
             run_step = MagicMock()
 
@@ -29,7 +29,7 @@ class TestBaseMLModel:
     def module(self):
         from torch import nn
 
-        class Module(MLKitAbstractModule):
+        class Module(Kit4DLAbstractModule):
             def configure(self, input_dims, output_dims) -> None:
                 self.l1 = nn.Sequential(
                     nn.Conv1d(

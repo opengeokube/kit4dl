@@ -6,9 +6,9 @@ import lightning.pytorch as pl
 from lightning.pytorch import callbacks as pl_callbacks
 from lightning.pytorch import loggers as pl_log
 
-from kit4dl.dataset import MLKitAbstractDataModule
+from kit4dl.dataset import Kit4DLAbstractDataModule
 from kit4dl.mixins import LoggerMixin
-from kit4dl.nn.base import MLKitAbstractModule
+from kit4dl.nn.base import Kit4DLAbstractModule
 from kit4dl.nn.callbacks import MetricCallback, ModelCheckpoint
 from kit4dl.nn.confmodels import Conf
 from kit4dl.utils import set_seed
@@ -17,8 +17,8 @@ from kit4dl.utils import set_seed
 class Trainer(LoggerMixin):
     """Class managing the training procedure."""
 
-    _model: MLKitAbstractModule
-    _datamodule: MLKitAbstractDataModule
+    _model: Kit4DLAbstractModule
+    _datamodule: Kit4DLAbstractDataModule
     _trainer: pl.Trainer
     _conf: Conf
     _metric_logger: Any
@@ -89,10 +89,10 @@ class Trainer(LoggerMixin):
             **self._conf.logging.arguments
         )
 
-    def _configure_datamodule(self) -> MLKitAbstractDataModule:
+    def _configure_datamodule(self) -> Kit4DLAbstractDataModule:
         return self._conf.dataset.datamodule_class(conf=self._conf.dataset)
 
-    def _configure_model(self) -> MLKitAbstractModule:
+    def _configure_model(self) -> Kit4DLAbstractModule:
         return self._conf.model.model_class(conf=self._conf).to(self._device)
 
     def _get_model_checkpoint(self) -> ModelCheckpoint:
