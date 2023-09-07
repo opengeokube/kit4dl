@@ -1,26 +1,13 @@
 name: kit4dl-dev
 channels:
-  - pytorch 
-  - nvidia 
   - conda-forge
 dependencies:
   - python=3.10
-  - pytorch
-  - pytorch-cuda
-  - torchvision 
-  - torchmetrics
-  - lightning
-  - scikit-learn
-  - mlflow
-  - pydantic<2.0.0
-  - tqdm
-  - toml
   - pylint 
   - mypy
   - isort
   - pydocstyle
   - pytest
-  - jinja2
   - conda-build
   - pip
   - pip:

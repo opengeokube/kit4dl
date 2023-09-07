@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "kit4dl"
-version = "2023.08b1"
+version = "2023.9b0"
 description = "Kit4DL - A quick way to start with machine and deep learning"
 requires-python = ">=3.10"
 readme = "README.md"
@@ -34,14 +34,14 @@ classifiers = [
     "Topic :: Software Development :: Libraries",
 ]
 dependencies = [
-    "torch",
     "lightning",
-    "torchmetrics",
-    "numpy<=1.25.0",
-    "pydantic<2.0.0",
+    "torch>=1.11.0,<2.1.0",
+    "torchmetrics>=0.7.0,<1.1.0 ",
+    "numpy>=1.17.2,<=1.25.3",
+    "pydantic>=2.0.0,<2.2.0",
     "scikit-learn",
     "colormath",
-    "tqdm",
+    "tqdm>=4.57.0,<4.67.0",
     "typer[all]",
     "toml; python_version<'3.11'"
 ]
