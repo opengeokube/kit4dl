@@ -49,6 +49,7 @@ def split_extra_arguments(
         for key, value in values.items():
             if key in fields:
                 field_args.update({key: value})
+                continue
             for f_info in fields.values():
                 if key == f_info.alias:
                     field_args.update({key: value})
