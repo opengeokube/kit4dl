@@ -1,7 +1,6 @@
 """A module with configuration classes."""
 import os
 import warnings
-from abc import ABC
 from functools import partial
 from inspect import signature
 from typing import Any, Callable, Literal
@@ -9,7 +8,16 @@ from typing import Any, Callable, Literal
 import lightning.pytorch.loggers as pl_logs
 import torch
 import torchmetrics as tm
-from pydantic import BaseModel, Field, root_validator, validator
+from pydantic import (
+    AfterValidator,
+    BaseModel,
+    ConfigDict,
+    Field,
+    field_validator,
+    model_validator,
+)
+from pydantic.fields import FieldInfo
+from typing_extensions import Annotated
 
 import kit4dl.io as io_
 from kit4dl import utils as ut
@@ -17,32 +25,57 @@ from kit4dl.kit4dl_types import FullyQualifiedName
 from kit4dl.nn.validators import (
     validate_class_exists,
     validate_cuda_device_exists,
+    validate_lr_scheduler,
+    validate_metric,
 )
+
+Target = Annotated[
+    FullyQualifiedName | str, AfterValidator(validate_class_exists)
+]
+CudaDevice = Annotated[int | None, AfterValidator(validate_cuda_device_exists)]
+SchedulerDict = Annotated[
+    dict[str, Any], AfterValidator(validate_lr_scheduler)
+]
+MetricDict = Annotated[dict[str, Any], AfterValidator(validate_metric)]
+
+
+def split_extra_arguments(
+    values: dict, fields: dict[str, FieldInfo], *, consider_alias: bool = False
+) -> tuple[dict, dict]:
+    """Split arguments to field-related and auxiliary."""
+    extra_args: dict = {}
+    field_args: dict = {}
+    if consider_alias:
+        for key, value in values.items():
+            if key in fields:
+                field_args.update({key: value})
+            for f_info in fields.values():
+                if key == f_info.alias:
+                    field_args.update({key: value})
+                    break
+            else:
+                extra_args.update({key: value})
+    else:
+        extra_args = {k: v for k, v in values.items() if k not in fields}
+        field_args = {k: v for k, v in values.items() if k in fields}
+    return (field_args, extra_args)
 
 
 # ################################
 #           ABSTRACT
 # ################################
-class _AbstractClassWithArgumentsConf(
-    ABC, BaseModel, extra="allow", allow_mutation=False
-):
-    target: FullyQualifiedName | str
-    arguments: dict[str, Any]
+class _AbstractClassWithArgumentsConf(BaseModel):
+    model_config = ConfigDict(extra="allow", frozen=True)
+    target: Target
+    arguments: dict[str, Any] = Field(default_factory=dict)
 
-    _validate_class_exists = validator("target", allow_reuse=True)(
-        validate_class_exists
-    )
-
-    @root_validator(pre=True)
+    @model_validator(mode="before")
     def _build_model_arguments(cls, values: dict[str, Any]) -> dict[str, Any]:
-        if "arguments" in values:
-            return values
-        arguments = {
-            k: v for k, v in values.items() if k not in cls.__fields__
-        }
-        values = {k: v for k, v in values.items() if k in cls.__fields__}
-        values["arguments"] = arguments
-        return values
+        field_args, extra_args = split_extra_arguments(
+            values, cls.model_fields, consider_alias=False
+        )
+        field_args["arguments"] = extra_args
+        return field_args
 
 
 # ################################
@@ -52,12 +85,8 @@ class BaseConf(BaseModel):
     """Base configuration model for the experiment."""
 
     seed: int = Field(default=0, ge=0)
-    cuda_id: int | None = None
+    cuda_id: CudaDevice = None
     experiment_name: str
-
-    _assert_cuda_device = validator("cuda_id", allow_reuse=True)(
-        validate_cuda_device_exists
-    )
 
     @property
     def device(self) -> torch.device:
@@ -84,7 +113,7 @@ class BaseConf(BaseModel):
 class ModelConf(_AbstractClassWithArgumentsConf):
     """Model configuration class."""
 
-    @validator("target")
+    @field_validator("target")
     def _check_if_target_has_expected_parent_class(cls, value):
         from kit4dl.nn.base import (  # pylint: disable=import-outside-toplevel
             Kit4DLAbstractModule,
@@ -114,7 +143,7 @@ class OptimizerConf(_AbstractClassWithArgumentsConf):
 
     lr: float = Field(gt=0)
 
-    @validator("target")
+    @field_validator("target")
     def _check_if_target_has_expected_parent_class(cls, value):
         target_class = io_.import_and_get_attr_from_fully_qualified_name(value)
         assert issubclass(target_class, torch.optim.Optimizer), (
@@ -129,7 +158,11 @@ class OptimizerConf(_AbstractClassWithArgumentsConf):
         target_class = io_.import_and_get_attr_from_fully_qualified_name(
             self.target
         )
-        return partial(target_class, lr=self.lr, **self.arguments)
+        return partial(
+            target_class,
+            lr=self.lr,
+            **self.arguments,  # pylint: disable=not-a-mapping
+        )
 
 
 # ################################
@@ -147,16 +180,16 @@ class CheckpointConf(BaseModel):
     every_n_epochs: int = Field(1, ge=1)
     save_on_train_epoch_end: bool = False
 
-    @validator("path")
-    def _warn_on_existing_path(cls, path):
+    @field_validator("path")
+    def _warn_on_existing_path(cls, path: str):
         if os.path.exists(path) and len(os.listdir(path)) > 0:
             warnings.warn(
                 f"directory {path} exists and is not empty", ResourceWarning
             )
         return path
 
-    @validator("monitor")
-    def _assert_required_monitor_keys_defined(cls, monitor):
+    @field_validator("monitor")
+    def _assert_required_monitor_keys_defined(cls, monitor: dict):
         assert "metric" in monitor, "`metric` key is missing"
         assert (
             "stage" in monitor
@@ -178,14 +211,10 @@ class CheckpointConf(BaseModel):
 class CriterionConf(BaseModel):
     """Criterion configuration class."""
 
-    target: FullyQualifiedName
+    target: Target
     weight: list[float] | None = None
 
-    _validate_class_exists = validator("target", allow_reuse=True)(
-        validate_class_exists
-    )
-
-    @validator("target")
+    @field_validator("target")
     def _check_if_target_has_expected_parent_class(cls, value):
         target_class = io_.import_and_get_attr_from_fully_qualified_name(value)
         assert issubclass(target_class, torch.nn.Module), (
@@ -194,12 +223,12 @@ class CriterionConf(BaseModel):
         )
         return value
 
-    @root_validator(skip_on_failure=True)
+    @model_validator(mode="after")
     def _match_weight(cls, values):
-        if values.get("weight"):
+        if values.weight:
             criterion_class = (
                 io_.import_and_get_attr_from_fully_qualified_name(
-                    values["target"]
+                    values.target
                 )
             )
             assert "weight" in signature(criterion_class).parameters, (
@@ -227,28 +256,19 @@ class TrainingConf(BaseModel):
     """Training procedure configuration class."""
 
     epochs: int = Field(gt=0)
-    epoch_schedulers: list[dict[str, Any]] = Field(default_factory=list)
+    epoch_schedulers: list[SchedulerDict] = Field(default_factory=list)
     checkpoint: CheckpointConf | None = None
     optimizer: OptimizerConf
     criterion: CriterionConf
     arguments: dict[str, Any]
 
-    @root_validator(pre=True)
+    @model_validator(mode="before")
     def _build_model_arguments(cls, values: dict[str, Any]) -> dict[str, Any]:
-        if "arguments" in values:
-            return values
-        arguments = {
-            k: v for k, v in values.items() if k not in cls.__fields__
-        }
-        values = {k: v for k, v in values.items() if k in cls.__fields__}
-        values["arguments"] = arguments
-        return values
-
-    @validator("epoch_schedulers", each_item=True)
-    def _assert_epoch_scheduler_exist(cls, sch):
-        assert "target" in sch
-        validate_class_exists(sch["target"])
-        return sch
+        field_args, extra_args = split_extra_arguments(
+            values, cls.model_fields, consider_alias=False
+        )
+        field_args["arguments"] = extra_args
+        return field_args
 
     @property
     def preconfigured_schedulers_classes(
@@ -257,7 +277,7 @@ class TrainingConf(BaseModel):
         """Get a list of preconfigured schedulers."""
         schedulers: list[Callable] = []
 
-        for sch in self.epoch_schedulers:
+        for sch in self.epoch_schedulers:  # pylint: disable=not-an-iterable
             sch_copy = sch.copy()
             schedulers.append(
                 partial(
@@ -288,16 +308,13 @@ class SplitDatasetConf(BaseModel):
     loader: dict[str, Any] = Field(default_factory=dict)
     arguments: dict[str, Any]
 
-    @root_validator(pre=True)
+    @model_validator(mode="before")
     def _build_model_arguments(cls, values: dict[str, Any]) -> dict[str, Any]:
-        if "arguments" in values:
-            return values
-        arguments = {
-            k: v for k, v in values.items() if k not in cls.__fields__
-        }
-        values = {k: v for k, v in values.items() if k in cls.__fields__}
-        values["arguments"] = arguments
-        return values
+        field_args, extra_args = split_extra_arguments(
+            values, cls.model_fields, consider_alias=False
+        )
+        field_args["arguments"] = extra_args
+        return field_args
 
 
 # ################################
@@ -306,7 +323,7 @@ class SplitDatasetConf(BaseModel):
 class DatasetConf(BaseModel):
     """Dataset configuration class."""
 
-    target: FullyQualifiedName | str
+    target: Target
     train: SplitDatasetConf | None = None
     validation: SplitDatasetConf | None = None
     trainval: SplitDatasetConf | None = None
@@ -314,19 +331,16 @@ class DatasetConf(BaseModel):
     predict: SplitDatasetConf | None = None
     arguments: dict[str, Any]
 
-    @root_validator(pre=True)
+    @model_validator(mode="before")
     def _build_model_arguments(cls, values: dict[str, Any]) -> dict[str, Any]:
-        if "arguments" in values:
-            return values
-        arguments = {
-            k: v for k, v in values.items() if k not in cls.__fields__
-        }
-        values = {k: v for k, v in values.items() if k in cls.__fields__}
-        values["arguments"] = arguments
-        return values
+        field_args, extra_args = split_extra_arguments(
+            values, cls.model_fields, consider_alias=False
+        )
+        field_args["arguments"] = extra_args
+        return field_args
 
-    @validator("target")
-    def _check_if_target_has_expected_parent_class(cls, value):
+    @field_validator("target")
+    def _check_if_target_has_expected_parent_class(cls, value: str):
         from kit4dl.dataset import (  # pylint: disable=import-outside-toplevel
             Kit4DLAbstractDataModule,
         )
@@ -360,11 +374,10 @@ _LOGGERS_NICKNAMES: dict[str, str] = {
 }
 
 
-class LoggingConf(
-    BaseModel, allow_population_by_field_name=True, extra="allow"
-):
+class LoggingConf(BaseModel):
     """Logging configuration class."""
 
+    model_config = ConfigDict(extra="allow", populate_by_name=True)
     type_: Literal[
         "comet", "csv", "mlflow", "neptune", "tensorboard", "wandb"
     ] = Field("csv", alias="type")
@@ -374,16 +387,15 @@ class LoggingConf(
     format_: str | None = Field("%(asctime)s - %(message)s", alias="format")
     arguments: dict[str, Any] = Field(default_factory=dict)
 
-    @root_validator(pre=False)
+    @model_validator(mode="before")
     def _build_model_arguments(cls, values: dict[str, Any]) -> dict[str, Any]:
-        arguments = {
-            k: v for k, v in values.items() if k not in cls.__fields__
-        }
-        values = {k: v for k, v in values.items() if k in cls.__fields__}
-        values["arguments"] = arguments
-        return values
+        field_args, extra_args = split_extra_arguments(
+            values, cls.model_fields, consider_alias=True
+        )
+        field_args["arguments"] = extra_args
+        return field_args
 
-    @validator("level", pre=True)
+    @field_validator("level", mode="before")
     def _match_log_level(cls, item):
         return item.upper()
 
@@ -424,7 +436,7 @@ class Conf(BaseModel):
     base: BaseConf
     logging: LoggingConf = Field(default_factory=LoggingConf)  # type: ignore[arg-type]
     model: ModelConf
-    metrics: dict[str, dict[str, Any]] | None = Field(default_factory=dict)
+    metrics: dict[str, MetricDict] = Field(default_factory=dict)
     training: TrainingConf
     validation: ValidationConf
     dataset: DatasetConf
@@ -434,44 +446,26 @@ class Conf(BaseModel):
             kwargs = Conf.override_with_abs_target(root_dir, kwargs)
         super().__init__(**kwargs)
 
-    @validator("logging")
-    def _update_experiment_name_if_undefined(cls, value: LoggingConf, values):
-        if "base" not in values:
+    @model_validator(mode="after")
+    def _update_experiment_name_if_undefined(cls, value):
+        if not value.base:
             return value
-        value.maybe_update_experiment_name(values["base"].experiment_name)
+        if value.logging:
+            value.logging.maybe_update_experiment_name(
+                value.base.experiment_name
+            )
         return value
 
-    @validator("metrics")
-    def _validate_metrics_class_exist(cls, values):
-        if not values:
-            return None
-        for metric_name, metric_dict in values.items():
-            assert (
-                "target" in metric_dict
-            ), f"`target` is not defined for the metric `{metric_name}`"
-            target_class = io_.import_and_get_attr_from_fully_qualified_name(
-                metric_dict["target"]
-            )
-            # TODO: issubclass for torchmetrics metric does not work
-            # as __bases__ for metrics in `object`. Method issubclass
-            # can be used for custom metrics
-            _, attr_name = io_.split_target(metric_dict["target"])
-            assert issubclass(target_class, tm.Metric) or hasattr(
-                tm, attr_name
-            ), (
-                "custom metrics need to be subclasses of `torchmetrics.Metric`"
-                " class!"
-            )
-        return values
-
-    @root_validator(skip_on_failure=True)
-    def _check_metric_in_checkpoint_is_defined(cls, values):
-        monitored_metric_name = values["training"].checkpoint.monitor["metric"]
-        assert monitored_metric_name in values["metrics"].keys(), (
+    @model_validator(mode="after")
+    def _check_metric_in_checkpoint_is_defined(cls, value):
+        if not value.training.checkpoint:
+            return value
+        monitored_metric_name = value.training.checkpoint.monitor["metric"]
+        assert monitored_metric_name in value.metrics.keys(), (
             f"metric `{monitored_metric_name}` is not defined. did you forget"
             f" to define `{monitored_metric_name}` in [metrics]?"
         )
-        return values
+        return value
 
     @property
     def metrics_obj(self) -> dict[str, tm.Metric]:
