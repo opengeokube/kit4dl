@@ -1,8 +1,35 @@
 """A module with resuable validators."""
-import torch
+import warnings
 
+import torch
+import torchmetrics as tm
+
+import kit4dl.io as io_
 from kit4dl.io import import_and_get_attr_from_fully_qualified_name
 from kit4dl.kit4dl_types import FullyQualifiedName
+
+
+def validate_metric(conf: dict):
+    """Assert metric exists."""
+    assert "target" in conf, "`target` is not defined for some metric"
+    target_class = io_.import_and_get_attr_from_fully_qualified_name(
+        conf["target"]
+    )
+    # TODO: issubclass for torchmetrics metric does not work
+    # as __bases__ for metrics in `object`. Method issubclass
+    # can be used for custom metrics
+    _, attr_name = io_.split_target(conf["target"])
+    assert issubclass(target_class, tm.Metric) or hasattr(
+        tm, attr_name
+    ), "custom metrics need to be subclasses of `torchmetrics.Metric` class!"
+    return conf
+
+
+def validate_lr_scheduler(conf: dict):
+    """Assert the expected LR scheduler exists."""
+    assert "target" in conf
+    validate_class_exists(conf["target"])
+    return conf
 
 
 def validate_cuda_device_exists(cuda_id: int | None = None) -> int | None:
@@ -21,7 +48,12 @@ def validate_cuda_device_exists(cuda_id: int | None = None) -> int | None:
     """
     if cuda_id is None:
         return None
-    assert torch.cuda.is_available(), "CUDA is not available"
+    if not torch.cuda.is_available():
+        warnings.warn(
+            "CUDA device was specified but it is not available. CPU will be"
+            " used!"
+        )
+        return None
     assert (
         cuda_id < torch.cuda.device_count()
     ), f"CUDA device with id `{cuda_id}` does not exist"

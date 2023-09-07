@@ -11,6 +11,12 @@ except ModuleNotFoundError:
 import lightning.pytorch.loggers as pl_logs
 import torch
 import torchmetrics as tm
+
+try:
+    from torch.optim.lr_scheduler import LRScheduler
+except AttributeError:
+    from torch.optim.lr_scheduler import _LRScheduler as LRScheduler
+
 from pydantic import ValidationError
 
 from kit4dl.nn.base import Kit4DLAbstractModule
@@ -457,7 +463,7 @@ class TestConf:
         """
         with pytest.raises(
             ValidationError,
-            match=r".*`target` is not defined for the metric `Precision`.*",
+            match=r".*`target` is not defined for some metric.*",
         ):
             conf = Conf(**toml.loads(load))
 
@@ -586,7 +592,11 @@ class TestLogging:
             type = "not_supported"
         """
         with pytest.raises(
-            ValidationError, match=".*unexpected value; permitted:.*"
+            ValidationError,
+            match=(
+                ".*Input should be 'comet', 'csv', 'mlflow', 'neptune',"
+                " 'tensorboard' or 'wandb'.*"
+            ),
         ):
             LoggingConf(**toml.loads(load))
 
