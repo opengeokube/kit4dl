@@ -66,7 +66,7 @@ pip install kit4dl
 or
 
 ```bash
-TODO
+conda install -c conda-forge kit4dl 
 ```
 
 For contributing:
