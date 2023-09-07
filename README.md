@@ -15,6 +15,11 @@
 [![pytest](https://github.com/opengeokube/kit4dl/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/opengeokube/kit4dl/actions/workflows/test.yml)
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.8241376.svg)](https://doi.org/10.5281/zenodo.8241376)
+
+[![Conda Version](https://img.shields.io/conda/vn/conda-forge/kit4dl.svg)](https://anaconda.org/conda-forge/kit4dl) 
+[![Conda Downloads](https://img.shields.io/conda/dn/conda-forge/kit4dl.svg)](https://anaconda.org/conda-forge/kit4dl)
+
+[![PyPI version](https://badge.fury.io/py/kit4dl.svg)](https://badge.fury.io/py/kit4dl)
 </div>
 
 
