@@ -10,7 +10,6 @@ dependencies:
   - isort
   - pydocstyle
   - pytest
-  - jinja2
   - conda-build
   - pip
   - pip:

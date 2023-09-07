@@ -6,6 +6,11 @@ from typing import Any
 import lightning.pytorch as pl
 import torch
 
+try:
+    from torch.optim.lr_scheduler import LRScheduler
+except AttributeError:
+    from torch.optim.lr_scheduler import _LRScheduler as LRScheduler
+
 from kit4dl.metric import MetricStore
 from kit4dl.mixins import LoggerMixin
 from kit4dl.nn.confmodels import Conf
@@ -251,10 +256,7 @@ class Kit4DLAbstractModule(
 
     def configure_optimizers(
         self,
-    ) -> tuple[
-        list[torch.optim.Optimizer],
-        list[torch.optim.lr_scheduler.LRScheduler] | None,
-    ]:
+    ) -> tuple[list[torch.optim.Optimizer], list[LRScheduler] | None,]:
         """Configure optimizers and schedulers."""
         self.debug("configuring optimizers and lr epoch schedulers...")
         optimizer: torch.optim.Optimizer = (
