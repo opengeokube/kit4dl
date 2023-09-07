@@ -2,10 +2,10 @@ from torch.utils.data import Dataset, random_split
 from torchvision import transforms
 from torchvision.datasets import MNIST
 
-from kit4dl import MLKitAbstractDataModule
+from kit4dl import Kit4DLAbstractDataModule
 
 
-class MNISTCustomDatamodule(MLKitAbstractDataModule):
+class MNISTCustomDatamodule(Kit4DLAbstractDataModule):
     def prepare_trainvaldataset(
         self, root_dir: str
     ) -> tuple[Dataset, Dataset]:

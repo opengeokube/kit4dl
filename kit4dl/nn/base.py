@@ -12,7 +12,7 @@ from kit4dl.nn.confmodels import Conf
 from kit4dl.stages import Stage
 
 
-class MLKitAbstractModule(
+class Kit4DLAbstractModule(
     ABC, pl.LightningModule, LoggerMixin
 ):  # pylint: disable=too-many-ancestors
     """Base abstract class for Kit4DL modules."""
@@ -46,7 +46,7 @@ class MLKitAbstractModule(
             handler.setLevel(self._conf.logging.level)  # type: ignore[arg-type]
 
     @property
-    def _mlkit_logger(self) -> logging.Logger:
+    def _kit4dl_logger(self) -> logging.Logger:
         return self._logger
 
     @abstractmethod

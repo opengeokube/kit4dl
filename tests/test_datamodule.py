@@ -2,11 +2,11 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from kit4dl.dataset import MLKitAbstractDataModule
+from kit4dl.dataset import Kit4DLAbstractDataModule
 
 
 class TestDatamodule:
-    class TestDataModule(MLKitAbstractDataModule):
+    class TestDataModule(Kit4DLAbstractDataModule):
         pass
 
     def test_setting_extra_arguments(self):

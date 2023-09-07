@@ -3,10 +3,10 @@ from typing import Any
 
 from torch.utils.data import Dataset
 
-from kit4dl import MLKitAbstractDataModule
+from kit4dl import Kit4DLAbstractDataModule
 
 
-class MyCustomDatamodule(MLKitAbstractDataModule):
+class MyCustomDatamodule(Kit4DLAbstractDataModule):
     """My datamodule docstring."""
 
     def prepare_traindataset(self, *args: Any, **kwargs: Any) -> Dataset:

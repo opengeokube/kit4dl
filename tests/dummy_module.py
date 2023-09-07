@@ -1,14 +1,14 @@
 import torchmetrics as tm
 
-from kit4dl.dataset import MLKitAbstractDataModule
-from kit4dl.nn.base import MLKitAbstractModule
+from kit4dl.dataset import Kit4DLAbstractDataModule
+from kit4dl.nn.base import Kit4DLAbstractModule
 
 
 class A:
     pass
 
 
-class B(MLKitAbstractModule):
+class B(Kit4DLAbstractModule):
     def setup(self, input_dims, layers, dropout, output_dims):
         pass
 
@@ -20,7 +20,7 @@ class DummyDatasetModuleWrong:
     pass
 
 
-class DummyDatasetModule(MLKitAbstractDataModule):
+class DummyDatasetModule(Kit4DLAbstractDataModule):
     def __init__(self, train_config, root_dir: str):
         super().__init__(train_config, None, None)
 

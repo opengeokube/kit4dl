@@ -11,7 +11,7 @@ from kit4dl.mixins import LoggerMixin
 from kit4dl.nn.confmodels import DatasetConf
 
 
-class MLKitAbstractDataModule(ABC, pl.LightningDataModule, LoggerMixin):
+class Kit4DLAbstractDataModule(ABC, pl.LightningDataModule, LoggerMixin):
     """The class with the logic for dataset management.
 
     The class provides a user with a simple interface:
@@ -61,7 +61,7 @@ class MLKitAbstractDataModule(ABC, pl.LightningDataModule, LoggerMixin):
         Examples
         --------
         ```python
-        class MyDatamodule(MLKitAbstractDataModule):
+        class MyDatamodule(Kit4DLAbstractDataModule):
 
             def prepare_data(self):
                 # any logic you need to perform before creating splits
