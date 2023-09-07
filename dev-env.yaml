@@ -1,7 +1,5 @@
 name: kit4dl-dev
 channels:
-  - pytorch 
-  - nvidia 
   - conda-forge
 dependencies:
   - python=3.10
