@@ -2,10 +2,10 @@
 import torch
 import torch.nn as nn
 
-from kit4dl import MLKitAbstractModule
+from kit4dl import Kit4DLAbstractModule
 
 
-class SimpleCNN(MLKitAbstractModule):
+class SimpleCNN(Kit4DLAbstractModule):
     def configure(self, input_dims, layers, dropout, output_dims) -> None:
         self.l1 = nn.Sequential(
             nn.Conv2d(

@@ -4,7 +4,7 @@ import warnings
 import lightning.pytorch as pl
 from lightning.pytorch import callbacks as pl_callbacks
 
-from kit4dl.nn.base import MLKitAbstractModule
+from kit4dl.nn.base import Kit4DLAbstractModule
 
 
 class MetricCallback(pl_callbacks.Callback):
@@ -18,10 +18,10 @@ class MetricCallback(pl_callbacks.Callback):
         self, trainer: pl.Trainer, pl_module: pl.LightningModule
     ) -> None:
         """Reset train metric store on start of each training stage."""
-        if not isinstance(pl_module, MLKitAbstractModule):
+        if not isinstance(pl_module, Kit4DLAbstractModule):
             warnings.warn(
                 f"type `{type(pl_module)}` doesn't support MetricCallback"
-                " logic. try to inherit from the `kit4dl.MLKitAbstractModule`"
+                " logic. try to inherit from the `kit4dl.Kit4DLAbstractModule`"
             )
             return
         pl_module.train_metric_tracker.reset()
@@ -30,10 +30,10 @@ class MetricCallback(pl_callbacks.Callback):
         self, trainer: pl.Trainer, pl_module: pl.LightningModule
     ) -> None:
         """Log metric values on the end of training stage."""
-        if not isinstance(pl_module, MLKitAbstractModule):
+        if not isinstance(pl_module, Kit4DLAbstractModule):
             warnings.warn(
                 f"type `{type(pl_module)}` doesn't support MetricCallback"
-                " logic. try to inherit from the `kit4dl.MLKitAbstractModule`"
+                " logic. try to inherit from the `kit4dl.Kit4DLAbstractModule`"
             )
             return
         pl_module.log_train_metrics()
@@ -42,10 +42,10 @@ class MetricCallback(pl_callbacks.Callback):
         self, trainer: pl.Trainer, pl_module: pl.LightningModule
     ) -> None:
         """Reset validation metric store on start of each validation stage."""
-        if not isinstance(pl_module, MLKitAbstractModule):
+        if not isinstance(pl_module, Kit4DLAbstractModule):
             warnings.warn(
                 f"type `{type(pl_module)}` doesn't support MetricCallback"
-                " logic. try to inherit from the `kit4dl.MLKitAbstractModule`"
+                " logic. try to inherit from the `kit4dl.Kit4DLAbstractModule`"
             )
             return
         pl_module.val_metric_tracker.reset()
@@ -54,10 +54,10 @@ class MetricCallback(pl_callbacks.Callback):
         self, trainer: pl.Trainer, pl_module: pl.LightningModule
     ) -> None:
         """Log metric values on the end of validation stage."""
-        if not isinstance(pl_module, MLKitAbstractModule):
+        if not isinstance(pl_module, Kit4DLAbstractModule):
             warnings.warn(
                 f"type `{type(pl_module)}` doesn't support MetricCallback"
-                " logic. try to inherit from the `kit4dl.MLKitAbstractModule`"
+                " logic. try to inherit from the `kit4dl.Kit4DLAbstractModule`"
             )
             return
         pl_module.log_val_metrics()
@@ -66,10 +66,10 @@ class MetricCallback(pl_callbacks.Callback):
         self, trainer: pl.Trainer, pl_module: pl.LightningModule
     ) -> None:
         """Reset test metric store on start of each test stage."""
-        if not isinstance(pl_module, MLKitAbstractModule):
+        if not isinstance(pl_module, Kit4DLAbstractModule):
             warnings.warn(
                 f"type `{type(pl_module)}` doesn't support MetricCallback"
-                " logic. try to inherit from the `kit4dl.MLKitAbstractModule`"
+                " logic. try to inherit from the `kit4dl.Kit4DLAbstractModule`"
             )
             return
         pl_module.test_metric_tracker.reset()
@@ -78,10 +78,10 @@ class MetricCallback(pl_callbacks.Callback):
         self, trainer: pl.Trainer, pl_module: pl.LightningModule
     ) -> None:
         """Log metric values on the end of test stage."""
-        if not isinstance(pl_module, MLKitAbstractModule):
+        if not isinstance(pl_module, Kit4DLAbstractModule):
             warnings.warn(
                 f"type `{type(pl_module)}` doesn't support MetricCallback"
-                " logic. try to inherit from the `kit4dl.MLKitAbstractModule`"
+                " logic. try to inherit from the `kit4dl.Kit4DLAbstractModule`"
             )
             return
         pl_module.log_test_metrics()

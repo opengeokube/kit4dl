@@ -25,8 +25,8 @@ class TestApp:
 
     def test_init_creates_dir_default_name(self):
         init()
-        assert os.path.exists("new_mlkit_project")
-        shutil.rmtree("new_mlkit_project")
+        assert os.path.exists("new_kit4dl_project")
+        shutil.rmtree("new_kit4dl_project")
 
     def test_init_just_three_files_created(self, experiment_name):
         init(name=experiment_name)
