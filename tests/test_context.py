@@ -11,10 +11,11 @@ class TestSession:
         context.LOG_LEVEL = "INFO"
         context.LOG_FORMAT = "%(asctime)s"
         context.PROJECT_DIR = "/work/my_dir"
+        context.VERSION = "0.0.1"
         yield
 
     @pytest.mark.parametrize(
-        "session_attr", ["LOG_LEVEL", "LOG_FORMAT", "PROJECT_DIR"]
+        "session_attr", ["LOG_LEVEL", "LOG_FORMAT", "PROJECT_DIR", "VERSION"]
     )
     def test_fail_on_successive_session_attribute_set(self, session_attr):
         with pytest.raises(

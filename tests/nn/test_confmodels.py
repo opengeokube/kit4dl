@@ -14,7 +14,7 @@ import torchmetrics as tm
 
 try:
     from torch.optim.lr_scheduler import LRScheduler
-except AttributeError:
+except ImportError:
     from torch.optim.lr_scheduler import _LRScheduler as LRScheduler
 
 from pydantic import ValidationError
@@ -72,6 +72,7 @@ class TestBaseConfAndAccessor:
         assert conf.cuda_id is None
         assert conf.experiment_name == "handwritten_digit_classification"
 
+    @skipnocuda
     def test_base_conf_failed_on_missing_exp_name(self):
         load = """
     seed = 10
@@ -87,6 +88,7 @@ class TestBaseConfAndAccessor:
         with pytest.raises(ValidationError):
             _ = BaseConf(**toml.loads(load))
 
+    @skipnocuda
     def test_base_conf_failed_on_wrong_cuda_id(self):
         load = """
     cuda_id = -1

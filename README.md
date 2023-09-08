@@ -14,7 +14,7 @@
 
 [![pytest](https://github.com/opengeokube/kit4dl/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/opengeokube/kit4dl/actions/workflows/test.yml)
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.8241376.svg)](https://doi.org/10.5281/zenodo.8241376)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.8328176.svg)](https://doi.org/10.5281/zenodo.8328176)
 
 [![Conda Version](https://img.shields.io/conda/vn/conda-forge/kit4dl.svg)](https://anaconda.org/conda-forge/kit4dl) 
 [![Conda Downloads](https://img.shields.io/conda/dn/conda-forge/kit4dl.svg)](https://anaconda.org/conda-forge/kit4dl)
@@ -40,13 +40,13 @@ OpenGeokube Developers:
             Stojiljković, Mirko and
             Alvi, Shahbaz},
   title = {Kit4DL},
-  month = aug,
+  month = sep,
   year = 2023,
   note = {{Available in GitHub: https://github.com/opengeokube/kit4dl}},
   publisher = {Zenodo},
-  version = {2023.08b0},
-  doi = {10.5281/zenodo.8241376},
-  url = {https://doi.org/10.5281/zenodo.8241376}
+  version = {2023.9b1},
+  doi = {10.5281/zenodo.8328176},
+  url = {https://doi.org/10.5281/zenodo.8328176}
 }
 ```
 ## 🚧 Roadmap
@@ -568,4 +568,5 @@ The constants currently available in `kit4dl` are the following:
 | `PROJECT_DIR`	| the home directory of the TOML configuration file (project directory) 	| `context.PROJECT_DIR`                 |
 | `LOG_LEVEL`	| logging level as defined in the configuration TOML file                	| `context.LOG_LEVEL`                   |
 | `LOG_FORMAT`	| logging message format as defined in the configuration TOML file      	| `context.LOG_FORMAT`                  |
+|  `VERSION`	| the current version of the package                                      	| `context.VERSION`                     |
 

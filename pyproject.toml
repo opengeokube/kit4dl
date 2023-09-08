@@ -4,12 +4,12 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "kit4dl"
-version = "2023.9b0"
 description = "Kit4DL - A quick way to start with machine and deep learning"
 requires-python = ">=3.10"
 readme = "README.md"
 license = {file = "LICENSE"}
 keywords = ["deep learning", "training pipeline"]
+dynamic = ["version"]
 authors = [
     {name = "Jakub Walczak"},
     {name = "Marco Mancini"},
@@ -34,17 +34,22 @@ classifiers = [
     "Topic :: Software Development :: Libraries",
 ]
 dependencies = [
-    "lightning",
+    "lightning<=2.1.0.rc0",
     "torch>=1.11.0,<2.1.0",
-    "torchmetrics>=0.7.0,<1.1.0 ",
+    "torchmetrics>=0.7.0,<1.1.0",
     "numpy>=1.17.2,<=1.25.3",
     "pydantic>=2.0.0,<2.2.0",
     "scikit-learn",
     "colormath",
     "tqdm>=4.57.0,<4.67.0",
+    "typing-extensions>=4.0.0,<4.8.0; python_version<='3.11'",
+    "Jinja2<3.2.0",
     "typer[all]",
     "toml; python_version<'3.11'"
 ]
+
+[tool.setuptools.dynamic]
+version = {attr = "kit4dl._version.__version__"}
 
 [tool.setuptools]
 include-package-data = true
