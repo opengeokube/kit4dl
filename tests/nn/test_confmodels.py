@@ -14,7 +14,7 @@ import torchmetrics as tm
 
 try:
     from torch.optim.lr_scheduler import LRScheduler
-except AttributeError:
+except ImportError:
     from torch.optim.lr_scheduler import _LRScheduler as LRScheduler
 
 from pydantic import ValidationError

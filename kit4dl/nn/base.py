@@ -8,7 +8,7 @@ import torch
 
 try:
     from torch.optim.lr_scheduler import LRScheduler
-except AttributeError:
+except ImportError:
     from torch.optim.lr_scheduler import _LRScheduler as LRScheduler
 
 from kit4dl.metric import MetricStore
