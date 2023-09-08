@@ -40,13 +40,13 @@ OpenGeokube Developers:
             Stojiljković, Mirko and
             Alvi, Shahbaz},
   title = {Kit4DL},
-  month = aug,
+  month = sep,
   year = 2023,
   note = {{Available in GitHub: https://github.com/opengeokube/kit4dl}},
   publisher = {Zenodo},
-  version = {2023.08b0},
-  doi = {10.5281/zenodo.8241376},
-  url = {https://doi.org/10.5281/zenodo.8241376}
+  version = {2023.9b1},
+  doi = {10.5281/zenodo.8328176},
+  url = {https://doi.org/10.5281/zenodo.8328176}
 }
 ```
 ## 🚧 Roadmap
