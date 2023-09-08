@@ -4,12 +4,12 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "kit4dl"
-version = "2023.9b1"
 description = "Kit4DL - A quick way to start with machine and deep learning"
 requires-python = ">=3.10"
 readme = "README.md"
 license = {file = "LICENSE"}
 keywords = ["deep learning", "training pipeline"]
+dynamic = ["version"]
 authors = [
     {name = "Jakub Walczak"},
     {name = "Marco Mancini"},
@@ -47,6 +47,9 @@ dependencies = [
     "typer[all]",
     "toml; python_version<'3.11'"
 ]
+
+[tool.setuptools.dynamic]
+version = {attr = "kit4dl._version.__version__"}
 
 [tool.setuptools]
 include-package-data = true
