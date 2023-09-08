@@ -34,7 +34,7 @@ classifiers = [
     "Topic :: Software Development :: Libraries",
 ]
 dependencies = [
-    "lightning",
+    "lightning<=2.1.0.rc0",
     "torch>=1.11.0,<2.1.0",
     "torchmetrics>=0.7.0,<1.1.0",
     "numpy>=1.17.2,<=1.25.3",
@@ -42,6 +42,8 @@ dependencies = [
     "scikit-learn",
     "colormath",
     "tqdm>=4.57.0,<4.67.0",
+    "typing-extensions>=4.0.0,<4.8.0; python_version<='3.11'",
+    "Jinja2<3.2.0",
     "typer[all]",
     "toml; python_version<'3.11'"
 ]
