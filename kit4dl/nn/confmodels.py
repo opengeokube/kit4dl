@@ -479,7 +479,7 @@ class Conf(BaseModel):
             metric_obj[metric_name.lower()] = (
                 io_.import_and_get_attr_from_fully_qualified_name(
                     metric_args_copy.pop("target")
-                )(**metric_args_copy)
+                )(**metric_args_copy).to(self.base.device)
             )
         return metric_obj
 
