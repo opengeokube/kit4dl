@@ -396,9 +396,82 @@ You can define the following arguments.
 |   **Property** 	|  **Type**        |         **Details**              |
 |---------------	|----------------- | -------------------------------- | 
 |      `epochs`*    |   `int > 0`      |  number of epochs	              | 
+|      `callbacks`  |   `list`         |  list of callbacks	              | 
 |`epoch_schedulers` |  `list of dict`  |  list of schedulers definitions  |
 
 > **Note**: Arguments marked with `*` are obligatory!
+
+You can define a list of custom callbacks applied in the training process. Your callbacks need to be subclasses of `lightning.pytorch.callbacks.Callback` or `kit4dl.Kit4DLCallback` (for convenience) class and define one/some of the methods indicated in the [PyTorch-Lightning callback API](https://lightning.ai/docs/pytorch/stable/extensions/callbacks.html#callback-api). You can always use one of the [predefined callbacks](https://lightning.ai/docs/pytorch/stable/extensions/callbacks.html#built-in-callbacks).
+
+
+```toml
+[training]
+callbacks = [
+    {target = "./callbacks.py::SaveConfusionMatrixCallback", task="multiclass", num_classes=10, save_dir="{{ PROJECT_DIR }}/cm},
+    {target = "lightning.pytorch.callbacks::DeviceStatsMonitor"}
+]
+```
+
+Where the 1st callback is user-defined and the other - PyTorch-Loghtning built-in. For the custom callback we need to provide a class (here: located in the `callbacks.py` file in the project directory, the class is named `SaveConfusionMatrixCallback`).
+
+```python
+import os
+from typing import Any
+
+import lightning.pytorch as pl
+import torchmetrics as tm
+
+from kit4dl import Kit4DLCallback, StepOutput
+
+
+class SaveConfusionMatrixCallback(Kit4DLCallback):
+    _cm: tm.ConfusionMatrix
+    _num_classes: int
+    _task: str
+    _save_dir: str
+
+    def __init__(self, task: str, num_classes: int, save_dir: str) -> None:
+        super().__init__()
+        self._num_classes = num_classes
+        self._save_dir = save_dir
+        self._task = task
+        os.makedirs(self._save_dir, exist_ok=True)
+
+    def on_validation_epoch_start(
+        self, trainer: pl.Trainer, pl_module: pl.LightningModule
+    ) -> None:
+        self._cm = tm.ConfusionMatrix(
+            task=self._task, num_classes=self._num_classes
+        )
+
+    def on_validation_batch_end(
+        self,
+        trainer: pl.Trainer,
+        pl_module: pl.LightningModule,
+        outputs: StepOutput,
+        batch: Any,
+        batch_idx: int,
+        dataloader_idx: int = 0,
+    ) -> None:
+        self._cm.update(outputs.predictions, outputs.labels)
+
+    def on_validation_epoch_end(
+        self, trainer: pl.Trainer, pl_module: pl.LightningModule
+    ) -> None:
+        """Called when the val epoch ends."""
+        fig, _ = self._cm.plot()
+        target_file = os.path.join(
+            self._save_dir,
+            f"confusion_matrix_for_epoch_{pl_module.current_epoch}",
+        )
+        fig.savefig(target_file)
+
+```
+
+
+
+
+
 
 Besides those listed in the table above, you can specify PyTorch Lightning-related `Trainer` arguments, like:
 1. `accumulate_grad_batches`
@@ -569,4 +642,5 @@ The constants currently available in `kit4dl` are the following:
 | `PROJECT_DIR`	| the home directory of the TOML configuration file (project directory) 	| `context.PROJECT_DIR`                 |
 | `LOG_LEVEL`	| logging level as defined in the configuration TOML file                	| `context.LOG_LEVEL`                   |
 | `LOG_FORMAT`	| logging message format as defined in the configuration TOML file      	| `context.LOG_FORMAT`                  |
+|  `VERSION`	| the current version of the package                                      	| `context.VERSION`                     |
 

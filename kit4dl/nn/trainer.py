@@ -19,7 +19,7 @@ class Trainer(LoggerMixin):
 
     _model: Kit4DLAbstractModule
     _datamodule: Kit4DLAbstractDataModule
-    _trainer: pl.Trainer
+    _pl_trainer: pl.Trainer
     _conf: Conf
     _metric_logger: Any
 
@@ -30,10 +30,15 @@ class Trainer(LoggerMixin):
         self._metric_logger = self._new_metric_logger()
         set_seed(self._conf.base.seed)
 
+    @property
+    def is_finished(self) -> bool:
+        """Check if training routing finished."""
+        return self._pl_trainer.state.finished
+
     def prepare(self) -> "Trainer":
         """Prepare trainer by configuring the model and data modules."""
         self._model = self._configure_model()
-        self._trainer = self._configure_trainer()
+        self._pl_trainer = self._configure_trainer()
         self._datamodule = self._configure_datamodule()
         self._log_hparams()
         return self
@@ -57,31 +62,31 @@ class Trainer(LoggerMixin):
 
     def fit(self) -> "Trainer":
         """Fit the trainer making use of `lightning.pytorch.Trainer`."""
-        assert self._trainer, (
+        assert self._pl_trainer, (
             "trainer is not configured. did you forget to call `prepare()`"
             " method first?"
         )
-        self._trainer.fit(self._model, datamodule=self._datamodule)
+        self._pl_trainer.fit(self._model, datamodule=self._datamodule)
         return self
 
     def test(self) -> "Trainer":
         """Test the model."""
-        assert self._trainer, (
+        assert self._pl_trainer, (
             "trainer is not configured. did you forget to call `prepare()`"
             " method first?"
         )
-        self._trainer.test(
+        self._pl_trainer.test(
             self._model, datamodule=self._datamodule, ckpt_path="best"
         )
         return self
 
     def predict(self) -> "Trainer":
         """Predict values for the model."""
-        assert self._trainer, (
+        assert self._pl_trainer, (
             "trainer is not configured. did you forget to call `prepare()`"
             " method first?"
         )
-        self._trainer.predict(self._model, datamodule=self._datamodule)
+        self._pl_trainer.predict(self._model, datamodule=self._datamodule)
         return self
 
     def _new_metric_logger(self) -> pl_log.Logger:
@@ -120,7 +125,9 @@ class Trainer(LoggerMixin):
 
     def _configure_trainer(self) -> pl.Trainer:
         accelerator_device, device = self._conf.base.accelerator_device_and_id
-        callbacks: list[pl_callbacks.Callback] = [MetricCallback()]
+        callbacks: list[pl_callbacks.Callback] = [
+            MetricCallback()
+        ] + self._conf.training.preconfigured_callbacks
         if self._conf.training.checkpoint:
             callbacks.append(self._get_model_checkpoint())
         return pl.Trainer(

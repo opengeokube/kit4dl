@@ -2,6 +2,16 @@
 
 ## To run the example, follow below instructions:
 
+### 0. Install missing libraries
+Install the following libraries:
+1. `torchvision`
+1. `matplotlib`
+
+using PIP
+```bash
+pip install torchvision matplotlib
+```
+or `conda`.
 
 ### 1. Run
 ```bash

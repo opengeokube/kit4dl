@@ -19,6 +19,10 @@ epochs = 10
 epoch_schedulers = [
     {target = "torch.optim.lr_scheduler::CosineAnnealingLR", T_max = 100}
 ]
+callbacks = [
+    {target = "./callbacks.py::SaveConfusionMatrixCallback",  task="multiclass", num_classes = 10, save_dir = "{{ PROJECT_DIR }}/cm"},
+    {target = "lightning.pytorch.callbacks::DeviceStatsMonitor"}
+]
 
 [training.checkpoint]
 path = "chckpt"

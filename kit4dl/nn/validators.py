@@ -5,8 +5,22 @@ import torch
 import torchmetrics as tm
 
 import kit4dl.io as io_
+from kit4dl import Kit4DLCallback
 from kit4dl.io import import_and_get_attr_from_fully_qualified_name
 from kit4dl.kit4dl_types import FullyQualifiedName
+
+
+def validate_callback(conf: dict):
+    """Assert callback exists."""
+    assert "target" in conf, "`target` is not defined for some callbacks"
+    target_class = io_.import_and_get_attr_from_fully_qualified_name(
+        conf["target"]
+    )
+    assert issubclass(target_class, Kit4DLCallback), (
+        "custom callbacks need to be subclasses of `kit4dl.Kit4DLCallback`"
+        " class!"
+    )
+    return conf
 
 
 def validate_metric(conf: dict):
