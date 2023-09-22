@@ -7,7 +7,12 @@ from typing import Any
 from kit4dl.kit4dl_types import FullyQualifiedName
 
 _TARGET_SPLIT = "::"
+_MODULE_SEP = ".py::"
 PROJECT_DIR = "PROJECT_DIR"
+
+
+def _does_path_contain_module_file(target: str | FullyQualifiedName):
+    return target.strip().endswith(".py") or _MODULE_SEP in target
 
 
 def split_target(target: str | FullyQualifiedName) -> tuple[str, str]:
@@ -94,7 +99,7 @@ def maybe_get_abs_target(
     ```
 
     """
-    if ".py" not in target:
+    if not _does_path_contain_module_file(target):
         return target
     path, attr_name = split_target(target)
     if os.path.isabs(path):
@@ -104,7 +109,9 @@ def maybe_get_abs_target(
 
 def import_module_from_file(path: str, exec_module: bool = False):
     """Import module from file indicated by the relative path."""
-    assert ".py" in path, f"path: {path} is not a Python module"
+    assert _does_path_contain_module_file(
+        path
+    ), f"path: {path} is not a Python module"
     assert os.path.exists(path), f"module: {path} does not exist"
     spec = importlib.util.spec_from_file_location(
         "_file_imported_module", path
@@ -191,7 +198,7 @@ def import_and_get_attr_from_fully_qualified_name(
             " the class, like `/usr/my_user/my_module.py::MyClass`"
         )
     path, attr_name = split_target(name)
-    if ".py" in path:
+    if _does_path_contain_module_file(path):
         return get_class_from_py_file(path, attr_name)
     if importlib.util.find_spec(path):
         return getattr(importlib.import_module(path), attr_name)

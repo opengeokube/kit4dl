@@ -1,7 +1,7 @@
 """A module with configuration classes."""
 import os
 import warnings
-from functools import partial
+from functools import partial as func_partial
 from inspect import signature
 from typing import Any, Callable, Literal
 
@@ -20,9 +20,11 @@ from pydantic.fields import FieldInfo
 from typing_extensions import Annotated
 
 import kit4dl.io as io_
+from kit4dl import Kit4DLCallback
 from kit4dl import utils as ut
 from kit4dl.kit4dl_types import FullyQualifiedName
 from kit4dl.nn.validators import (
+    validate_callback,
     validate_class_exists,
     validate_cuda_device_exists,
     validate_lr_scheduler,
@@ -37,6 +39,7 @@ SchedulerDict = Annotated[
     dict[str, Any], AfterValidator(validate_lr_scheduler)
 ]
 MetricDict = Annotated[dict[str, Any], AfterValidator(validate_metric)]
+CallbackDict = Annotated[dict[str, Any], AfterValidator(validate_callback)]
 
 
 def split_extra_arguments(
@@ -60,6 +63,20 @@ def split_extra_arguments(
         extra_args = {k: v for k, v in values.items() if k not in fields}
         field_args = {k: v for k, v in values.items() if k in fields}
     return (field_args, extra_args)
+
+
+def create_obj_from_conf(obj_conf: dict, partial: bool = False) -> Any:
+    """Initialize object or prepared `partial` object based on configuration."""
+    obj_conf_copy = obj_conf.copy()
+    class_ = io_.import_and_get_attr_from_fully_qualified_name(
+        obj_conf_copy.pop("target")
+    )
+    if partial:
+        return func_partial(
+            class_,
+            **obj_conf_copy,
+        )
+    return class_(**obj_conf_copy)
 
 
 # ################################
@@ -159,7 +176,7 @@ class OptimizerConf(_AbstractClassWithArgumentsConf):
         target_class = io_.import_and_get_attr_from_fully_qualified_name(
             self.target
         )
-        return partial(
+        return func_partial(
             target_class,
             lr=self.lr,
             **self.arguments,  # pylint: disable=not-a-mapping
@@ -259,6 +276,7 @@ class TrainingConf(BaseModel):
     epochs: int = Field(gt=0)
     epoch_schedulers: list[SchedulerDict] = Field(default_factory=list)
     checkpoint: CheckpointConf | None = None
+    callbacks: list[CallbackDict] = Field(default_factory=list)
     optimizer: OptimizerConf
     criterion: CriterionConf
     arguments: dict[str, Any]
@@ -272,6 +290,14 @@ class TrainingConf(BaseModel):
         return field_args
 
     @property
+    def preconfigured_callbacks(self) -> list[Kit4DLCallback]:
+        """Get list of all preconfigured callbacks."""
+        callbacks: list[Kit4DLCallback] = []
+        for clb in self.callbacks:  # pylint: disable=not-an-iterable
+            callbacks.append(create_obj_from_conf(clb, partial=False))
+        return callbacks
+
+    @property
     def preconfigured_schedulers_classes(
         self,
     ) -> list[Callable]:
@@ -279,15 +305,7 @@ class TrainingConf(BaseModel):
         schedulers: list[Callable] = []
 
         for sch in self.epoch_schedulers:  # pylint: disable=not-an-iterable
-            sch_copy = sch.copy()
-            schedulers.append(
-                partial(
-                    io_.import_and_get_attr_from_fully_qualified_name(
-                        sch_copy.pop("target")
-                    ),
-                    **sch_copy,
-                )
-            )
+            schedulers.append(create_obj_from_conf(sch, partial=True))
         return schedulers
 
 
@@ -499,7 +517,9 @@ class Conf(BaseModel):
         replaced : dict
             In-place modified `entries` dictionary
         """
-        replace_logic = partial(io_.maybe_get_abs_target, root_dir=root_dir)
+        replace_logic = func_partial(
+            io_.maybe_get_abs_target, root_dir=root_dir
+        )
         entries = ut.replace_item_recursively(
             entries, key="target", replace=replace_logic
         )
