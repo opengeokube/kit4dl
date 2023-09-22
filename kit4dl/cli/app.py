@@ -84,6 +84,10 @@ def _remove_redundant_items(path):
     shutil.rmtree(os.path.join(path, "__pycache__"), ignore_errors=True)
 
 
+def _is_test_allowed(trainer: Trainer) -> bool:
+    return trainer.is_finished
+
+
 # ##############################
 #      COMMANDS DEFINITIONS
 # ##############################
@@ -164,6 +168,8 @@ def train(
     trainer.fit()
     log.info("Training finished \U00002728")
     if test:
+        if not _is_test_allowed(trainer):
+            return
         log.info("Running testing \U00002728")
         trainer.test()
         log.info("Testing finished \U00002728")
