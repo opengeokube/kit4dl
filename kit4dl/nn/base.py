@@ -17,6 +17,33 @@ from kit4dl.nn.confmodels import Conf
 from kit4dl.stages import Stage
 
 
+class StepOutput(dict):
+    """Output of the single train/val/test step."""
+
+    def __init__(
+        self, *, pred: torch.Tensor, true: torch.Tensor, loss: torch.Tensor
+    ):
+        super().__init__()
+        self["pred"] = pred
+        self["true"] = true
+        self["loss"] = loss
+
+    @property
+    def loss(self) -> torch.Tensor:
+        """Get loss value."""
+        return self["loss"]
+
+    @property
+    def predictions(self) -> torch.Tensor:
+        """Get predictions."""
+        return self["pred"]
+
+    @property
+    def labels(self) -> torch.Tensor:
+        """Get ground-turth labels."""
+        return self["true"]
+
+
 class Kit4DLAbstractModule(
     ABC, pl.LightningModule, LoggerMixin
 ):  # pylint: disable=too-many-ancestors
@@ -393,7 +420,7 @@ class Kit4DLAbstractModule(
                 self.error("wrong size of tuple returned by `run_step`")
                 raise ValueError("wrong size of tuple returned by `run_step`")
         self.update_train_metrics(true=y_true, predictions=y_scores, loss=loss)
-        return loss
+        return StepOutput(pred=y_scores, true=y_true, loss=loss)
 
     def validation_step(
         self, batch, batch_idx
@@ -409,7 +436,7 @@ class Kit4DLAbstractModule(
                 self.error("wrong size of tuple returned by `run_step`")
                 raise ValueError("wrong size of tuple returned by `run_step`")
         self.update_val_metrics(true=y_true, predictions=y_scores, loss=loss)
-        return loss
+        return StepOutput(pred=y_scores, true=y_true, loss=loss)
 
     def test_step(self, batch, batch_idx):  # pylint: disable=arguments-differ
         """Carry out a single test step."""
@@ -423,4 +450,4 @@ class Kit4DLAbstractModule(
                 self.error("wrong size of tuple returned by `run_step`")
                 raise ValueError("wrong size of tuple returned by `run_step`")
         self.update_test_metrics(true=y_true, predictions=y_scores, loss=loss)
-        return loss
+        return StepOutput(pred=y_scores, true=y_true, loss=loss)
