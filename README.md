@@ -641,4 +641,5 @@ The constants currently available in `kit4dl` are the following:
 | `PROJECT_DIR`	| the home directory of the TOML configuration file (project directory) 	| `context.PROJECT_DIR`                 |
 | `LOG_LEVEL`	| logging level as defined in the configuration TOML file                	| `context.LOG_LEVEL`                   |
 | `LOG_FORMAT`	| logging message format as defined in the configuration TOML file      	| `context.LOG_FORMAT`                  |
+|  `VERSION`	| the current version of the package                                      	| `context.VERSION`                     |
 

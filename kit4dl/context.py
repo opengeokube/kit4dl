@@ -24,6 +24,7 @@ class _ImmutableAttribute:
 PROJECT_DIR: Any
 LOG_LEVEL: Any
 LOG_FORMAT: Any
+VERSION: Any
 
 
 def get_dict():
@@ -38,6 +39,7 @@ class Context:
     LOG_FORMAT: _ImmutableAttribute = _ImmutableAttribute(
         default="%(asctime)s - %(levelname)s - %(message)s"
     )
+    VERSION: _ImmutableAttribute = _ImmutableAttribute(default=None)
 
     def get_dict(self) -> dict:
         """Get dictionary of all available context-defined properties."""

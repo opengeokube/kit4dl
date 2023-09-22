@@ -13,7 +13,7 @@ except ModuleNotFoundError:
 import typer
 from typing_extensions import Annotated
 
-from kit4dl import context
+from kit4dl import _version, context
 from kit4dl.formatting import escape_os_sep, substitute_symbols
 from kit4dl.nn.confmodels import Conf
 from kit4dl.nn.trainer import Trainer
@@ -47,6 +47,11 @@ _configure_logger(log)
 # ##############################
 #         UTILS METHODS
 # ##############################
+def update_context_from_static() -> None:
+    """Update context from static attributes."""
+    context.VERSION = _version.__version__
+
+
 def update_context_from_runtime(
     prj_dir: str | None = None,
 ) -> None:
@@ -150,6 +155,7 @@ def train(
         )
     prj_dir = os.path.join(os.getcwd(), root_dir)
     sys.path.append(prj_dir)
+    update_context_from_static()
     update_context_from_runtime(prj_dir=prj_dir)
     conf_ = _get_conf_from_file(conf, root_dir=root_dir)
     update_context_from_conf(conf=conf_)
@@ -161,6 +167,12 @@ def train(
         log.info("Running testing \U00002728")
         trainer.test()
         log.info("Testing finished \U00002728")
+
+
+@_app.command()
+def version() -> None:
+    """Display Kit4DL version."""
+    print(_version.__version__)
 
 
 def run():
