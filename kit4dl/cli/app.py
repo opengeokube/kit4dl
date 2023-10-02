@@ -137,7 +137,7 @@ def train(
     ] = _get_default_conf_path(),
     test: Annotated[
         bool, typer.Option(help="If perform testing using best weights")
-    ] = True,
+    ] = False,
 ) -> None:
     """Train using the configuration file.
 
