@@ -1,7 +1,7 @@
 """A module with the base class of modules supported by Kit4DL."""
 import logging
 from abc import ABC, abstractmethod
-from typing import Any
+from typing import Any, Callable
 
 import lightning.pytorch as pl
 import torch
@@ -52,7 +52,7 @@ class Kit4DLAbstractModule(
     def __init__(self, *, conf: Conf) -> None:
         super().__init__()
         assert conf, "`conf` argument cannot be `None`"
-        self._criterion: torch.nn.Module | None = None
+        self._criterion: torch.nn.Module | Callable | None = None
         self._conf: Conf = conf
 
         self._logger = logging.getLogger("lightning")
@@ -306,10 +306,16 @@ class Kit4DLAbstractModule(
         self.test_metric_tracker = MetricStore(self._conf.metrics_obj)
 
     def _configure_criterion(self) -> None:
+        if not self._conf.training.criterion:
+            self.info(
+                "criterion was not set! remember to return loss value in the"
+                " proper run methods!"
+            )
+            return
         self.debug("configuring criterion...")
-        self._criterion = self._conf.training.criterion.criterion.to(
-            self._conf.base.device
-        )
+        self._criterion = self._conf.training.criterion.criterion
+        if isinstance(self._criterion, torch.nn.Module):
+            self._criterion = self._criterion.to(self._conf.base.device)
         self.info("selected criterion is: %s", self._criterion)
 
     def compute_loss(

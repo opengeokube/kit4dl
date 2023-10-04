@@ -293,7 +293,7 @@ class TestCriterionConfig:
         """
         conf = CriterionConf(**toml.loads(load))
         conf.target == "torch.nn.NLLLoss"
-        assert conf.weight == [0.1, 0.1]
+        assert conf.arguments["weight"] == [0.1, 0.1]
 
     @pytest.mark.skip(reason="weights values are not validated anymore")
     def test_criterion_failed_on_negative_weight(self):
@@ -317,7 +317,10 @@ class TestCriterionConfig:
         """
         with pytest.raises(
             ValidationError,
-            match=r"target class of the criterion must be a subclass of*",
+            match=(
+                r"target class of the criterion must be a function or a"
+                r" subclass of torch.nn.Module class!"
+            ),
         ):
             _ = CriterionConf(**toml.loads(load))
 

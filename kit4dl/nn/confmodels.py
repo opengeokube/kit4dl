@@ -3,6 +3,7 @@ import os
 import warnings
 from functools import partial as func_partial
 from inspect import signature
+from types import FunctionType
 from typing import Any, Callable, Literal
 
 import lightning.pytorch.loggers as pl_logs
@@ -230,41 +231,57 @@ class CriterionConf(BaseModel):
     """Criterion configuration class."""
 
     target: Target
-    weight: list[float] | None = None
+    arguments: dict[str, Any] = Field(default_factory=dict)
+
+    @model_validator(mode="before")
+    def _build_model_arguments(cls, values: dict[str, Any]) -> dict[str, Any]:
+        field_args, extra_args = split_extra_arguments(
+            values, cls.model_fields, consider_alias=False
+        )
+        field_args["arguments"] = extra_args
+        return field_args
 
     @field_validator("target")
     def _check_if_target_has_expected_parent_class(cls, value):
-        target_class = io_.import_and_get_attr_from_fully_qualified_name(value)
-        assert issubclass(target_class, torch.nn.Module), (
-            "target class of the criterion must be a subclass of"
-            f" `{torch.nn.Module}` class!"
+        target = io_.import_and_get_attr_from_fully_qualified_name(value)
+        assert isinstance(target, FunctionType) or issubclass(
+            target, torch.nn.Module
+        ), (
+            "target class of the criterion must be a function or a subclass of"
+            " torch.nn.Module class!"
         )
         return value
 
     @model_validator(mode="after")
-    def _match_weight(cls, values):
-        if values.weight:
-            criterion_class = (
-                io_.import_and_get_attr_from_fully_qualified_name(
-                    values.target
-                )
-            )
-            assert "weight" in signature(criterion_class).parameters, (
-                "`weight` parameter is not defined for the criterion"
-                f" `{criterion_class}`"
+    def _match_arguments(cls, values):
+        criterion = io_.import_and_get_attr_from_fully_qualified_name(
+            values.target
+        )
+        for param_name in values.arguments.keys():
+            assert param_name in signature(criterion).parameters, (
+                f"`{param_name}` parameter is not defined for the criterion"
+                f" `{criterion}`"
             )
         return values
 
     @property
-    def criterion(self) -> torch.nn.Module:
+    def criterion(self) -> torch.nn.Module | Callable:
         """Get the torch.nn.Module with the criterion function."""
-        target_class = io_.import_and_get_attr_from_fully_qualified_name(
-            self.target
-        )
-        if self.weight is not None:
-            weight_tensor = torch.FloatTensor(self.weight)
-            return target_class(weight=weight_tensor)
-        return target_class()
+        target = io_.import_and_get_attr_from_fully_qualified_name(self.target)
+        if isinstance(target, FunctionType):
+            return func_partial(
+                target,
+                **self.arguments,  # pylint: disable=not-a-mapping
+            )
+        if issubclass(target, torch.nn.Module):
+            if weight := self.arguments.get("weight"):
+                weight_tensor = torch.FloatTensor(weight)
+                return target(
+                    weight=weight_tensor,
+                    **self.arguments,  # pylint: disable=not-a-mapping
+                )
+            return target()
+        raise TypeError
 
 
 # ################################
@@ -278,7 +295,7 @@ class TrainingConf(BaseModel):
     checkpoint: CheckpointConf | None = None
     callbacks: list[CallbackDict] = Field(default_factory=list)
     optimizer: OptimizerConf
-    criterion: CriterionConf
+    criterion: CriterionConf | None = None
     arguments: dict[str, Any]
 
     @model_validator(mode="before")
