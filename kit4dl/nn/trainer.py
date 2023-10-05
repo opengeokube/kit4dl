@@ -123,6 +123,10 @@ class Trainer(LoggerMixin):
             save_on_train_epoch_end=chkp_conf.save_on_train_epoch_end,
         )
 
+    def _set_default_trainer_args(self):
+        self._conf.training.arguments.setdefault("deterministic", True)
+        self._conf.training.arguments.setdefault("enable_progress_bar", True)
+
     def _configure_trainer(self) -> pl.Trainer:
         accelerator_device, device = self._conf.base.accelerator_device_and_id
         callbacks: list[pl_callbacks.Callback] = [
@@ -135,8 +139,6 @@ class Trainer(LoggerMixin):
             devices=device,
             max_epochs=self._conf.training.epochs,
             check_val_every_n_epoch=self._conf.validation.run_every_epoch,
-            enable_progress_bar=True,
-            deterministic=True,
             logger=self._metric_logger,
             callbacks=callbacks,
             **self._conf.training.arguments,
