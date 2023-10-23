@@ -24,6 +24,17 @@ class LoggerMixin:
 
     _logger: logging.Logger
 
+    def configure_logger(self, name: str, level: str, format: str | None = None) -> None:
+        """Configure logger."""
+        self._logger = logging.getLogger(name)
+        self._logger.setLevel(level)  # type: ignore[arg-type]
+        if format:
+            formatter = logging.Formatter(format)
+            for handler in self._logger.handlers:
+                handler.setFormatter(formatter)
+        for handler in self._logger.handlers:
+            handler.setLevel(level)  # type: ignore[arg-type]    
+
     def debug(self, *args, **kwargs):
         """Log on debug level."""
         self._logger.debug(*args, **kwargs)

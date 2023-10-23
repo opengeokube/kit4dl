@@ -274,7 +274,7 @@ class CriterionConf(BaseModel):
                 **self.arguments,  # pylint: disable=not-a-mapping
             )
         if issubclass(target, torch.nn.Module):
-            if weight := self.arguments.get("weight"):
+            if weight := self.arguments.pop("weight", None):
                 weight_tensor = torch.FloatTensor(weight)
                 return target(
                     weight=weight_tensor,
