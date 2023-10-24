@@ -1,8 +1,6 @@
 """A module with the Kit4DL abstract dataset definition."""
-
 from __future__ import annotations
 
-import logging
 from abc import ABC
 from typing import Any, Callable, TYPE_CHECKING
 
@@ -51,14 +49,7 @@ class Kit4DLAbstractDataModule(ABC, pl.LightningDataModule, LoggerMixin):
             setattr(self, extra_arg_key, extra_arg_value)
 
     def _configure_logger(self) -> None:
-        self._logger = logging.getLogger("kit4dl.dataset")
-        self._logger.setLevel(context.LOG_LEVEL)
-        if context.LOG_FORMAT:
-            formatter = logging.Formatter(context.LOG_FORMAT)
-            for handler in self._logger.handlers:
-                handler.setFormatter(formatter)
-        for handler in self._logger.handlers:
-            handler.setLevel(context.LOG_LEVEL)  # type: ignore[arg-type]
+        super().configure_logger(name="kit4dl.Dataset", level=context.LOG_LEVEL, logformat=context.LOG_FORMAT)  # type: ignore[arg-type]
 
     def prepare_data(self):
         """Prepare dataset for train/validation/test/predict splits.

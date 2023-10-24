@@ -6,7 +6,7 @@ from typing import Any
 import lightning.pytorch as pl
 import torchmetrics as tm
 
-from kit4dl import Kit4DLCallback, StepOutput
+from kit4dl import Kit4DLCallback
 
 
 class SaveConfusionMatrixCallback(Kit4DLCallback):
@@ -33,12 +33,12 @@ class SaveConfusionMatrixCallback(Kit4DLCallback):
         self,
         trainer: pl.Trainer,
         pl_module: pl.LightningModule,
-        outputs: StepOutput,
+        outputs: dict,
         batch: Any,
         batch_idx: int,
         dataloader_idx: int = 0,
     ) -> None:
-        self._cm.update(outputs.predictions, outputs.labels)
+        self._cm.update(outputs["pred"], outputs["true"])
 
     def on_validation_epoch_end(
         self, trainer: pl.Trainer, pl_module: pl.LightningModule

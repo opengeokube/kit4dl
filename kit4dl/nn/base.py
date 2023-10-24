@@ -13,39 +13,10 @@ try:
 except ImportError:
     from torch.optim.lr_scheduler import _LRScheduler as LRScheduler
 
-from kit4dl.metric import MetricStore
 from kit4dl.mixins import LoggerMixin
-from kit4dl.stages import Stage
 
 if TYPE_CHECKING:
     from kit4dl.nn.confmodels import Conf
-
-
-class StepOutput(dict):
-    """Output of the single train/val/test step."""
-
-    def __init__(
-        self, *, pred: torch.Tensor, true: torch.Tensor, loss: torch.Tensor
-    ):
-        super().__init__()
-        self["pred"] = pred
-        self["true"] = true
-        self["loss"] = loss
-
-    @property
-    def loss(self) -> torch.Tensor:
-        """Get loss value."""
-        return self["loss"]
-
-    @property
-    def predictions(self) -> torch.Tensor:
-        """Get predictions."""
-        return self["pred"]
-
-    @property
-    def labels(self) -> torch.Tensor:
-        """Get ground-turth labels."""
-        return self["true"]
 
 
 class Kit4DLAbstractModule(
@@ -59,27 +30,23 @@ class Kit4DLAbstractModule(
         self._criterion: torch.nn.Module | Callable | None = None
         self._conf: Conf = conf
 
-        self._logger = logging.getLogger("lightning")
-        self.configure_logger()
+        self._configure_logger()
 
-        self._configure_metrics()
         self._configure_criterion()
         self.configure(**self._conf.model.arguments)
         self.save_hyperparameters(self._conf.dict())
 
-    def configure_logger(self) -> None:
+    def _configure_logger(self) -> None:
         """Configure logger based on the configuration passed to the class.
 
         The methods configure the logger format and sets it to all
         the handlers.
         """
-        self._logger.setLevel(self._conf.logging.level)  # type: ignore[arg-type]
-        if self._conf.logging.format_:
-            formatter = logging.Formatter(self._conf.logging.format_)
-            for handler in self._logger.handlers:
-                handler.setFormatter(formatter)
-        for handler in self._logger.handlers:
-            handler.setLevel(self._conf.logging.level)  # type: ignore[arg-type]
+        super().configure_logger(
+            name="lightning",
+            level=self._conf.logging.level,
+            logformat=self._conf.logging.format_,
+        )
 
     @property
     def _kit4dl_logger(self) -> logging.Logger:
@@ -306,11 +273,8 @@ class Kit4DLAbstractModule(
         )
         return [optimizer], lr_schedulers
 
-    def _configure_metrics(self) -> None:
-        self.debug("configuring metrics...")
-        self.train_metric_tracker = MetricStore(self._conf.metrics_obj)
-        self.val_metric_tracker = MetricStore(self._conf.metrics_obj)
-        self.test_metric_tracker = MetricStore(self._conf.metrics_obj)
+    def _prepare_step_output(self, *, pred, true, loss, **kw) -> dict:
+        return {"loss": loss, "pred": pred, "true": true} | kw
 
     def _configure_criterion(self) -> None:
         if not self._conf.training.criterion:
@@ -332,97 +296,6 @@ class Kit4DLAbstractModule(
         assert self._criterion, "criterion is None"
         return self._criterion(prediction, target)
 
-    def log_train_metrics(self) -> None:
-        """Log train metrics."""
-        for (
-            metric_name,
-            metric_value,
-        ) in self.train_metric_tracker.results.items():
-            stage_metric_name = f"{Stage.TRAIN}_{metric_name}"
-            self.info(
-                "epoch: %d metric: %s value: %s",
-                self.current_epoch,
-                stage_metric_name,
-                metric_value,
-            )
-            self.log(
-                stage_metric_name,
-                metric_value,
-                logger=True,
-            )
-
-    def log_val_metrics(self) -> None:
-        """Log validation metrics."""
-        for (
-            metric_name,
-            metric_value,
-        ) in self.val_metric_tracker.results.items():
-            stage_metric_name = f"{Stage.VALIDATION}_{metric_name}"
-            self.info(
-                "epoch: %d metric: %s value: %s",
-                self.current_epoch,
-                stage_metric_name,
-                metric_value,
-            )
-            self.log(
-                stage_metric_name,
-                metric_value,
-                logger=True,
-            )
-
-    def log_test_metrics(self) -> None:
-        """Log test metrics."""
-        for (
-            metric_name,
-            metric_value,
-        ) in self.test_metric_tracker.results.items():
-            stage_metric_name = f"{Stage.TEST}_{metric_name}"
-            self.info(
-                "epoch: %d metric: %s value: %s",
-                self.current_epoch,
-                stage_metric_name,
-                metric_value,
-            )
-            self.log(
-                stage_metric_name,
-                metric_value,
-                logger=True,
-            )
-
-    def update_train_metrics(
-        self, true: torch.Tensor, predictions: torch.Tensor, loss: torch.Tensor
-    ) -> None:
-        """Update train metrics with true and prediction values."""
-        self.train_metric_tracker.update(true=true, predictions=predictions)
-        if loss:
-            self.log(
-                name=f"{Stage.TRAIN}_loss", value=loss.item(), logger=True
-            )
-
-    def update_val_metrics(
-        self, true: torch.Tensor, predictions: torch.Tensor, loss: torch.Tensor
-    ) -> None:
-        """Update validation metrics with true and prediction values."""
-        self.val_metric_tracker.update(true=true, predictions=predictions)
-        if loss:
-            self.log(
-                name=f"{Stage.VALIDATION}_loss", value=loss.item(), logger=True
-            )
-
-    def update_test_metrics(
-        self, true: torch.Tensor, predictions: torch.Tensor, loss: torch.Tensor
-    ) -> None:
-        """Update test metrics with true and prediction values."""
-        self.test_metric_tracker.update(true=true, predictions=predictions)
-        if loss:
-            self.log(name=f"{Stage.TEST}_loss", value=loss.item(), logger=True)
-
-    def reset_metric_trackers(self) -> None:
-        """Reset all metric trackers: train, validation, and test."""
-        self.train_metric_tracker.reset()
-        self.val_metric_tracker.reset()
-        self.test_metric_tracker.reset()
-
     def training_step(
         self, batch, batch_idx
     ):  # pylint: disable=arguments-differ
@@ -436,8 +309,7 @@ class Kit4DLAbstractModule(
             case _:
                 self.error("wrong size of tuple returned by `run_step`")
                 raise ValueError("wrong size of tuple returned by `run_step`")
-        self.update_train_metrics(true=y_true, predictions=y_scores, loss=loss)
-        return StepOutput(pred=y_scores, true=y_true, loss=loss)
+        return self._prepare_step_output(pred=y_scores, true=y_true, loss=loss)
 
     def validation_step(
         self, batch, batch_idx
@@ -452,8 +324,7 @@ class Kit4DLAbstractModule(
             case _:
                 self.error("wrong size of tuple returned by `run_step`")
                 raise ValueError("wrong size of tuple returned by `run_step`")
-        self.update_val_metrics(true=y_true, predictions=y_scores, loss=loss)
-        return StepOutput(pred=y_scores, true=y_true, loss=loss)
+        return self._prepare_step_output(pred=y_scores, true=y_true, loss=loss)
 
     def test_step(self, batch, batch_idx):  # pylint: disable=arguments-differ
         """Carry out a single test step."""
@@ -466,5 +337,4 @@ class Kit4DLAbstractModule(
             case _:
                 self.error("wrong size of tuple returned by `run_step`")
                 raise ValueError("wrong size of tuple returned by `run_step`")
-        self.update_test_metrics(true=y_true, predictions=y_scores, loss=loss)
-        return StepOutput(pred=y_scores, true=y_true, loss=loss)
+        return self._prepare_step_output(pred=y_scores, true=y_true, loss=loss)

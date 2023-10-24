@@ -131,7 +131,7 @@ class Trainer(LoggerMixin):
     def _configure_trainer(self) -> pl.Trainer:
         accelerator_device, device = self._conf.base.accelerator_device_and_id
         callbacks: list[pl_callbacks.Callback] = [
-            MetricCallback()
+            MetricCallback(conf=self._conf.metrics_obj)
         ] + self._conf.training.preconfigured_callbacks
         if self._conf.training.checkpoint:
             callbacks.append(self._get_model_checkpoint())
