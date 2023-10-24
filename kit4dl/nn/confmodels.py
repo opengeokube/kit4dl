@@ -18,7 +18,6 @@ from pydantic import (
     field_validator,
     model_validator,
 )
-from pydantic.fields import FieldInfo
 from typing_extensions import Annotated
 
 import kit4dl.io as io_
@@ -31,6 +30,7 @@ from kit4dl.nn.validators import (
     validate_cuda_device_exists,
     validate_lr_scheduler,
     validate_metric,
+    build_arguments,
 )
 
 Target = Annotated[
@@ -44,27 +44,7 @@ MetricDict = Annotated[dict[str, Any], AfterValidator(validate_metric)]
 CallbackDict = Annotated[dict[str, Any], AfterValidator(validate_callback)]
 
 
-def split_extra_arguments(
-    values: dict, fields: dict[str, FieldInfo], *, consider_alias: bool = False
-) -> tuple[dict, dict]:
-    """Split arguments to field-related and auxiliary."""
-    extra_args: dict = {}
-    field_args: dict = {}
-    if consider_alias:
-        for key, value in values.items():
-            if key in fields:
-                field_args.update({key: value})
-                continue
-            for f_info in fields.values():
-                if key == f_info.alias:
-                    field_args.update({key: value})
-                    break
-            else:
-                extra_args.update({key: value})
-    else:
-        extra_args = {k: v for k, v in values.items() if k not in fields}
-        field_args = {k: v for k, v in values.items() if k in fields}
-    return (field_args, extra_args)
+
 
 
 def create_obj_from_conf(obj_conf: dict, partial: bool = False) -> Any:
@@ -91,11 +71,7 @@ class _AbstractClassWithArgumentsConf(BaseModel):
 
     @model_validator(mode="before")
     def _build_model_arguments(cls, values: dict[str, Any]) -> dict[str, Any]:
-        field_args, extra_args = split_extra_arguments(
-            values, cls.model_fields, consider_alias=False
-        )
-        field_args["arguments"] = extra_args
-        return field_args
+        return build_arguments(values, cls.model_fields.keys(), use_alias=False)
 
 
 # ################################
@@ -236,11 +212,7 @@ class CriterionConf(BaseModel):
 
     @model_validator(mode="before")
     def _build_model_arguments(cls, values: dict[str, Any]) -> dict[str, Any]:
-        field_args, extra_args = split_extra_arguments(
-            values, cls.model_fields, consider_alias=False
-        )
-        field_args["arguments"] = extra_args
-        return field_args
+        return build_arguments(values, cls.model_fields.keys(), use_alias=False)
 
     @field_validator("target")
     def _check_if_target_has_expected_parent_class(cls, value):
@@ -301,11 +273,7 @@ class TrainingConf(BaseModel):
 
     @model_validator(mode="before")
     def _build_model_arguments(cls, values: dict[str, Any]) -> dict[str, Any]:
-        field_args, extra_args = split_extra_arguments(
-            values, cls.model_fields, consider_alias=False
-        )
-        field_args["arguments"] = extra_args
-        return field_args
+        return build_arguments(values, cls.model_fields.keys(), use_alias=False)
 
     @property
     def preconfigured_callbacks(self) -> list[Kit4DLCallback]:
@@ -347,11 +315,7 @@ class SplitDatasetConf(BaseModel):
 
     @model_validator(mode="before")
     def _build_model_arguments(cls, values: dict[str, Any]) -> dict[str, Any]:
-        field_args, extra_args = split_extra_arguments(
-            values, cls.model_fields, consider_alias=False
-        )
-        field_args["arguments"] = extra_args
-        return field_args
+        return build_arguments(values, cls.model_fields.keys(), use_alias=False)
 
 
 # ################################
@@ -370,11 +334,7 @@ class DatasetConf(BaseModel):
 
     @model_validator(mode="before")
     def _build_model_arguments(cls, values: dict[str, Any]) -> dict[str, Any]:
-        field_args, extra_args = split_extra_arguments(
-            values, cls.model_fields, consider_alias=False
-        )
-        field_args["arguments"] = extra_args
-        return field_args
+        return build_arguments(values, cls.model_fields.keys(), use_alias=False)
 
     @field_validator("target")
     def _check_if_target_has_expected_parent_class(cls, value: str):
@@ -424,11 +384,7 @@ class LoggingConf(BaseModel):
 
     @model_validator(mode="before")
     def _build_model_arguments(cls, values: dict[str, Any]) -> dict[str, Any]:
-        field_args, extra_args = split_extra_arguments(
-            values, cls.model_fields, consider_alias=True
-        )
-        field_args["arguments"] = extra_args
-        return field_args
+        return build_arguments(values, cls.model_fields.keys(), use_alias=True)
 
     @field_validator("level", mode="before")
     def _match_log_level(cls, item):

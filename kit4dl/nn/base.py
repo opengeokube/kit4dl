@@ -1,6 +1,7 @@
 """A module with the base class of modules supported by Kit4DL."""
 
 from __future__ import annotations
+import os
 import sys
 import logging
 from abc import ABC, abstractmethod
@@ -15,9 +16,7 @@ except ImportError:
     from torch.optim.lr_scheduler import _LRScheduler as LRScheduler
 
 from kit4dl.mixins import LoggerMixin
-
-if TYPE_CHECKING:
-    from kit4dl.nn.confmodels import Conf
+from kit4dl.nn.confmodels import Conf
 
 
 class Kit4DLAbstractModule(
@@ -30,12 +29,11 @@ class Kit4DLAbstractModule(
         assert conf or kw, "configuration must be set"
         if not conf:
             conf = Conf(**kw)
-            sys.path.append(kw["root_dir"])
+            sys.path.append(kw.get("root_dir", os.getcwd()))
         self._criterion: torch.nn.Module | Callable | None = None
         self._conf: Conf = conf
 
         self._configure_logger()
-
         self._configure_criterion()
         self.configure(**self._conf.model.arguments)
         self.save_hyperparameters(self._conf.dict())
