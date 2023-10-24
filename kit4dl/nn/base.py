@@ -15,7 +15,7 @@ except ImportError:
 from kit4dl.metric import MetricStore
 from kit4dl.mixins import LoggerMixin
 from kit4dl.stages import Stage
-if TYPE_CHECKING
+if TYPE_CHECKING:
     from kit4dl.nn.confmodels import Conf
 
 
