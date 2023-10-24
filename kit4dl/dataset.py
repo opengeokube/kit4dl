@@ -49,7 +49,11 @@ class Kit4DLAbstractDataModule(ABC, pl.LightningDataModule, LoggerMixin):
             setattr(self, extra_arg_key, extra_arg_value)
 
     def _configure_logger(self) -> None:
-        super().configure_logger(name="kit4dl.Dataset", level=context.LOG_LEVEL, logformat=context.LOG_FORMAT)  # type: ignore[arg-type]
+        super().configure_logger(
+            name="kit4dl.Dataset",
+            level=context.LOG_LEVEL,
+            logformat=context.LOG_FORMAT,
+        )  # type: ignore[arg-type]
 
     def prepare_data(self):
         """Prepare dataset for train/validation/test/predict splits.

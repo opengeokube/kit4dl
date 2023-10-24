@@ -1,11 +1,11 @@
 """A module with predefined Kit4DL callbacks."""
 
-from typing import Any, Mapping
+from typing import Any
 import logging
 
-import torch
 import lightning.pytorch as pl
 from lightning.pytorch import callbacks as pl_callbacks
+from lightning.pytorch.utilities.types import STEP_OUTPUT
 
 from kit4dl import context
 from kit4dl.metric import MetricStore
@@ -25,7 +25,7 @@ class MetricCallback(pl_callbacks.Callback, LoggerMixin):
     def __init__(self, conf: dict) -> None:
         super().__init__()
         super().configure_logger(
-            name="MetricCallback",
+            name="kit4dl.MetricCallback",
             level=context.LOG_LEVEL,
             logformat=context.LOG_FORMAT,
         )
@@ -43,10 +43,11 @@ class MetricCallback(pl_callbacks.Callback, LoggerMixin):
         self,
         trainer: pl.Trainer,
         pl_module: pl.LightningModule,
-        outputs: torch.Tensor | Mapping[str, Any] | None,
+        outputs: STEP_OUTPUT,
         batch: Any,
         batch_idx: int,
     ):
+        """Accumulate batch results."""
         assert isinstance(outputs, dict), "output of the step is not a dict"
         self.train_metric_tracker.update(
             true=outputs["true"], predictions=outputs["pred"]
@@ -86,10 +87,12 @@ class MetricCallback(pl_callbacks.Callback, LoggerMixin):
         self,
         trainer: pl.Trainer,
         pl_module: pl.LightningModule,
-        outputs: torch.Tensor | Mapping[str, Any] | None,
+        outputs: STEP_OUTPUT,
         batch: Any,
         batch_idx: int,
+        dataloader_idx: int = 0,
     ):
+        """Accumulate batch results."""
         assert isinstance(outputs, dict), "output of the step is not a dict"
         self.train_metric_tracker.update(
             true=outputs["true"], predictions=outputs["pred"]
@@ -129,10 +132,12 @@ class MetricCallback(pl_callbacks.Callback, LoggerMixin):
         self,
         trainer: pl.Trainer,
         pl_module: pl.LightningModule,
-        outputs: torch.Tensor | Mapping[str, Any] | None,
+        outputs: STEP_OUTPUT,
         batch: Any,
         batch_idx: int,
+        dataloader_idx: int = 0,
     ):
+        """Accumulate batch results."""
         assert isinstance(outputs, dict), "output of the step is not a dict"
         self.train_metric_tracker.update(
             true=outputs["true"], predictions=outputs["pred"]

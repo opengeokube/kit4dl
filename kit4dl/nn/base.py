@@ -1,6 +1,7 @@
 """A module with the base class of modules supported by Kit4DL."""
 
 from __future__ import annotations
+import sys
 import logging
 from abc import ABC, abstractmethod
 from typing import Any, Callable, TYPE_CHECKING
@@ -24,9 +25,12 @@ class Kit4DLAbstractModule(
 ):  # pylint: disable=too-many-ancestors
     """Base abstract class for Kit4DL modules."""
 
-    def __init__(self, *, conf: Conf) -> None:
+    def __init__(self, *, conf: Conf | None = None, **kw) -> None:
         super().__init__()
-        assert conf, "`conf` argument cannot be `None`"
+        assert conf or kw, "configuration must be set"
+        if not conf:
+            conf = Conf(**kw)
+            sys.path.append(kw["root_dir"])
         self._criterion: torch.nn.Module | Callable | None = None
         self._conf: Conf = conf
 
@@ -254,10 +258,7 @@ class Kit4DLAbstractModule(
 
     def configure_optimizers(
         self,
-    ) -> tuple[
-        list[torch.optim.Optimizer],
-        list[LRScheduler] | None,
-    ]:
+    ) -> tuple[list[torch.optim.Optimizer], list[LRScheduler] | None,]:
         """Configure optimizers and schedulers."""
         self.debug("configuring optimizers and lr epoch schedulers...")
         optimizer: torch.optim.Optimizer = (

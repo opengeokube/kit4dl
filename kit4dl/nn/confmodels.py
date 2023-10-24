@@ -475,6 +475,7 @@ class Conf(BaseModel):
     training: TrainingConf
     validation: ValidationConf
     dataset: DatasetConf
+    root_dir: str | None = "."
 
     def __init__(self, root_dir: str | None = None, **kwargs):
         if root_dir:
