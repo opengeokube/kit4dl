@@ -1,8 +1,9 @@
 """A module with the base class of modules supported by Kit4DL."""
 
+from __future__ import annotations
 import logging
 from abc import ABC, abstractmethod
-from typing import Any, Callable
+from typing import Any, Callable, TYPE_CHECKING
 
 import lightning.pytorch as pl
 import torch
@@ -13,7 +14,9 @@ except ImportError:
     from torch.optim.lr_scheduler import _LRScheduler as LRScheduler
 
 from kit4dl.mixins import LoggerMixin
-from kit4dl.nn.confmodels import Conf
+
+if TYPE_CHECKING:
+    from kit4dl.nn.confmodels import Conf
 
 
 class Kit4DLAbstractModule(

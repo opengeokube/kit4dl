@@ -1,14 +1,17 @@
 """A module with the Kit4DL abstract dataset definition."""
+from __future__ import annotations
 
 from abc import ABC
-from typing import Any, Callable
+from typing import Any, Callable, TYPE_CHECKING
 
 import lightning.pytorch as pl
 from torch.utils.data import DataLoader, Dataset
 
 from kit4dl import context
 from kit4dl.mixins import LoggerMixin
-from kit4dl.nn.confmodels import DatasetConf
+
+if TYPE_CHECKING:
+    from kit4dl.nn.confmodels import DatasetConf
 
 
 class Kit4DLAbstractDataModule(ABC, pl.LightningDataModule, LoggerMixin):
