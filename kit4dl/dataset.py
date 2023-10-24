@@ -1,4 +1,5 @@
 """A module with the Kit4DL abstract dataset definition."""
+
 import logging
 from abc import ABC
 from typing import Any, Callable

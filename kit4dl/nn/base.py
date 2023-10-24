@@ -1,4 +1,5 @@
 """A module with the base class of modules supported by Kit4DL."""
+
 import logging
 from abc import ABC, abstractmethod
 from typing import Any, Callable
@@ -283,7 +284,10 @@ class Kit4DLAbstractModule(
 
     def configure_optimizers(
         self,
-    ) -> tuple[list[torch.optim.Optimizer], list[LRScheduler] | None,]:
+    ) -> tuple[
+        list[torch.optim.Optimizer],
+        list[LRScheduler] | None,
+    ]:
         """Configure optimizers and schedulers."""
         self.debug("configuring optimizers and lr epoch schedulers...")
         optimizer: torch.optim.Optimizer = (

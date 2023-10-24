@@ -1,4 +1,5 @@
 """A module with configuration classes."""
+
 import os
 import warnings
 from functools import partial as func_partial

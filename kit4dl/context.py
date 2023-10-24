@@ -1,4 +1,5 @@
 """Module with session-related attributes."""
+
 import sys
 from typing import Any
 

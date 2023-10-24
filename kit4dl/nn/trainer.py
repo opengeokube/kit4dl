@@ -1,4 +1,5 @@
 """A module with neural network train task definition."""
+
 import logging
 from typing import Any
 

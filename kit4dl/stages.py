@@ -1,4 +1,5 @@
 """Module with stages utils."""
+
 from enum import Enum
 
 

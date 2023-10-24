@@ -3,6 +3,7 @@
 The module contains functions to prepare Area HDF5 files to accelerate
 loading and processing.
 """
+
 import glob
 import os
 from typing import Iterator

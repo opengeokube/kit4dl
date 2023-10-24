@@ -1,4 +1,5 @@
 """Module with CLI for Kit4DL."""
+
 import importlib.resources
 import logging
 import os

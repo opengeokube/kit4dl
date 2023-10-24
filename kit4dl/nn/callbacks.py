@@ -1,4 +1,5 @@
 """A module with predefined Kit4DL callbacks."""
+
 import warnings
 
 import lightning.pytorch as pl
