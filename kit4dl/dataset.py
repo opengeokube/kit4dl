@@ -1,4 +1,5 @@
 """A module with the Kit4DL abstract dataset definition."""
+
 from __future__ import annotations
 
 import logging
@@ -10,6 +11,7 @@ from torch.utils.data import DataLoader, Dataset
 
 from kit4dl import context
 from kit4dl.mixins import LoggerMixin
+
 if TYPE_CHECKING:
     from kit4dl.nn.confmodels import DatasetConf
 
