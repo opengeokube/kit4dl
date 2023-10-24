@@ -1,8 +1,8 @@
 """A module with the base class of modules supported by Kit4DL."""
-
+from __future__ import annotations
 import logging
 from abc import ABC, abstractmethod
-from typing import Any, Callable
+from typing import Any, Callable, TYPE_CHECKING
 
 import lightning.pytorch as pl
 import torch
@@ -14,8 +14,9 @@ except ImportError:
 
 from kit4dl.metric import MetricStore
 from kit4dl.mixins import LoggerMixin
-from kit4dl.nn.confmodels import Conf
 from kit4dl.stages import Stage
+if TYPE_CHECKING
+    from kit4dl.nn.confmodels import Conf
 
 
 class StepOutput(dict):
@@ -392,7 +393,7 @@ class Kit4DLAbstractModule(
         """Update train metrics with true and prediction values."""
         self.train_metric_tracker.update(true=true, predictions=predictions)
         if loss:
-            self.log(name=f"{Stage.TRAIN}_loss", value=loss, logger=True)
+            self.log(name=f"{Stage.TRAIN}_loss", value=loss.item(), logger=True)
 
     def update_val_metrics(
         self, true: torch.Tensor, predictions: torch.Tensor, loss: torch.Tensor
@@ -400,7 +401,7 @@ class Kit4DLAbstractModule(
         """Update validation metrics with true and prediction values."""
         self.val_metric_tracker.update(true=true, predictions=predictions)
         if loss:
-            self.log(name=f"{Stage.VALIDATION}_loss", value=loss, logger=True)
+            self.log(name=f"{Stage.VALIDATION}_loss", value=loss.item(), logger=True)
 
     def update_test_metrics(
         self, true: torch.Tensor, predictions: torch.Tensor, loss: torch.Tensor
@@ -408,7 +409,7 @@ class Kit4DLAbstractModule(
         """Update test metrics with true and prediction values."""
         self.test_metric_tracker.update(true=true, predictions=predictions)
         if loss:
-            self.log(name=f"{Stage.TEST}_loss", value=loss, logger=True)
+            self.log(name=f"{Stage.TEST}_loss", value=loss.item(), logger=True)
 
     def reset_metric_trackers(self) -> None:
         """Reset all metric trackers: train, validation, and test."""
