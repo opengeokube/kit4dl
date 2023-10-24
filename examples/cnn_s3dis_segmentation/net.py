@@ -1,4 +1,5 @@
 """Exemple module with simple convlution neural network"""
+
 import torch
 import torch.nn as nn
 

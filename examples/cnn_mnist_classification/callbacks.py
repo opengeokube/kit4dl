@@ -1,4 +1,5 @@
 """Extra callbacks definitions."""
+
 import os
 from typing import Any
 
@@ -37,7 +38,7 @@ class SaveConfusionMatrixCallback(Kit4DLCallback):
         batch_idx: int,
         dataloader_idx: int = 0,
     ) -> None:
-        self._cm.update(outputs['pred'], outputs['true'])
+        self._cm.update(outputs["pred"], outputs["true"])
 
     def on_validation_epoch_end(
         self, trainer: pl.Trainer, pl_module: pl.LightningModule

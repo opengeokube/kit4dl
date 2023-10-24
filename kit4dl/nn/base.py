@@ -1,4 +1,5 @@
 """A module with the base class of modules supported by Kit4DL."""
+
 import logging
 from abc import ABC, abstractmethod
 from typing import Any, Callable
@@ -26,19 +27,23 @@ class Kit4DLAbstractModule(
         self._criterion: torch.nn.Module | Callable | None = None
         self._conf: Conf = conf
 
-        self.configure_logger()
+        self._configure_logger()
 
         self._configure_criterion()
         self.configure(**self._conf.model.arguments)
         self.save_hyperparameters(self._conf.dict())
 
-    def configure_logger(self) -> None:
+    def _configure_logger(self) -> None:
         """Configure logger based on the configuration passed to the class.
 
         The methods configure the logger format and sets it to all
         the handlers.
         """
-        super().configure_logger(name="lightning", level=self._conf.logging.level, format=self._conf.logging.format_)
+        super().configure_logger(
+            name="lightning",
+            level=self._conf.logging.level,
+            logformat=self._conf.logging.format_,
+        )
 
     @property
     def _kit4dl_logger(self) -> logging.Logger:
@@ -246,7 +251,10 @@ class Kit4DLAbstractModule(
 
     def configure_optimizers(
         self,
-    ) -> tuple[list[torch.optim.Optimizer], list[LRScheduler] | None,]:
+    ) -> tuple[
+        list[torch.optim.Optimizer],
+        list[LRScheduler] | None,
+    ]:
         """Configure optimizers and schedulers."""
         self.debug("configuring optimizers and lr epoch schedulers...")
         optimizer: torch.optim.Optimizer = (
@@ -261,13 +269,9 @@ class Kit4DLAbstractModule(
             "selected %d  lr schedulers: %s", len(lr_schedulers), lr_schedulers
         )
         return [optimizer], lr_schedulers
-    
+
     def _prepare_step_output(self, *, pred, true, loss, **kw) -> dict:
-        return {
-            "loss": loss,
-            "pred": pred,
-            "true": true
-        } | kw
+        return {"loss": loss, "pred": pred, "true": true} | kw
 
     def _configure_criterion(self) -> None:
         if not self._conf.training.criterion:

@@ -1,4 +1,5 @@
 """Module with utilities functions and structures."""
+
 import os
 import random
 from typing import Callable, Hashable

@@ -1,4 +1,5 @@
 """A module with configuration classes."""
+
 import os
 import warnings
 from functools import partial as func_partial
@@ -23,7 +24,7 @@ from typing_extensions import Annotated
 import kit4dl.io as io_
 from kit4dl import Kit4DLCallback
 from kit4dl import utils as ut
-from kit4dl.kit4dl_types import FullyQualifiedName
+from kit4dl.kit4dl_types import FullyQualifiedName, LoggerLevel
 from kit4dl.nn.validators import (
     validate_callback,
     validate_class_exists,
@@ -417,9 +418,7 @@ class LoggingConf(BaseModel):
     type_: Literal[
         "comet", "csv", "mlflow", "neptune", "tensorboard", "wandb"
     ] = Field("csv", alias="type")
-    level: Literal["DEBUG", "INFO", "WARN", "ERROR", "CRITICAL"] | None = (
-        "INFO"
-    )
+    level: LoggerLevel | None = "INFO"
     format_: str | None = Field("%(asctime)s - %(message)s", alias="format")
     arguments: dict[str, Any] = Field(default_factory=dict)
 

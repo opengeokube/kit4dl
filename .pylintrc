@@ -8,4 +8,5 @@ disable=
     no-name-in-module,
     no-self-argument,
     no-member,
-    too-few-public-methods
+    too-few-public-methods,
+    too-many-arguments

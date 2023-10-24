@@ -1,4 +1,5 @@
 """Docstring of the module containing my data module."""
+
 from typing import Any
 
 from torch.utils.data import Dataset

@@ -75,7 +75,7 @@ preview = true
 files = [
     "kit4dl", "."
 ]
-exclude = ["tests/", "examples/"]
+exclude = ["tests/", "examples/", "kit4dl/nn/callbacks"]
 
 [project.scripts]
 kit4dl = "kit4dl.cli.app:run"

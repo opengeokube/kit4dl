@@ -1,6 +1,9 @@
 """A module with predefined Kit4DL callbacks."""
+
+from typing import Any, Mapping
 import logging
 
+import torch
 import lightning.pytorch as pl
 from lightning.pytorch import callbacks as pl_callbacks
 
@@ -16,11 +19,16 @@ class MetricCallback(pl_callbacks.Callback, LoggerMixin):
     The callback resets metric stores on train or validation epoch start
     and logs metric on train or epoch end.
     """
+
     _logger: logging.Logger
 
     def __init__(self, conf: dict) -> None:
         super().__init__()
-        super().configure_logger(name="MetricCallback", level=context.LOG_LEVEL, format=context.LOG_FORMAT)
+        super().configure_logger(
+            name="MetricCallback",
+            level=context.LOG_LEVEL,
+            logformat=context.LOG_FORMAT,
+        )
         self.train_metric_tracker = MetricStore(conf)
         self.val_metric_tracker = MetricStore(conf)
         self.test_metric_tracker = MetricStore(conf)
@@ -31,9 +39,21 @@ class MetricCallback(pl_callbacks.Callback, LoggerMixin):
         """Reset train metric store on start of each training stage."""
         self.train_metric_tracker.reset()
 
-    def on_train_batch_end(self, trainer: pl.Trainer, pl_module: pl.LightningModule, outputs: dict, batch, batch_idx):
-        self.train_metric_tracker.update(true=outputs["true"], predictions=outputs["pred"])
-        pl_module.log(name=f"{Stage.TRAIN}_loss", value=outputs["loss"], logger=True)
+    def on_train_batch_end(  # type: ignore[override]
+        self,
+        trainer: pl.Trainer,
+        pl_module: pl.LightningModule,
+        outputs: torch.Tensor | Mapping[str, Any] | None,
+        batch: Any,
+        batch_idx: int,
+    ):
+        assert isinstance(outputs, dict), "output of the step is not a dict"
+        self.train_metric_tracker.update(
+            true=outputs["true"], predictions=outputs["pred"]
+        )
+        pl_module.log(
+            name=f"{Stage.TRAIN}_loss", value=outputs["loss"], logger=True
+        )
 
     def on_train_epoch_end(
         self, trainer: pl.Trainer, pl_module: pl.LightningModule
@@ -62,9 +82,21 @@ class MetricCallback(pl_callbacks.Callback, LoggerMixin):
         """Reset validation metric store on start of each validation stage."""
         self.val_metric_tracker.reset()
 
-    def on_validation_batch_end(self, trainer: pl.Trainer, pl_module: pl.LightningModule, outputs: dict, batch, batch_idx):
-        self.train_metric_tracker.update(true=outputs["true"], predictions=outputs["pred"])
-        pl_module.log(name=f"{Stage.VALIDATION}_loss", value=outputs["loss"], logger=True)        
+    def on_validation_batch_end(  # type: ignore[override]
+        self,
+        trainer: pl.Trainer,
+        pl_module: pl.LightningModule,
+        outputs: torch.Tensor | Mapping[str, Any] | None,
+        batch: Any,
+        batch_idx: int,
+    ):
+        assert isinstance(outputs, dict), "output of the step is not a dict"
+        self.train_metric_tracker.update(
+            true=outputs["true"], predictions=outputs["pred"]
+        )
+        pl_module.log(
+            name=f"{Stage.VALIDATION}_loss", value=outputs["loss"], logger=True
+        )
 
     def on_validation_epoch_end(
         self, trainer: pl.Trainer, pl_module: pl.LightningModule
@@ -93,9 +125,21 @@ class MetricCallback(pl_callbacks.Callback, LoggerMixin):
         """Reset test metric store on start of each test stage."""
         self.test_metric_tracker.reset()
 
-    def on_test_batch_end(self, trainer: pl.Trainer, pl_module: pl.LightningModule, outputs: dict, batch, batch_idx, dataloader_idx):
-        self.train_metric_tracker.update(true=outputs["true"], predictions=outputs["pred"])
-        pl_module.log(name=f"{Stage.TEST}_loss", value=outputs["loss"], logger=True)        
+    def on_test_batch_end(  # type: ignore[override]
+        self,
+        trainer: pl.Trainer,
+        pl_module: pl.LightningModule,
+        outputs: torch.Tensor | Mapping[str, Any] | None,
+        batch: Any,
+        batch_idx: int,
+    ):
+        assert isinstance(outputs, dict), "output of the step is not a dict"
+        self.train_metric_tracker.update(
+            true=outputs["true"], predictions=outputs["pred"]
+        )
+        pl_module.log(
+            name=f"{Stage.TEST}_loss", value=outputs["loss"], logger=True
+        )
 
     def on_test_epoch_end(
         self, trainer: pl.Trainer, pl_module: pl.LightningModule
