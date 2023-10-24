@@ -36,6 +36,11 @@ class LoggerMixin:
         """Configure logger."""
         self._logger = logging.getLogger(name)
         self._logger.setLevel(level)  # type: ignore[arg-type]
+        for handler in self._logger.handlers:
+            if isinstance(handler, logging.StreamHandler):
+                break
+        else:
+            self._logger.addHandler(logging.StreamHandler())
         if logformat:
             formatter = logging.Formatter(logformat)
             for handler in self._logger.handlers:
