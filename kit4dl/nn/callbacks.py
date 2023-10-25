@@ -47,6 +47,7 @@ class MetricCallback(pl_callbacks.Callback, LoggerMixin):
         batch: Any,
         batch_idx: int,
     ):
+        """Accumulate train batch metrics."""
         assert isinstance(outputs, dict), "output of the step is not a dict"
         self.train_metric_tracker.update(
             true=outputs["true"], predictions=outputs["pred"]
@@ -89,7 +90,9 @@ class MetricCallback(pl_callbacks.Callback, LoggerMixin):
         outputs: torch.Tensor | Mapping[str, Any] | None,
         batch: Any,
         batch_idx: int,
+        dataloader_idx: int = 0,
     ):
+        """Accumulate validation batch metrics."""
         assert isinstance(outputs, dict), "output of the step is not a dict"
         self.train_metric_tracker.update(
             true=outputs["true"], predictions=outputs["pred"]
@@ -132,7 +135,9 @@ class MetricCallback(pl_callbacks.Callback, LoggerMixin):
         outputs: torch.Tensor | Mapping[str, Any] | None,
         batch: Any,
         batch_idx: int,
+        dataloader_idx: int = 0,
     ):
+        """Accumulate test batch metrics."""
         assert isinstance(outputs, dict), "output of the step is not a dict"
         self.train_metric_tracker.update(
             true=outputs["true"], predictions=outputs["pred"]
