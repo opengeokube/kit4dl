@@ -166,13 +166,3 @@ class MetricCallback(pl_callbacks.Callback, LoggerMixin):
                 metric_value,
                 logger=True,
             )
-
-
-class ModelCheckpoint(pl_callbacks.ModelCheckpoint):
-    """Callback for saving model checkpoint on fit end."""
-
-    def on_fit_end(
-        self, trainer: pl.Trainer, pl_module: pl.LightningModule
-    ) -> None:
-        """Save model weight on the end of training process."""
-        super().on_fit_end(trainer, pl_module)

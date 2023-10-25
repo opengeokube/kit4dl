@@ -10,7 +10,7 @@ from lightning.pytorch import loggers as pl_log
 from kit4dl.dataset import Kit4DLAbstractDataModule
 from kit4dl.mixins import LoggerMixin
 from kit4dl.nn.base import Kit4DLAbstractModule
-from kit4dl.nn.callbacks import MetricCallback, ModelCheckpoint
+from kit4dl.nn.callbacks import MetricCallback
 from kit4dl.nn.confmodels import Conf
 from kit4dl.utils import set_seed
 
@@ -101,7 +101,7 @@ class Trainer(LoggerMixin):
     def _configure_model(self) -> Kit4DLAbstractModule:
         return self._conf.model.model_class(conf=self._conf).to(self._device)
 
-    def _get_model_checkpoint(self) -> ModelCheckpoint:
+    def _get_model_checkpoint(self) -> pl_callbacks.ModelCheckpoint:
         assert self._conf.training.checkpoint, (
             "getting model checkpoint callback, but `checkpoint` was not"
             " defined in the configuration file"
@@ -113,7 +113,7 @@ class Trainer(LoggerMixin):
             "wrong type of `every_n_epochs`. expected: `int`, provided:"
             f" {type(chkp_conf.every_n_epochs)}"
         )
-        return ModelCheckpoint(
+        return pl_callbacks.ModelCheckpoint(
             dirpath=chkp_conf.path,
             filename=chkp_conf.filename,
             monitor=chkp_conf.monitor_metric_name,
