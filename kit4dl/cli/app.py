@@ -89,6 +89,33 @@ def _is_test_allowed(trainer: Trainer) -> bool:
     return trainer.is_finished
 
 
+def _check_conf_path(conf_path: str) -> None:
+    if not os.path.exists(conf_path):
+        raise RuntimeError(
+            f"the conf file: {conf_path} does not exist. ensure the default"
+            " configuration file exist or specify --conf argument to a valid"
+            " configuration file."
+        )
+
+
+def _setup_env_and_get_conf(conf_path: str) -> Conf:
+    root_dir = os.path.dirname(conf_path)
+    prj_dir = os.path.join(os.getcwd(), root_dir)
+    sys.path.append(prj_dir)
+    update_context_from_static()
+    update_context_from_runtime(prj_dir=prj_dir)
+    conf_ = _get_conf_from_file(conf_path, root_dir=root_dir)
+    update_context_from_conf(conf=conf_)
+    return conf_
+
+
+def _verify_checkpoint_defined(conf: Conf):
+    assert conf.training.checkpoint_path, (
+        "`checkpoint_path` was not defined for the [training] section in the"
+        " TOML configuration file!"
+    )
+
+
 # ##############################
 #      COMMANDS DEFINITIONS
 # ##############################
@@ -132,12 +159,38 @@ def resume(
 
 
 @_app.command()
+def test(
+    conf: Annotated[
+        str, typer.Option(help="Path to the configuration TOML file")
+    ] = _get_default_conf_path(),
+):
+    """Test using the configuration file.
+
+    Parameters
+    ----------
+    conf : str, optional
+        Path to the configuration TOML file.
+        If skipped, the program will search for the `conf.toml` file
+        in the current working directory.
+    """
+    _check_conf_path(conf_path=conf)
+    log.info("Attempt to run testing...")
+    conf_ = _setup_env_and_get_conf(conf)
+    assert conf_.training.checkpoint_path
+    trainer = Trainer(conf=conf_).prepare()
+    log.info("Running testing \U00002728")
+    trainer.test()
+    log.info("Testing finished \U00002728")
+
+
+@_app.command()
 def train(
     conf: Annotated[
         str, typer.Option(help="Path to the configuration TOML file")
     ] = _get_default_conf_path(),
-    test: Annotated[
-        bool, typer.Option(help="If perform testing using best weights")
+    skiptest: Annotated[
+        bool,
+        typer.Option(help="If testing (using best weights) should be skipped"),
     ] = False,
 ) -> None:
     """Train using the configuration file.
@@ -151,24 +204,13 @@ def train(
     test
     """
     log.info("Attempt to run training...")
-    root_dir = os.path.dirname(conf)
-    if not os.path.exists(conf):
-        raise RuntimeError(
-            f"the conf file: {conf} does not exist. ensure the default"
-            " configuration file exist or specify --conf argument to a valid"
-            " configuration file."
-        )
-    prj_dir = os.path.join(os.getcwd(), root_dir)
-    sys.path.append(prj_dir)
-    update_context_from_static()
-    update_context_from_runtime(prj_dir=prj_dir)
-    conf_ = _get_conf_from_file(conf, root_dir=root_dir)
-    update_context_from_conf(conf=conf_)
+    _check_conf_path(conf_path=conf)
+    conf_ = _setup_env_and_get_conf(conf)
     log.info("Running trainer \U0001f3ac")
     trainer = Trainer(conf=conf_).prepare()
     trainer.fit()
     log.info("Training finished \U00002728")
-    if test:
+    if not skiptest:
         if not _is_test_allowed(trainer):
             return
         log.info("Running testing \U00002728")
