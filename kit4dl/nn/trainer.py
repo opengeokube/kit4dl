@@ -76,8 +76,13 @@ class Trainer(LoggerMixin):
             "trainer is not configured. did you forget to call `prepare()`"
             " method first?"
         )
+        ckpt_path = (
+            self._conf.training.checkpoint_path
+            if self._conf.training.checkpoint
+            else "best"
+        )
         self._pl_trainer.test(
-            self._model, datamodule=self._datamodule, ckpt_path="best"
+            self._model, datamodule=self._datamodule, ckpt_path=ckpt_path
         )
         return self
 
