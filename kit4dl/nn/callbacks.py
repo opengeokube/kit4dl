@@ -94,7 +94,7 @@ class MetricCallback(pl_callbacks.Callback, LoggerMixin):
     ):
         """Accumulate validation batch metrics."""
         assert isinstance(outputs, dict), "output of the step is not a dict"
-        self.train_metric_tracker.update(
+        self.val_metric_tracker.update(
             true=outputs["true"], predictions=outputs["pred"]
         )
         pl_module.log(
@@ -139,7 +139,7 @@ class MetricCallback(pl_callbacks.Callback, LoggerMixin):
     ):
         """Accumulate test batch metrics."""
         assert isinstance(outputs, dict), "output of the step is not a dict"
-        self.train_metric_tracker.update(
+        self.test_metric_tracker.update(
             true=outputs["true"], predictions=outputs["pred"]
         )
         pl_module.log(
