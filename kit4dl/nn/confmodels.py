@@ -280,6 +280,17 @@ class TrainingConf(BaseModel):
     optimizer: OptimizerConf
     criterion: CriterionConf
     arguments: dict[str, Any]
+    checkpoint_path: str | None = None
+
+    @field_validator("checkpoint_path", mode="after")
+    def _validate_checkpoint(
+        cls, checkpoint_path: str | None = None
+    ) -> str | None:
+        if checkpoint_path:
+            assert os.path.exists(
+                checkpoint_path
+            ), f"the checkpoint file {checkpoint_path} does not exists"
+        return checkpoint_path
 
     @model_validator(mode="before")
     def _build_model_arguments(cls, values: dict[str, Any]) -> dict[str, Any]:
