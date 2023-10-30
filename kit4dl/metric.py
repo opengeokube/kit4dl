@@ -13,7 +13,9 @@ class MetricStore:
     __slots__ = ("_metrics",)
 
     def __init__(self, metrics: dict[str, tm.Metric]) -> None:
-        self._metrics = metrics
+        self._metrics = {
+            key: metric.clone() for key, metric in metrics.items()
+        }
 
     def reset(self) -> "MetricStore":
         """Reset metrics to the init state."""
