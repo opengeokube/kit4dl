@@ -1,4 +1,5 @@
 """A module with metric logic."""
+
 import numpy as np
 import torchmetrics as tm
 
