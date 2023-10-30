@@ -163,13 +163,16 @@ def train(
     update_context_from_runtime(prj_dir=prj_dir)
     conf_ = _get_conf_from_file(conf, root_dir=root_dir)
     update_context_from_conf(conf=conf_)
-    log.info("Running trainer \U0001f3ac")
     trainer = Trainer(conf=conf_).prepare()
-    trainer.fit()
-    log.info("Training finished \U00002728")
+    log.info(f"Skip training and validation: {conf_.dataset.arguments['skip_trainval']}")
+    if not conf_.dataset.arguments['skip_trainval']:
+        log.info("Running trainer \U0001f3ac")
+        trainer.fit()
+        log.info("Training finished \U00002728")
     if test:
         if not _is_test_allowed(trainer):
-            return
+            if not conf_.dataset.arguments['skip_trainval']:
+                return
         log.info("Running testing \U00002728")
         trainer.test()
         log.info("Testing finished \U00002728")

@@ -76,7 +76,7 @@ class Trainer(LoggerMixin):
             " method first?"
         )
         self._pl_trainer.test(
-            self._model, datamodule=self._datamodule, ckpt_path="best"
+            self._model, datamodule=self._datamodule, ckpt_path=self._conf.dataset.arguments['test_model']
         )
         return self
 
