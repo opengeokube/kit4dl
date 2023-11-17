@@ -1,4 +1,5 @@
 """A module with neural network train task definition."""
+
 import logging
 from typing import Any
 
@@ -9,7 +10,7 @@ from lightning.pytorch import loggers as pl_log
 from kit4dl.dataset import Kit4DLAbstractDataModule
 from kit4dl.mixins import LoggerMixin
 from kit4dl.nn.base import Kit4DLAbstractModule
-from kit4dl.nn.callbacks import MetricCallback, ModelCheckpoint
+from kit4dl.nn.callbacks import MetricCallback
 from kit4dl.nn.confmodels import Conf
 from kit4dl.utils import set_seed
 
@@ -75,8 +76,13 @@ class Trainer(LoggerMixin):
             "trainer is not configured. did you forget to call `prepare()`"
             " method first?"
         )
+        ckpt_path = (
+            self._conf.training.checkpoint_path
+            if self._conf.training.checkpoint
+            else "best"
+        )
         self._pl_trainer.test(
-            self._model, datamodule=self._datamodule, ckpt_path="best"
+            self._model, datamodule=self._datamodule, ckpt_path=ckpt_path
         )
         return self
 
@@ -100,7 +106,7 @@ class Trainer(LoggerMixin):
     def _configure_model(self) -> Kit4DLAbstractModule:
         return self._conf.model.model_class(conf=self._conf).to(self._device)
 
-    def _get_model_checkpoint(self) -> ModelCheckpoint:
+    def _get_model_checkpoint(self) -> pl_callbacks.ModelCheckpoint:
         assert self._conf.training.checkpoint, (
             "getting model checkpoint callback, but `checkpoint` was not"
             " defined in the configuration file"
@@ -112,7 +118,7 @@ class Trainer(LoggerMixin):
             "wrong type of `every_n_epochs`. expected: `int`, provided:"
             f" {type(chkp_conf.every_n_epochs)}"
         )
-        return ModelCheckpoint(
+        return pl_callbacks.ModelCheckpoint(
             dirpath=chkp_conf.path,
             filename=chkp_conf.filename,
             monitor=chkp_conf.monitor_metric_name,
@@ -123,10 +129,14 @@ class Trainer(LoggerMixin):
             save_on_train_epoch_end=chkp_conf.save_on_train_epoch_end,
         )
 
+    def _set_default_trainer_args(self):
+        self._conf.training.arguments.setdefault("deterministic", True)
+        self._conf.training.arguments.setdefault("enable_progress_bar", True)
+
     def _configure_trainer(self) -> pl.Trainer:
         accelerator_device, device = self._conf.base.accelerator_device_and_id
         callbacks: list[pl_callbacks.Callback] = [
-            MetricCallback()
+            MetricCallback(conf=self._conf.metrics_obj)
         ] + self._conf.training.preconfigured_callbacks
         if self._conf.training.checkpoint:
             callbacks.append(self._get_model_checkpoint())
@@ -135,8 +145,6 @@ class Trainer(LoggerMixin):
             devices=device,
             max_epochs=self._conf.training.epochs,
             check_val_every_n_epoch=self._conf.validation.run_every_epoch,
-            enable_progress_bar=True,
-            deterministic=True,
             logger=self._metric_logger,
             callbacks=callbacks,
             **self._conf.training.arguments,

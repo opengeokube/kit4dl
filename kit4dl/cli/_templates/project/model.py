@@ -1,4 +1,5 @@
 """Docstring of the module containing my neural network module."""
+
 from typing import Any
 
 import torch

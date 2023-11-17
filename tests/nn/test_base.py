@@ -59,6 +59,10 @@ class TestBaseMLModel:
 
         return Module
 
+    @pytest.mark.skip(
+        "MetricTracker is not located in Kit4DLAbstractModule anymore. See"
+        " Issue #40"
+    )
     def test_setup_metric_trackers(self, custom_module):
         assert custom_module.train_metric_tracker is not None
         assert custom_module.val_metric_tracker is not None

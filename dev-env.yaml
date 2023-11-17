@@ -11,7 +11,7 @@ dependencies:
   - conda-build
   - pip
   - pip:
-    - black
+    - black==23.10.0
     - types-toml
     - typer[all]
     - pytest-cov
