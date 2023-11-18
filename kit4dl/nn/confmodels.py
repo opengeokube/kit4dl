@@ -506,11 +506,11 @@ class Conf(BaseModel):
     def _check_metric_in_checkpoint_is_defined(cls, value):
         if not value.training.checkpoint:
             return value
-        monitored_metric_name = value.training.checkpoint.monitor
-        monitored_val_name = "_".join(
-            [monitored_metric_name["stage"].lower(), monitored_metric_name["metric"].lower()]
+        monitored_metric_name = value.training.checkpoint.monitor["metric"]
+        monitored_var_name = "_".join(
+            [value.training.checkpoint.monitor["stage"].lower(), value.training.checkpoint.monitor["metric"].lower()]
         )
-        if monitored_val_name == "val_loss" or monitored_val_name == "train_loss":
+        if monitored_var_name == "val_loss" or monitored_var_name == "train_loss":
             return value
         assert monitored_metric_name in value.metrics.keys(), (
             f"metric `{monitored_metric_name}` is not defined. did you forget"
