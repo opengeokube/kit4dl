@@ -507,10 +507,7 @@ class Conf(BaseModel):
         if not value.training.checkpoint:
             return value
         monitored_metric_name = value.training.checkpoint.monitor["metric"]
-        monitored_var_name = "_".join(
-            [value.training.checkpoint.monitor["stage"].lower(), value.training.checkpoint.monitor["metric"].lower()]
-        )
-        if monitored_var_name == "val_loss" or monitored_var_name == "train_loss":
+        if monitored_metric_name == "loss":
             return value
         assert monitored_metric_name in value.metrics.keys(), (
             f"metric `{monitored_metric_name}` is not defined. did you forget"
