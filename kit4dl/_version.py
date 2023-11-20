@@ -1,3 +1,3 @@
 """Kit4DL version."""
 
-__version__ = "2023.9b2"
+__version__ = "2023.11b0"

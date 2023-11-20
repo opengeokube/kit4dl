@@ -507,6 +507,8 @@ class Conf(BaseModel):
         if not value.training.checkpoint:
             return value
         monitored_metric_name = value.training.checkpoint.monitor["metric"]
+        if monitored_metric_name == "loss":
+            return value
         assert monitored_metric_name in value.metrics.keys(), (
             f"metric `{monitored_metric_name}` is not defined. did you forget"
             f" to define `{monitored_metric_name}` in [metrics]?"
