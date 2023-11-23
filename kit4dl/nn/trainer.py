@@ -1,5 +1,6 @@
 """A module with neural network train task definition."""
 
+import os
 import logging
 from typing import Any
 
@@ -76,11 +77,26 @@ class Trainer(LoggerMixin):
             "trainer is not configured. did you forget to call `prepare()`"
             " method first?"
         )
-        ckpt_path = (
-            self._conf.training.checkpoint_path
-            if self._conf.training.checkpoint
-            else "best"
-        )
+        for callback in self._pl_trainer.callbacks:
+            if isinstance(callback, pl_callbacks.ModelCheckpoint):
+                self.debug(
+                    "best checkpoint taken from callback %s",
+                    callback.best_model_path,
+                )
+        ckpt_path = "best"
+        if self._conf.training.checkpoint_path:
+            assert os.path.exists(self._conf.training.checkpoint_path), (
+                "the defined checkpoint:"
+                f" {self._conf.training.checkpoint_path} does not exist!"
+            )
+            self.info(
+                "user-defined checkpoint %s will be used for testing",
+                self._conf.training.checkpoint_path,
+            )
+            ckpt_path = self._conf.training.checkpoint_path
+        self._model = self.load_checkpoint(ckpt_path)
+        self._model.eval()
+        self._model.freeze()
         self._pl_trainer.test(
             self._model, datamodule=self._datamodule, ckpt_path=ckpt_path
         )

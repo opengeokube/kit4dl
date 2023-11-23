@@ -14,9 +14,7 @@ except ImportError:
     from torch.optim.lr_scheduler import _LRScheduler as LRScheduler
 
 from kit4dl.mixins import LoggerMixin
-
-if TYPE_CHECKING:
-    from kit4dl.nn.confmodels import Conf
+from kit4dl.nn.confmodels import Conf
 
 
 class Kit4DLAbstractModule(
@@ -24,8 +22,10 @@ class Kit4DLAbstractModule(
 ):  # pylint: disable=too-many-ancestors
     """Base abstract class for Kit4DL modules."""
 
-    def __init__(self, *, conf: Conf) -> None:
+    def __init__(self, conf: Conf | None = None, **kw) -> None:
         super().__init__()
+        if not conf:
+            conf = Conf(**kw)
         assert conf, "`conf` argument cannot be `None`"
         self._criterion: torch.nn.Module | Callable | None = None
         self._conf: Conf = conf

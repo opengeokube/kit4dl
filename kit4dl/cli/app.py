@@ -176,7 +176,9 @@ def test(
     _check_conf_path(conf_path=conf)
     log.info("Attempt to run testing...")
     conf_ = _setup_env_and_get_conf(conf)
-    assert conf_.training.checkpoint_path
+    assert (
+        conf_.training.checkpoint_path
+    ), "`checkpoint_path` is not defined, i need to load model state."
     trainer = Trainer(conf=conf_).prepare()
     log.info("Running testing \U00002728")
     trainer.test()
