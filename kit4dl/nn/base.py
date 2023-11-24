@@ -54,7 +54,6 @@ class Kit4DLAbstractModule(
         self._configure_logger()
         self._criterion: _Criterion = self._configure_criterion()
 
-
         self.configure(**self._conf.model.arguments)
         self.save_hyperparameters(self._conf.dict())
 
