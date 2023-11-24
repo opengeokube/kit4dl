@@ -12,6 +12,14 @@ _MODULE_SEP = ".py::"
 PROJECT_DIR = "PROJECT_DIR"
 
 
+def assert_valid_class(class_, classinfo):
+    """Assert a `class_` is a subclass of `classinfo`."""
+    assert issubclass(class_, classinfo), (
+        f"the passed class: {class_} is expected to be a subclass of"
+        f" {classinfo} but it's not"
+    )
+
+
 def _does_path_contain_module_file(target: str | FullyQualifiedName):
     return target.strip().endswith(".py") or _MODULE_SEP in target
 

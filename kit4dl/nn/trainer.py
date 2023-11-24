@@ -14,6 +14,7 @@ from kit4dl.nn.base import Kit4DLAbstractModule
 from kit4dl.nn.callbacks import MetricCallback
 from kit4dl.nn.confmodels import Conf
 from kit4dl.utils import set_seed
+from kit4dl import io as io_
 
 
 class Trainer(LoggerMixin):
@@ -57,10 +58,12 @@ class Trainer(LoggerMixin):
             }
         )
 
-    def load_checkpoint(self, path: str) -> "Trainer":
+    def load_checkpoint(self, path: str) -> Kit4DLAbstractModule:
         """Load model weights from the checkpoint."""
-        self._model = type(self._model).load_from_checkpoint(path)
-        return self
+        model = type(self._model).load_from_checkpoint(path)
+        model.eval()
+        model.freeze()
+        return model
 
     def fit(self) -> "Trainer":
         """Fit the trainer making use of `lightning.pytorch.Trainer`."""
@@ -77,13 +80,14 @@ class Trainer(LoggerMixin):
             "trainer is not configured. did you forget to call `prepare()`"
             " method first?"
         )
-        for callback in self._pl_trainer.callbacks:
+        ckpt_path = None
+        for callback in self._pl_trainer.checkpoint_callbacks:
             if isinstance(callback, pl_callbacks.ModelCheckpoint):
                 self.debug(
                     "best checkpoint taken from callback %s",
                     callback.best_model_path,
                 )
-        ckpt_path = "best"
+                ckpt_path = callback.best_model_path
         if self._conf.training.checkpoint_path:
             assert os.path.exists(self._conf.training.checkpoint_path), (
                 "the defined checkpoint:"
@@ -94,9 +98,8 @@ class Trainer(LoggerMixin):
                 self._conf.training.checkpoint_path,
             )
             ckpt_path = self._conf.training.checkpoint_path
-        self._model = self.load_checkpoint(ckpt_path)
-        self._model.eval()
-        self._model.freeze()
+        if ckpt_path:
+            self._model = self.load_checkpoint(ckpt_path)
         self._pl_trainer.test(
             self._model, datamodule=self._datamodule, ckpt_path=ckpt_path
         )
@@ -117,9 +120,13 @@ class Trainer(LoggerMixin):
         )
 
     def _configure_datamodule(self) -> Kit4DLAbstractDataModule:
+        class_ = self._conf.dataset.datamodule_class
+        io_.assert_valid_class(class_, Kit4DLAbstractDataModule)
         return self._conf.dataset.datamodule_class(conf=self._conf.dataset)
 
     def _configure_model(self) -> Kit4DLAbstractModule:
+        class_ = self._conf.model.model_class
+        io_.assert_valid_class(class_, Kit4DLAbstractModule)
         return self._conf.model.model_class(conf=self._conf).to(self._device)
 
     def _get_model_checkpoint(self) -> pl_callbacks.ModelCheckpoint:

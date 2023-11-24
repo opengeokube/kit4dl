@@ -1,5 +1,6 @@
 """A module with configuration classes."""
 
+__all__ = ("Conf",)
 import os
 import warnings
 from functools import partial as func_partial
@@ -132,19 +133,6 @@ class BaseConf(BaseModel):
 # ################################
 class ModelConf(_AbstractClassWithArgumentsConf):
     """Model configuration class."""
-
-    @field_validator("target")
-    def _check_if_target_has_expected_parent_class(cls, value):
-        from kit4dl.nn.base import (  # pylint: disable=import-outside-toplevel
-            Kit4DLAbstractModule,
-        )
-
-        target_class = io_.import_and_get_attr_from_fully_qualified_name(value)
-        assert issubclass(target_class, Kit4DLAbstractModule), (
-            f"target class must be a subclass of `{Kit4DLAbstractModule}`"
-            " class!"
-        )
-        return value
 
     @property
     def model_class(self) -> type:
@@ -376,19 +364,6 @@ class DatasetConf(BaseModel):
         )
         field_args["arguments"] = extra_args
         return field_args
-
-    @field_validator("target")
-    def _check_if_target_has_expected_parent_class(cls, value: str):
-        from kit4dl.dataset import (  # pylint: disable=import-outside-toplevel
-            Kit4DLAbstractDataModule,
-        )
-
-        target_class = io_.import_and_get_attr_from_fully_qualified_name(value)
-        assert issubclass(target_class, Kit4DLAbstractDataModule), (
-            "target class of the dataset module must be a subclass of"
-            f" `{Kit4DLAbstractDataModule}` class!"
-        )
-        return value
 
     @property
     def datamodule_class(self) -> type:

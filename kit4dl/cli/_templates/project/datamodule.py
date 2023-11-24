@@ -4,7 +4,7 @@ from typing import Any
 
 from torch.utils.data import Dataset
 
-from kit4dl import Kit4DLAbstractDataModule
+from kit4dl.dataset import Kit4DLAbstractDataModule
 
 
 class MyCustomDatamodule(Kit4DLAbstractDataModule):

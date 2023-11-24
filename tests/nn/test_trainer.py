@@ -28,6 +28,7 @@ class TestTrainer:
 
     @patch("kit4dl.nn.trainer.Trainer._configure_trainer")
     @patch("kit4dl.nn.trainer.Trainer._configure_datamodule")
+    @patch("kit4dl.io.assert_valid_class", return_value=True)
     def test_configure_model(
         self, mock_conf_trainer, mock_conf_datamodule, conf
     ):
@@ -36,6 +37,7 @@ class TestTrainer:
 
     @patch("kit4dl.nn.trainer.Trainer._configure_trainer")
     @patch("kit4dl.nn.trainer.Trainer._configure_model")
+    @patch("kit4dl.io.assert_valid_class", return_value=True)
     def test_configure_datamodule(
         self, mock_conf_trainer, mock_conf_model, conf
     ):

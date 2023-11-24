@@ -3,7 +3,7 @@
 from __future__ import annotations
 import logging
 from abc import ABC, abstractmethod
-from typing import Any, Callable, TYPE_CHECKING
+from typing import Any, Callable
 
 import lightning.pytorch as pl
 import torch
