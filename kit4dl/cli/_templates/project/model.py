@@ -4,7 +4,7 @@ from typing import Any
 
 import torch
 
-from kit4dl.base import Kit4DLAbstractModule
+from kit4dl.nn.base import Kit4DLAbstractModule
 
 
 class MyNewNetwork(Kit4DLAbstractModule):
