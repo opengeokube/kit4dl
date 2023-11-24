@@ -1,5 +1,6 @@
 """A module with configuration classes."""
 
+__all__ = ("Conf",)
 import os
 import warnings
 from functools import partial as func_partial
@@ -91,6 +92,8 @@ class _AbstractClassWithArgumentsConf(BaseModel):
 
     @model_validator(mode="before")
     def _build_model_arguments(cls, values: dict[str, Any]) -> dict[str, Any]:
+        if "arguments" in values:
+            return values
         field_args, extra_args = split_extra_arguments(
             values, cls.model_fields, consider_alias=False
         )
@@ -132,19 +135,6 @@ class BaseConf(BaseModel):
 # ################################
 class ModelConf(_AbstractClassWithArgumentsConf):
     """Model configuration class."""
-
-    @field_validator("target")
-    def _check_if_target_has_expected_parent_class(cls, value):
-        from kit4dl.nn.base import (  # pylint: disable=import-outside-toplevel
-            Kit4DLAbstractModule,
-        )
-
-        target_class = io_.import_and_get_attr_from_fully_qualified_name(value)
-        assert issubclass(target_class, Kit4DLAbstractModule), (
-            f"target class must be a subclass of `{Kit4DLAbstractModule}`"
-            " class!"
-        )
-        return value
 
     @property
     def model_class(self) -> type:
@@ -300,16 +290,6 @@ class TrainingConf(BaseModel):
     arguments: dict[str, Any]
     checkpoint_path: str | None = None
 
-    @field_validator("checkpoint_path", mode="after")
-    def _validate_checkpoint(
-        cls, checkpoint_path: str | None = None
-    ) -> str | None:
-        if checkpoint_path:
-            assert os.path.exists(
-                checkpoint_path
-            ), f"the checkpoint file {checkpoint_path} does not exists"
-        return checkpoint_path
-
     @model_validator(mode="before")
     def _build_model_arguments(cls, values: dict[str, Any]) -> dict[str, Any]:
         field_args, extra_args = split_extra_arguments(
@@ -386,19 +366,6 @@ class DatasetConf(BaseModel):
         )
         field_args["arguments"] = extra_args
         return field_args
-
-    @field_validator("target")
-    def _check_if_target_has_expected_parent_class(cls, value: str):
-        from kit4dl.dataset import (  # pylint: disable=import-outside-toplevel
-            Kit4DLAbstractDataModule,
-        )
-
-        target_class = io_.import_and_get_attr_from_fully_qualified_name(value)
-        assert issubclass(target_class, Kit4DLAbstractDataModule), (
-            "target class of the dataset module must be a subclass of"
-            f" `{Kit4DLAbstractDataModule}` class!"
-        )
-        return value
 
     @property
     def datamodule_class(self) -> type:
@@ -507,6 +474,8 @@ class Conf(BaseModel):
         if not value.training.checkpoint:
             return value
         monitored_metric_name = value.training.checkpoint.monitor["metric"]
+        if monitored_metric_name == "loss":
+            return value
         assert monitored_metric_name in value.metrics.keys(), (
             f"metric `{monitored_metric_name}` is not defined. did you forget"
             f" to define `{monitored_metric_name}` in [metrics]?"

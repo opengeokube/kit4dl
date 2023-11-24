@@ -3,7 +3,7 @@
 from __future__ import annotations
 import logging
 from abc import ABC, abstractmethod
-from typing import Any, Callable, TYPE_CHECKING
+from typing import Any, Callable
 
 import lightning.pytorch as pl
 import torch
@@ -14,9 +14,30 @@ except ImportError:
     from torch.optim.lr_scheduler import _LRScheduler as LRScheduler
 
 from kit4dl.mixins import LoggerMixin
+from kit4dl.nn.confmodels import Conf
 
-if TYPE_CHECKING:
-    from kit4dl.nn.confmodels import Conf
+
+class _Criterion:
+    def __init__(
+        self,
+        criterion: torch.nn.Module | Callable | None = None,
+        *,
+        conf: Conf,
+    ):
+        self._criterion = criterion
+        if isinstance(self._criterion, torch.nn.Module):
+            self._criterion = self._criterion.to(conf.base.device)
+
+    @property
+    def is_defined(self) -> bool:
+        """Check if criterion is defined."""
+        return self._criterion is not None
+
+    def __call__(self, *ar, **kw):
+        return self._criterion(*ar, **kw)
+
+    def __repr__(self) -> str:
+        return repr(self._criterion)
 
 
 class Kit4DLAbstractModule(
@@ -24,15 +45,15 @@ class Kit4DLAbstractModule(
 ):  # pylint: disable=too-many-ancestors
     """Base abstract class for Kit4DL modules."""
 
-    def __init__(self, *, conf: Conf) -> None:
+    def __init__(self, conf: Conf | None = None, **kw) -> None:
         super().__init__()
+        if not conf:
+            conf = Conf(**kw)
         assert conf, "`conf` argument cannot be `None`"
-        self._criterion: torch.nn.Module | Callable | None = None
         self._conf: Conf = conf
-
         self._configure_logger()
+        self._criterion: _Criterion = self._configure_criterion()
 
-        self._configure_criterion()
         self.configure(**self._conf.model.arguments)
         self.save_hyperparameters(self._conf.dict())
 
@@ -254,7 +275,10 @@ class Kit4DLAbstractModule(
 
     def configure_optimizers(
         self,
-    ) -> tuple[list[torch.optim.Optimizer], list[LRScheduler] | None,]:
+    ) -> tuple[
+        list[torch.optim.Optimizer],
+        list[LRScheduler] | None,
+    ]:
         """Configure optimizers and schedulers."""
         self.debug("configuring optimizers and lr epoch schedulers...")
         optimizer: torch.optim.Optimizer = (
@@ -273,24 +297,23 @@ class Kit4DLAbstractModule(
     def _prepare_step_output(self, *, pred, true, loss, **kw) -> dict:
         return {"loss": loss, "pred": pred, "true": true} | kw
 
-    def _configure_criterion(self) -> None:
+    def _configure_criterion(self) -> _Criterion:
         if not self._conf.training.criterion:
             self.info(
                 "criterion was not set! remember to return loss value in the"
                 " proper run methods!"
             )
-            return
+            return _Criterion(conf=self._conf)
         self.debug("configuring criterion...")
-        self._criterion = self._conf.training.criterion.criterion
-        if isinstance(self._criterion, torch.nn.Module):
-            self._criterion = self._criterion.to(self._conf.base.device)
-        self.info("selected criterion is: %s", self._criterion)
+        crt = self._conf.training.criterion.criterion
+        self.info("selected criterion is: %s", crt)
+        return _Criterion(crt, conf=self._conf)
 
     def compute_loss(
         self, prediction: torch.Tensor, target: torch.Tensor
     ) -> torch.Tensor:
         """Compute the loss based on the prediction and target."""
-        assert self._criterion, "criterion is None"
+        assert self._criterion.is_defined, "criterion is not defined"
         return self._criterion(prediction, target)
 
     def training_step(

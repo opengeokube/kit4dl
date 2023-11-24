@@ -1,4 +1,5 @@
 """A module with the Kit4DL abstract dataset definition."""
+
 from __future__ import annotations
 
 from abc import ABC
