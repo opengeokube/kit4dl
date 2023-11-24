@@ -165,6 +165,9 @@ class TestModelConf:
         conf = ModelConf(**toml.loads(load))
         assert issubclass(conf.model_class, Kit4DLAbstractModule)
 
+    @pytest.mark.skip(
+        reason="checking subclass was moved from confmodels to Trainer"
+    )
     def test_get_model_failed_on_wrong_parent_class(self):
         load = """
             target = "tests.dummy_module::A"
@@ -326,6 +329,9 @@ class TestCriterionConfig:
 
 
 class TestDatasetConf:
+    @pytest.mark.skip(
+        reason="checking subclass was moved from confmodels to Trainer"
+    )
     def test_get_dataset_fail_on_wrong_parent_class(self):
         load = """
             target = "tests.dummy_module::DummyDatasetModuleWrong"

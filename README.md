@@ -217,7 +217,7 @@ In `run_step` method, it turn, the logic for single forward pass should be imple
 ```python
 import torch
 from torch import nn
-from kit4dl import Kit4DLAbstractModule
+from kit4dl.nn.base import Kit4DLAbstractModule
 
 class SimpleCNN(Kit4DLAbstractModule):
     def configure(self, input_dims, output_dims) -> None:
@@ -257,7 +257,7 @@ If a forward pass for your model differs for the training, validation, test, or 
 ```python
 import torch
 from torch import nn
-from kit4dl import Kit4DLAbstractModule
+from kit4dl.nn.base import Kit4DLAbstractModule
 
 class SimpleCNN(Kit4DLAbstractModule):
     ...
@@ -284,7 +284,7 @@ from torch.utils.data import Dataset, random_split
 from torchvision import transforms
 from torchvision.datasets import MNIST
 
-from kit4dl import Kit4DLAbstractDataModule
+from kit4dl.dataset import Kit4DLAbstractDataModule
 
 
 class MNISTCustomDatamodule(Kit4DLAbstractDataModule):
