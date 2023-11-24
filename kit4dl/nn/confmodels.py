@@ -92,6 +92,8 @@ class _AbstractClassWithArgumentsConf(BaseModel):
 
     @model_validator(mode="before")
     def _build_model_arguments(cls, values: dict[str, Any]) -> dict[str, Any]:
+        if "arguments" in values:
+            return values
         field_args, extra_args = split_extra_arguments(
             values, cls.model_fields, consider_alias=False
         )

@@ -61,7 +61,6 @@ class Trainer(LoggerMixin):
     def load_checkpoint(self, path: str) -> Kit4DLAbstractModule:
         """Load model weights from the checkpoint."""
         model = type(self._model).load_from_checkpoint(path)
-        model.eval()
         model.freeze()
         return model
 
@@ -88,6 +87,7 @@ class Trainer(LoggerMixin):
                     callback.best_model_path,
                 )
                 ckpt_path = callback.best_model_path
+                break
         if self._conf.training.checkpoint_path:
             assert os.path.exists(self._conf.training.checkpoint_path), (
                 "the defined checkpoint:"

@@ -21,6 +21,8 @@ class TestBaseMLModel:
         class CustomModule(Kit4DLAbstractModule):
             configure = MagicMock()
             run_step = MagicMock()
+            _conf = conf
+            _logger = MagicMock()
 
         obj = CustomModule(conf=conf)
         yield obj
