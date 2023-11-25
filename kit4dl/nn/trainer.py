@@ -47,7 +47,7 @@ class Trainer(LoggerMixin):
         return self
 
     def _log_hparams(self) -> None:
-        self._metric_logger.log_hyperparams(self._conf.dict())
+        self._metric_logger.log_hyperparams(self._conf.obfuscated_dict())
         self._metric_logger.log_hyperparams(
             {
                 "trainable_parameters": sum(
