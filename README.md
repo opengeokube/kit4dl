@@ -146,6 +146,7 @@ kit4dl train
 1. [Defining `target`](#defining-target)
 1. [Substitutable symbols](#substitutable-symbols)
 1. [Context constants](#context-constants)
+1. [Sensitive data obfuscating](#sensitive-data-obfuscating)
 
 #### Configuring base setup
 Most of the training/validation procedure is managed by a configuration file in the TOML format (recommended name is `conf.toml`).
@@ -644,3 +645,16 @@ The constants currently available in `kit4dl` are the following:
 | `LOG_FORMAT`	| logging message format as defined in the configuration TOML file      	| `context.LOG_FORMAT`                  |
 |  `VERSION`	| the current version of the package                                      	| `context.VERSION`                     |
 
+#### Sensitive data obfuscating
+It might happen, some sensitive data are stored in the configuration file. 
+We should prevent those data from being logged as hyperparameters. This is the reason why
+Kit4DL supports sensitive data obfuscating. By default, all values whose keys contain `key` string
+will be obfuscated with `***`. Both, sensitive data key and obfuscating value can be customized by
+a user, by setting environmental variables accordingly:
+
+##### ✍️ Example
+```python
+import os
+os.environ["KIT4DL_KEY_TO_OBFUSCATE"] = "url"
+os.environ["KIT4DL_OBFUSCATING_VALUE"] = "^^^"
+```
