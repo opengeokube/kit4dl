@@ -55,7 +55,7 @@ class Kit4DLAbstractModule(
         self._criterion: _Criterion = self._configure_criterion()
 
         self.configure(**self._conf.model.arguments)
-        self.save_hyperparameters(self._conf.dict())
+        self.save_hyperparameters(self._conf.obfuscated_dict())
 
     def _configure_logger(self) -> None:
         """Configure logger based on the configuration passed to the class.
@@ -275,10 +275,7 @@ class Kit4DLAbstractModule(
 
     def configure_optimizers(
         self,
-    ) -> tuple[
-        list[torch.optim.Optimizer],
-        list[LRScheduler] | None,
-    ]:
+    ) -> tuple[list[torch.optim.Optimizer], list[LRScheduler] | None,]:
         """Configure optimizers and schedulers."""
         self.debug("configuring optimizers and lr epoch schedulers...")
         optimizer: torch.optim.Optimizer = (

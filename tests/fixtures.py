@@ -45,6 +45,8 @@ def conf():
 
     conf.dict = Mock()
     conf.dict.return_value = {}
+    conf.obfuscated_dict = Mock()
+    conf.obfuscated_dict.return_value = {}
     yield conf
 
 
