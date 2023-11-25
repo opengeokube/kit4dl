@@ -650,7 +650,9 @@ It might happen, some sensitive data are stored in the configuration file.
 We should prevent those data from being logged as hyperparameters. This is the reason why
 Kit4DL supports sensitive data obfuscating. By default, all values whose keys contain `key` string
 will be obfuscated with `***`. Both, sensitive data key and obfuscating value can be customized by
-a user, by setting environmental variables accordingly:
+a user, by setting environmental variables accordingly. To obfuscate all
+values containig `url` (e.g.`api-url`, `url-2`, etc.) with `^^^`, just use
+the following code.
 
 ##### ✍️ Example
 ```python
