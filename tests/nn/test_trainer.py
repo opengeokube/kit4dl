@@ -1,4 +1,4 @@
-from unittest.mock import MagicMixin, patch
+from unittest.mock import MagicMixin, PropertyMock, patch
 
 import pytest
 
@@ -30,7 +30,7 @@ class TestTrainer:
     @patch("kit4dl.nn.trainer.Trainer._configure_datamodule")
     @patch("kit4dl.io.assert_valid_class", return_value=True)
     def test_configure_model(
-        self, mock_conf_trainer, mock_conf_datamodule, conf
+        self, mock_assert, mock_conf_trainer, mock_conf_datamodule, conf
     ):
         Trainer(conf).prepare()
         conf.model.model_class.assert_called_once_with(conf=conf)
@@ -39,7 +39,7 @@ class TestTrainer:
     @patch("kit4dl.nn.trainer.Trainer._configure_model")
     @patch("kit4dl.io.assert_valid_class", return_value=True)
     def test_configure_datamodule(
-        self, mock_conf_trainer, mock_conf_model, conf
+        self, mock_assert, mock_conf_trainer, mock_conf_model, conf
     ):
         Trainer(conf).prepare()
         conf.dataset.datamodule_class.assert_called_once_with(

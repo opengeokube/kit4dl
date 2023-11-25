@@ -26,7 +26,7 @@ def conf():
     conf.logging.format_ = (
         "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     )
-    conf.base.seed = 0
+
     conf.model = PropertyMock()
     conf.model.arguments = {"input_dims": 10, "output_dims": 1}
     conf.metrics_obj = {
@@ -47,6 +47,7 @@ def conf():
     conf.dict.return_value = {}
     conf.obfuscated_dict = Mock()
     conf.obfuscated_dict.return_value = {}
+    conf.base.seed = 0
     yield conf
 
 
