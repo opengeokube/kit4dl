@@ -33,14 +33,11 @@ class TestTrainer:
         self, mock_assert, mock_conf_trainer, mock_conf_datamodule, conf
     ):
         Trainer(conf).prepare()
-        conf.model.model_class.assert_called_once_with(conf=conf)
+        conf.model.model_class.assert_called_once_with(**conf.model.arguments)
 
     @patch("kit4dl.nn.trainer.Trainer._configure_trainer")
-    @patch("kit4dl.nn.trainer.Trainer._configure_model")
     @patch("kit4dl.io.assert_valid_class", return_value=True)
-    def test_configure_datamodule(
-        self, mock_assert, mock_conf_trainer, mock_conf_model, conf
-    ):
+    def test_configure_datamodule(self, mock_assert, mock_conf_trainer, conf):
         Trainer(conf).prepare()
         conf.dataset.datamodule_class.assert_called_once_with(
             conf=conf.dataset

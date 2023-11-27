@@ -1,4 +1,5 @@
 """Module with mixing classes definitions."""
+
 import os
 from typing import Any, ClassVar
 import logging

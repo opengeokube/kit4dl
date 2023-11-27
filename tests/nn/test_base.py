@@ -24,7 +24,7 @@ class TestBaseMLModel:
             _conf = conf
             _logger = MagicMock()
 
-        obj = CustomModule(conf=conf)
+        obj = CustomModule(**conf.model.arguments)
         yield obj
 
     @pytest.fixture
