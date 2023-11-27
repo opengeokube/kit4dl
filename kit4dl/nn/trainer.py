@@ -1,16 +1,15 @@
 """A module with neural network train task definition."""
 
 import os
-import logging
-from typing import Any
 
+import torch
 import lightning.pytorch as pl
 from lightning.pytorch import callbacks as pl_callbacks
 from lightning.pytorch import loggers as pl_log
 
 from kit4dl.dataset import Kit4DLAbstractDataModule
 from kit4dl.mixins import LoggerMixin
-from kit4dl.nn.base import Kit4DLAbstractModule
+from kit4dl.nn.base import Kit4DLModuleWrapper
 from kit4dl.nn.callbacks import MetricCallback
 from kit4dl.nn.confmodels import Conf
 from kit4dl.utils import set_seed
@@ -20,18 +19,26 @@ from kit4dl import io as io_
 class Trainer(LoggerMixin):
     """Class managing the training procedure."""
 
-    _model: Kit4DLAbstractModule
+    _conf: Conf
+    _device: torch.device
+    _metric_logger: pl_log.Logger
+    _model_wrap: Kit4DLModuleWrapper
     _datamodule: Kit4DLAbstractDataModule
     _pl_trainer: pl.Trainer
-    _conf: Conf
-    _metric_logger: Any
 
     def __init__(self, conf: Conf) -> None:
-        self._logger = logging.getLogger("lightning.pytorch")
         self._conf = conf
+        self._configure_logger()
         self._device = self._conf.base.device
         self._metric_logger = self._new_metric_logger()
         set_seed(self._conf.base.seed)
+
+    def _configure_logger(self) -> None:
+        super().configure_logger(
+            name="lightning.pytorch",
+            level=self._conf.logging.level,
+            logformat=self._conf.logging.format_,
+        )
 
     @property
     def is_finished(self) -> bool:
@@ -40,7 +47,7 @@ class Trainer(LoggerMixin):
 
     def prepare(self) -> "Trainer":
         """Prepare trainer by configuring the model and data modules."""
-        self._model = self._configure_model()
+        self._model_wrap = self._wrap_model()
         self._pl_trainer = self._configure_trainer()
         self._datamodule = self._configure_datamodule()
         self._log_hparams()
@@ -52,17 +59,11 @@ class Trainer(LoggerMixin):
             {
                 "trainable_parameters": sum(
                     p.numel()
-                    for p in self._model.parameters()
+                    for p in self._model_wrap.model.parameters()
                     if p.requires_grad
                 )
             }
         )
-
-    def load_checkpoint(self, path: str) -> Kit4DLAbstractModule:
-        """Load model weights from the checkpoint."""
-        model = type(self._model).load_from_checkpoint(path)
-        model.freeze()
-        return model
 
     def fit(self) -> "Trainer":
         """Fit the trainer making use of `lightning.pytorch.Trainer`."""
@@ -70,7 +71,9 @@ class Trainer(LoggerMixin):
             "trainer is not configured. did you forget to call `prepare()`"
             " method first?"
         )
-        self._pl_trainer.fit(self._model, datamodule=self._datamodule)
+        self._pl_trainer.fit(
+            self._model_wrap.model, datamodule=self._datamodule
+        )
         return self
 
     def test(self) -> "Trainer":
@@ -99,9 +102,9 @@ class Trainer(LoggerMixin):
             )
             ckpt_path = self._conf.training.checkpoint_path
         if ckpt_path:
-            self._model = self.load_checkpoint(ckpt_path)
+            model = self._model_wrap.load_checkpoint(ckpt_path)
         self._pl_trainer.test(
-            self._model, datamodule=self._datamodule, ckpt_path=ckpt_path
+            model, datamodule=self._datamodule, ckpt_path=ckpt_path
         )
         return self
 
@@ -111,7 +114,9 @@ class Trainer(LoggerMixin):
             "trainer is not configured. did you forget to call `prepare()`"
             " method first?"
         )
-        self._pl_trainer.predict(self._model, datamodule=self._datamodule)
+        self._pl_trainer.predict(
+            self._model_wrap.model, datamodule=self._datamodule
+        )
         return self
 
     def _new_metric_logger(self) -> pl_log.Logger:
@@ -124,10 +129,8 @@ class Trainer(LoggerMixin):
         io_.assert_valid_class(class_, Kit4DLAbstractDataModule)
         return self._conf.dataset.datamodule_class(conf=self._conf.dataset)
 
-    def _configure_model(self) -> Kit4DLAbstractModule:
-        class_ = self._conf.model.model_class
-        io_.assert_valid_class(class_, Kit4DLAbstractModule)
-        return self._conf.model.model_class(conf=self._conf).to(self._device)
+    def _wrap_model(self) -> Kit4DLModuleWrapper:
+        return Kit4DLModuleWrapper(conf=self._conf, device=self._device)
 
     def _get_model_checkpoint(self) -> pl_callbacks.ModelCheckpoint:
         assert self._conf.training.checkpoint, (

@@ -13,6 +13,7 @@ try:
 except ImportError:
     from torch.optim.lr_scheduler import _LRScheduler as LRScheduler
 
+import kit4dl.io as io_
 from kit4dl.mixins import LoggerMixin
 from kit4dl.nn.confmodels import Conf
 
@@ -40,34 +41,99 @@ class _Criterion:
         return repr(self._criterion)
 
 
-class Kit4DLAbstractModule(
-    ABC, pl.LightningModule, LoggerMixin
-):  # pylint: disable=too-many-ancestors
-    """Base abstract class for Kit4DL modules."""
+class Kit4DLModuleWrapper(LoggerMixin):
+    """Kit4DL wrapper class around Kit4DLAbstractModule."""
 
-    def __init__(self, conf: Conf | None = None, **kw) -> None:
+    _conf: Conf
+    model: Kit4DLAbstractModule
+
+    def __init__(
+        self, conf: Conf, *, device: torch.device | None = None
+    ) -> None:
         super().__init__()
-        if not conf:
-            conf = Conf(**kw)
         assert conf, "`conf` argument cannot be `None`"
         self._conf: Conf = conf
         self._configure_logger()
-        self._criterion: _Criterion = self._configure_criterion()
+        self.model = self._prepare_model()
+        if device:
+            self.debug("moving model to %s", device)
+            self.model = self.model.to(device)
 
-        self.configure(**self._conf.model.arguments)
-        self.save_hyperparameters(self._conf.obfuscated_dict())
+    def load_checkpoint(self, path: str) -> Kit4DLAbstractModule:
+        """Load model weights from the checkpoint."""
+        model = type(self.model).load_from_checkpoint(path)
+        model.freeze()
+        return self._configure_model(model)
+
+    def _prepare_model(self) -> Kit4DLAbstractModule:
+        io_.assert_valid_class(
+            self._conf.model.model_class, Kit4DLAbstractModule
+        )
+        model = self._conf.model.model_class(**self._conf.model.arguments)
+        return self._configure_model(model)
+
+    def _configure_model(self, model) -> Kit4DLAbstractModule:
+        model.criterion = self._configure_criterion()
+        model.configure_logger(
+            name="lightning",
+            level=self._conf.logging.level,
+            logformat=self._conf.logging.format_,
+        )
+        model.configure_optimizers = self.configure_optimizers
+        return model
+
+    def _configure_criterion(self) -> _Criterion:
+        if not self._conf.training.criterion:
+            self.info(
+                "criterion was not set! remember to return loss value in the"
+                " proper run methods!"
+            )
+            return _Criterion(conf=self._conf)
+        self.debug("configuring criterion...")
+        crt = self._conf.training.criterion.criterion
+        self.info("selected criterion is: %s", crt)
+        return _Criterion(crt, conf=self._conf)
 
     def _configure_logger(self) -> None:
-        """Configure logger based on the configuration passed to the class.
-
-        The methods configure the logger format and sets it to all
-        the handlers.
-        """
         super().configure_logger(
             name="lightning",
             level=self._conf.logging.level,
             logformat=self._conf.logging.format_,
         )
+
+    def configure_optimizers(
+        self,
+    ) -> tuple[
+        list[torch.optim.Optimizer],
+        list[LRScheduler] | None,
+    ]:
+        """Configure optimizers and schedulers."""
+        self.debug("configuring optimizers and lr epoch schedulers...")
+        optimizer: torch.optim.Optimizer = (
+            self._conf.training.optimizer.optimizer(self.model.parameters())
+        )
+        lr_schedulers: list = [
+            scheduler(optimizer)
+            for scheduler in self._conf.training.preconfigured_schedulers_classes
+        ]
+        self.info("selected optimizer is: %s", optimizer)
+        self.info(
+            "selected %d  lr schedulers: %s", len(lr_schedulers), lr_schedulers
+        )
+        return [optimizer], lr_schedulers
+
+
+class Kit4DLAbstractModule(
+    ABC, pl.LightningModule, LoggerMixin
+):  # pylint: disable=too-many-ancestors
+    """Base abstract class for Kit4DL modules."""
+
+    criterion: _Criterion
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__()
+        self.configure(*args, **kwargs)
+        self.save_hyperparameters()
 
     @property
     def _kit4dl_logger(self) -> logging.Logger:
@@ -273,45 +339,15 @@ class Kit4DLAbstractModule(
         _, scores = self.run_step(batch, batch_idx)
         return scores
 
-    def configure_optimizers(
-        self,
-    ) -> tuple[list[torch.optim.Optimizer], list[LRScheduler] | None,]:
-        """Configure optimizers and schedulers."""
-        self.debug("configuring optimizers and lr epoch schedulers...")
-        optimizer: torch.optim.Optimizer = (
-            self._conf.training.optimizer.optimizer(self.parameters())
-        )
-        lr_schedulers: list = [
-            scheduler(optimizer)
-            for scheduler in self._conf.training.preconfigured_schedulers_classes
-        ]
-        self.info("selected optimizer is: %s", optimizer)
-        self.info(
-            "selected %d  lr schedulers: %s", len(lr_schedulers), lr_schedulers
-        )
-        return [optimizer], lr_schedulers
-
     def _prepare_step_output(self, *, pred, true, loss, **kw) -> dict:
         return {"loss": loss, "pred": pred, "true": true} | kw
-
-    def _configure_criterion(self) -> _Criterion:
-        if not self._conf.training.criterion:
-            self.info(
-                "criterion was not set! remember to return loss value in the"
-                " proper run methods!"
-            )
-            return _Criterion(conf=self._conf)
-        self.debug("configuring criterion...")
-        crt = self._conf.training.criterion.criterion
-        self.info("selected criterion is: %s", crt)
-        return _Criterion(crt, conf=self._conf)
 
     def compute_loss(
         self, prediction: torch.Tensor, target: torch.Tensor
     ) -> torch.Tensor:
         """Compute the loss based on the prediction and target."""
-        assert self._criterion.is_defined, "criterion is not defined"
-        return self._criterion(prediction, target)
+        assert self.criterion.is_defined, "criterion is not defined"
+        return self.criterion(prediction, target)
 
     def training_step(
         self, batch, batch_idx
