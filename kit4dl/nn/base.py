@@ -71,7 +71,7 @@ class Kit4DLModuleWrapper(LoggerMixin):
         )
         model = self._conf.model.model_class(**self._conf.model.arguments)
         return self._configure_model(model)
-    
+
     def _configure_model(self, model) -> Kit4DLAbstractModule:
         model.criterion = self._configure_criterion()
         model.configure_logger(
