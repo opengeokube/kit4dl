@@ -86,12 +86,14 @@ def create_obj_from_conf(obj_conf: dict, partial: bool = False) -> Any:
 # ################################
 #           ABSTRACT
 # ################################
-class _AbstractKit4dlConf(BaseModel, ObfuscateKeyMixing):
+class _AbstractKit4dlConf(
+    BaseModel, ObfuscateKeyMixing, validate_assignment=True
+):
     pass
 
 
 class _AbstractClassWithArgumentsConf(_AbstractKit4dlConf):
-    model_config = ConfigDict(extra="allow", frozen=True)
+    model_config = ConfigDict(extra="allow", frozen=False)
     target: Target
     arguments: dict[str, Any] = Field(default_factory=dict)
 
