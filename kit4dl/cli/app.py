@@ -9,7 +9,12 @@ import shutil
 import typer
 from typing_extensions import Annotated
 
-from kit4dl import _version, setup, get_default_conf_path, configure_logger
+from kit4dl import (
+    _version,
+    setup_env_and_get_conf,
+    get_default_conf_path,
+    configure_logger,
+)
 from kit4dl.nn.trainer import Trainer
 
 # ##############################
@@ -95,7 +100,7 @@ def test(
         If skipped, the program will search for the `conf.toml` file
         in the current working directory.
     """
-    conf_ = setup(conf_path=conf)
+    conf_ = setup_env_and_get_conf(conf_path=conf)
     log.info("Attempt to run testing...")
     assert (
         conf_.training.checkpoint_path
@@ -127,7 +132,7 @@ def train(
     test
     """
     log.info("Attempt to run training...")
-    conf_ = setup(conf_path=conf)
+    conf_ = setup_env_and_get_conf(conf_path=conf)
     log.info("Running trainer \U0001f3ac")
     trainer = Trainer(conf=conf_).prepare()
     trainer.fit()

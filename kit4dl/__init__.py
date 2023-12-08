@@ -1,5 +1,8 @@
 """Kit4DL package."""
-__all__ = ("setup",)
+__all__ = (
+    "setup_and_train",
+    "setup_and_test",
+)
 import os
 import sys
 import logging
@@ -11,7 +14,6 @@ except ModuleNotFoundError:
 
 
 from lightning.pytorch.callbacks import Callback as Kit4DLCallback
-
 from kit4dl import context
 from kit4dl._version import __version__
 import kit4dl.nn.confmodels
@@ -49,10 +51,10 @@ def get_default_conf_path() -> str:
     return os.path.join(os.getcwd(), "conf.toml")
 
 
-def setup(
+def setup_and_train(
     conf_path: str = get_default_conf_path(), overwrite: dict | None = None
 ) -> kit4dl.nn.confmodels.Conf:
-    """Set up experiment and return configuration object.
+    """Set up experiment and run train/val.
 
     Parameters
     ----------
@@ -65,7 +67,7 @@ def setup(
     --------
     ```python
     new_vals = {"base.seed": 10, "model.hidden_dims": 100}
-    conf = setup("/work/conf.toml", overwrite=new_vals)
+    setup_and_train("/work/conf.toml", overwrite=new_vals)
 
     Raises
     ------
@@ -74,7 +76,38 @@ def setup(
     """
     log.info("Setting up the experiment...")
     check_conf_path(conf_path)
-    conf_ = _setup_env_and_get_conf(conf_path=conf_path, overwrite=overwrite)
+    conf_ = setup_env_and_get_conf(conf_path=conf_path, overwrite=overwrite)
+    Trainer(conf=conf_).prepare().fit()
+    return conf_
+
+
+def setup_and_test(
+    conf_path: str = get_default_conf_path(), overwrite: dict | None = None
+) -> kit4dl.nn.confmodels.Conf:
+    """Set up experiment and run test.
+
+    Parameters
+    ----------
+    conf_path : str
+        Path (absolute or relative) to the TOML configuration file
+    overwrite : dict, optional
+        A dictionary with values to replace
+
+    Examples
+    --------
+    ```python
+    new_vals = {"base.seed": 10, "model.hidden_dims": 100}
+    setup_and_test("/work/conf.toml", overwrite=new_vals)
+
+    Raises
+    ------
+    RuntimeError
+        when no configuration file was found
+    """
+    log.info("Setting up the experiment...")
+    check_conf_path(conf_path)
+    conf_ = setup_env_and_get_conf(conf_path=conf_path, overwrite=overwrite)
+    Trainer(conf=conf_).prepare().test()
     return conf_
 
 
@@ -96,14 +129,16 @@ def _overwrite_dict(mapping: dict, overwrite: dict | None = None) -> None:
 
 def update_context_from_static() -> None:
     """Update context from static attributes."""
-    context.VERSION = __version__
+    if not context.VERSION:
+        context.VERSION = __version__
 
 
 def update_context_from_runtime(
     prj_dir: str | None = None,
 ) -> None:
     """Update context properties from the runtime variables."""
-    context.PROJECT_DIR = prj_dir
+    if not context.PROJECT_DIR:
+        context.PROJECT_DIR = prj_dir
 
 
 def update_context_from_conf(
@@ -112,8 +147,10 @@ def update_context_from_conf(
     """Update context from the configuration file."""
     if not conf:
         return
-    context.LOG_LEVEL = conf.logging.level
-    context.LOG_FORMAT = conf.logging.format_
+    if not context.LOG_LEVEL:
+        context.LOG_LEVEL = conf.logging.level
+    if not context.LOG_FORMAT:
+        context.LOG_FORMAT = conf.logging.format_
 
 
 def _get_conf_dict_from_file(conf_path: str) -> dict:
@@ -136,9 +173,24 @@ def check_conf_path(conf_path: str) -> None:
         )
 
 
-def _setup_env_and_get_conf(
-    conf_path: str, overwrite: dict | None
+def setup_env_and_get_conf(
+    conf_path: str, overwrite: dict | None = None
 ) -> kit4dl.nn.confmodels.Conf:
+    """Set up environment for the run.
+
+    Parameters
+    ----------
+    conf_path : str
+        A path to the configuration TOML file
+    overwrite : dict, optional
+        A dictionary to overwrite in the configuration.
+
+    Returns
+    -------
+    conf : kit4dl.nn.confomodels.Conf
+        Configuration object with overwritten key-values
+    """
+    overwrite = overwrite or {}
     root_dir = os.path.dirname(conf_path)
     prj_dir = os.path.join(os.getcwd(), root_dir)
     sys.path.append(prj_dir)

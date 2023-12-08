@@ -7,6 +7,7 @@ from typing import Any
 class _ImmutableAttribute:
     _value: Any = None
     _default: Any = None
+    _set: bool = False
 
     def __init__(self, default: Any) -> None:
         self._default = default
@@ -15,9 +16,10 @@ class _ImmutableAttribute:
         return self._value if self._value else self._default
 
     def __set__(self, obj, value: Any) -> None:
-        if self._value is not None:
+        if self._set:
             raise RuntimeError("Session properties can be set only once!")
         self._value = value
+        self._set = True
 
 
 # NOTE: below definitions will not be used, they are required
