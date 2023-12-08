@@ -37,6 +37,7 @@ def conf():
     conf.training.optimizer = PropertyMock()
     conf.training.optimizer.optimizer = torch.optim.SGD
     conf.training.checkpoint.mode = "max"
+    conf.training.callback = []
 
     conf.model.model_class = PropertyMock()
 
