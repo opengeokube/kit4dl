@@ -7,7 +7,7 @@ on:
     paths:
       - 'docs/**'
       - mkdocs.yml
-  workflow_dispatch:
+  workflow_dispatch
 permissions:
   contents: write
 jobs:
