@@ -37,6 +37,7 @@ def conf():
     conf.training.optimizer = PropertyMock()
     conf.training.optimizer.optimizer = torch.optim.SGD
     conf.training.checkpoint.mode = "max"
+    conf.training.callback = []
 
     conf.model.model_class = PropertyMock()
 
@@ -45,6 +46,8 @@ def conf():
 
     conf.dict = Mock()
     conf.dict.return_value = {}
+    conf.obfuscated_dict = Mock()
+    conf.obfuscated_dict.return_value = {}
     conf.base.seed = 0
     yield conf
 

@@ -25,6 +25,7 @@ from typing_extensions import Annotated
 import kit4dl.io as io_
 from kit4dl import Kit4DLCallback
 from kit4dl import utils as ut
+from kit4dl.mixins import ObfuscateKeyMixing
 from kit4dl.kit4dl_types import FullyQualifiedName, LoggerLevel
 from kit4dl.nn.validators import (
     validate_callback,
@@ -85,8 +86,14 @@ def create_obj_from_conf(obj_conf: dict, partial: bool = False) -> Any:
 # ################################
 #           ABSTRACT
 # ################################
-class _AbstractClassWithArgumentsConf(BaseModel):
-    model_config = ConfigDict(extra="allow", frozen=True)
+class _AbstractKit4dlConf(
+    BaseModel, ObfuscateKeyMixing, validate_assignment=True
+):
+    pass
+
+
+class _AbstractClassWithArgumentsConf(_AbstractKit4dlConf):
+    model_config = ConfigDict(extra="allow", frozen=False)
     target: Target
     arguments: dict[str, Any] = Field(default_factory=dict)
 
@@ -104,7 +111,7 @@ class _AbstractClassWithArgumentsConf(BaseModel):
 # ################################
 #  Basic experiment configuration
 # ################################
-class BaseConf(BaseModel):
+class BaseConf(_AbstractKit4dlConf):
     """Base configuration model for the experiment."""
 
     seed: int = Field(default=0, ge=0)
@@ -178,7 +185,7 @@ class OptimizerConf(_AbstractClassWithArgumentsConf):
 # ################################
 #       Checkpoint configuration
 # ################################
-class CheckpointConf(BaseModel):
+class CheckpointConf(_AbstractKit4dlConf):
     """Checkpoint configuration class."""
 
     path: str
@@ -218,7 +225,7 @@ class CheckpointConf(BaseModel):
 # ################################
 #     Criterion configuration
 # ################################
-class CriterionConf(BaseModel):
+class CriterionConf(_AbstractKit4dlConf):
     """Criterion configuration class."""
 
     target: Target
@@ -278,7 +285,7 @@ class CriterionConf(BaseModel):
 # ################################
 #     Training configuration
 # ################################
-class TrainingConf(BaseModel):
+class TrainingConf(_AbstractKit4dlConf):
     """Training procedure configuration class."""
 
     epochs: int = Field(gt=0)
@@ -321,7 +328,7 @@ class TrainingConf(BaseModel):
 # ################################
 #     Validation configuration
 # ################################
-class ValidationConf(BaseModel):
+class ValidationConf(_AbstractKit4dlConf):
     """Validation procedure configuration class."""
 
     run_every_epoch: int = Field(gt=0)
@@ -330,7 +337,7 @@ class ValidationConf(BaseModel):
 # ################################
 #     Split dataset configuration
 # ################################
-class SplitDatasetConf(BaseModel):
+class SplitDatasetConf(_AbstractKit4dlConf):
     """Configuration class with dataset split arguments."""
 
     loader: dict[str, Any] = Field(default_factory=dict)
@@ -348,7 +355,7 @@ class SplitDatasetConf(BaseModel):
 # ################################
 #     Dataset configuration
 # ################################
-class DatasetConf(BaseModel):
+class DatasetConf(_AbstractKit4dlConf):
     """Dataset configuration class."""
 
     target: Target
@@ -389,7 +396,7 @@ _LOGGERS_NICKNAMES: dict[str, str] = {
 }
 
 
-class LoggingConf(BaseModel):
+class LoggingConf(_AbstractKit4dlConf):
     """Logging configuration class."""
 
     model_config = ConfigDict(extra="allow", populate_by_name=True)
@@ -443,7 +450,7 @@ class LoggingConf(BaseModel):
 # ################################
 #     Complete configuration
 # ################################
-class Conf(BaseModel):
+class Conf(_AbstractKit4dlConf):
     """Conf class being the reflection of the configuration TOML file."""
 
     base: BaseConf

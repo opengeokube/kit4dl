@@ -1,0 +1,46 @@
+site_name: Kit4DL
+site_description: Kit4DL - A quick way to start with machine and deep learning
+theme:
+  name: material
+  palette:
+  - media: '(prefers-color-scheme: light)'
+    scheme: default
+    primary: deep purple
+    accent: teal
+  features:
+  - search.suggest
+  - search.highlight
+  - content.tooltips
+  - content.code.annotate
+  - content.code.copy
+  - content.code.select
+  icon:
+    repo: fontawesome/brands/github-alt
+  # logo: static/logo.svg
+  favicon: static/logo.svg
+  language: en
+repo_name: opengeokube/kit4dl
+repo_url: https://github.com/opengeokube/kit4dl
+edit_uri: ''
+use_directory_urls: false
+nav:
+- About: index.md
+- Installation: installation.md
+- Quick start: quick.md
+- CLI: cli.md
+- Neural networks: nn.md
+- Data module: datamodule.md
+
+plugins:
+- mkdocstrings:
+    handlers:
+      python:
+        paths: [static]
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences      
