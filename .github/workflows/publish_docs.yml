@@ -1,12 +1,5 @@
 name: Publish documentation
 on:
-  push:
-    branches:
-      - master 
-      - main
-    paths:
-      - 'docs/**'
-      - mkdocs.yml
   workflow_dispatch:
 permissions:
   contents: write
