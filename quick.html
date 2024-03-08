@@ -325,6 +325,15 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#step-5-run-training" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 5. Run training
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -450,6 +459,15 @@
   <a href="#step-4-prepare-toml-configuration-file" class="md-nav__link">
     <span class="md-ellipsis">
       Step 4. Prepare TOML configuration file
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-5-run-training" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 5. Run training
     </span>
   </a>
   
@@ -613,6 +631,11 @@ When you create an empty Kit4DL project, you'll get example config.toml file wit
 <li><code>target</code> key for a metric should indicate a subclass of <code>torchmetric.Metric</code> base class or one of the metrics defined in <code>torchmetric</code> package (e.g. <code>torchmetrics::Precision</code>).</li>
 <li>Some extra arguments required by the given metric can be specified as other items in the dictionary.</li>
 </ol>
+<h2 id="step-5-run-training">Step 5. Run training</h2>
+<p>In order to run training, just type:</p>
+<p><div class="language-bash annotate highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>kit4dl<span class="w"> </span>train<span class="w"> </span><span class="c1"># (1)!</span>
+</span></code></pre></div>
+1. You can specify <code>config</code> argument with the path to TOML cofiguration file. If skipped, Kit4DL will try to find it in your current working directory.</p>
 
 
 
