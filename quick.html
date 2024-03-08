@@ -737,9 +737,11 @@ When you create an empty Kit4DL project, you'll get example config.toml file wit
 </span></code></pre></div>
 <h2 id="step-7-run-training">Step 7. Run training</h2>
 <p>In order to run training, just type:</p>
-<p><div class="language-bash annotate highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>kit4dl<span class="w"> </span>train<span class="w"> </span><span class="c1"># (1)!</span>
+<div class="language-bash annotate highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>kit4dl<span class="w"> </span>train<span class="w"> </span><span class="c1"># (1)!</span>
 </span></code></pre></div>
-1. You can specify <code>config</code> argument with the path to TOML cofiguration file. If skipped, Kit4DL will try to find it in your current working directory.</p>
+<ol>
+<li>You can specify <code>config</code> argument with the path to TOML cofiguration file (<code>kit4dl train config=/home/conf/toml</code>). If skipped, Kit4DL will try to find it in your current working directory.</li>
+</ol>
 <div class="admonition success">
 <p class="admonition-title">You can use define multiple config files</p>
 <p>Kit4DL helps in easy and fast prototyping. Create multiple config
