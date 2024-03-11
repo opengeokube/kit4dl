@@ -58,6 +58,7 @@ OpenGeokube Developers:
 - [x] enable custom metrics
 - [x] enable using callbacks (also custom ones)
 - [ ] write more unit tests
+- [ ] enable overwritting parameters with command line
 
 ## 🙏 Acknowledgement
 This work has received fundings from the Polish National Centre for Research and Development under the LIDER XI program [grant number 0092/L-11/2019, "Semantic analysis of 3D point clouds"] and from the European Union’s Horizon 2020 Research and Innovation programme [SILVANUS Project - grant agreement number 101037247].
