@@ -49,6 +49,9 @@ OpenGeokube Developers:
   url = {https://doi.org/10.5281/zenodo.8328176}
 }
 ```
+## 📖 Documentation
+Reas the official [Documentation](https://opengeokube.github.io/kit4dl/index.html) to learn Kit4DL!
+
 ## 🚧 Roadmap
 
 > **Warning**: Kit4DL is currently in its alpha stage. All recommendations are welcomed.
