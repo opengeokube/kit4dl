@@ -50,7 +50,7 @@ OpenGeokube Developers:
 }
 ```
 ## 📖 Documentation
-Reas the official [Documentation](https://opengeokube.github.io/kit4dl/index.html) to learn Kit4DL!
+Read the official [Documentation](https://opengeokube.github.io/kit4dl/index.html) to learn Kit4DL!
 
 ## 🚧 Roadmap
 
