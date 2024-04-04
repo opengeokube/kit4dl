@@ -34,19 +34,17 @@ OpenGeokube Developers:
 
 ## 📜 Cite Us
 ```bibtex
-@SOFTWARE{kit4dl,
-  author = {Walczak, Jakub and
-            Mancini, Marco and
-            Stojiljković, Mirko and
-            Alvi, Shahbaz},
-  title = {Kit4DL},
-  month = sep,
-  year = 2023,
-  note = {{Available in GitHub: https://github.com/opengeokube/kit4dl}},
-  publisher = {Zenodo},
-  version = {2023.9b1},
-  doi = {10.5281/zenodo.8328176},
-  url = {https://doi.org/10.5281/zenodo.8328176}
+@ARTICLE{kit4dl,
+    author = {Jakub Walczak and Marco Mancini and Shahbaz Alvi},
+    title = {Kit4DL: Towards fast prototyping and experimentation in machine learning and deep learning},
+    journal = {SoftwareX},
+    volume = {26},
+    pages = {101707},
+    year = {2024},
+    issn = {2352-7110},
+    doi = {https://doi.org/10.1016/j.softx.2024.101707},
+    url = {https://www.sciencedirect.com/science/article/pii/S2352711024000785},
+    keywords = {Deep learning, Machine learning, Prototyping, Python framework},
 }
 ```
 ## 📖 Documentation
