@@ -1,4 +1,5 @@
 """Kit4DL package."""
+
 __all__ = (
     "setup_and_train",
     "setup_and_test",
@@ -19,6 +20,9 @@ from kit4dl._version import __version__
 import kit4dl.nn.confmodels
 from kit4dl.formatting import escape_os_sep, substitute_symbols
 from kit4dl.nn.trainer import Trainer
+from kit4dl.nn.base import Kit4DLAbstractModule
+from kit4dl.nn.dataset import Kit4DLAbstractDataModule
+
 
 # ##############################
 #       CONFIGURE LOGGER

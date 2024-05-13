@@ -1,6 +1,6 @@
 import torchmetrics as tm
 
-from kit4dl.dataset import Kit4DLAbstractDataModule
+from kit4dl.nn.dataset import Kit4DLAbstractDataModule
 from kit4dl.nn.base import Kit4DLAbstractModule
 
 

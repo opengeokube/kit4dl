@@ -2,7 +2,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from kit4dl.dataset import Kit4DLAbstractDataModule
+from kit4dl.nn.dataset import Kit4DLAbstractDataModule
 
 
 class TestDatamodule:

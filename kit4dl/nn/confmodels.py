@@ -423,7 +423,7 @@ class LoggingConf(_AbstractKit4dlConf):
         """Update experiment name for the chosen metric logger."""
         ltype = self.metric_logger_type
         if issubclass(ltype, (pl_logs.CometLogger, pl_logs.MLFlowLogger)):
-            self.arguments.setdefault("experiment_name", experiment_name)
+            self.arguments.update({"experiment_name": experiment_name})
         elif issubclass(
             ltype,
             (
@@ -433,7 +433,7 @@ class LoggingConf(_AbstractKit4dlConf):
                 pl_logs.WandbLogger,
             ),
         ):
-            self.arguments.setdefault("name", experiment_name)
+            self.arguments.update({"name": experiment_name})
         else:
             raise TypeError(
                 f"logger of type `{self.metric_logger_type}` is undefined!"
@@ -465,6 +465,11 @@ class Conf(_AbstractKit4dlConf):
         if root_dir:
             kwargs = Conf.override_with_abs_target(root_dir, kwargs)
         super().__init__(**kwargs)
+
+    @property
+    def experiment_name(self) -> str:
+        """Get the experiment name."""
+        return self.base.experiment_name
 
     @model_validator(mode="after")
     def _update_experiment_name_if_undefined(cls, value):

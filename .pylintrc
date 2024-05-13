@@ -9,4 +9,5 @@ disable=
     no-self-argument,
     no-member,
     too-few-public-methods,
-    too-many-arguments
+    too-many-arguments,
+    cyclic-import

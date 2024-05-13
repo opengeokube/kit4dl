@@ -7,7 +7,7 @@ import lightning.pytorch as pl
 from lightning.pytorch import callbacks as pl_callbacks
 from lightning.pytorch import loggers as pl_log
 
-from kit4dl.dataset import Kit4DLAbstractDataModule
+from kit4dl.nn.dataset import Kit4DLAbstractDataModule
 from kit4dl.mixins import LoggerMixin
 from kit4dl.nn.base import Kit4DLModuleWrapper
 from kit4dl.nn.callbacks import MetricCallback
@@ -22,9 +22,9 @@ class Trainer(LoggerMixin):
     _conf: Conf
     _device: torch.device
     _metric_logger: pl_log.Logger
-    _model_wrap: Kit4DLModuleWrapper
+    model_wrap: Kit4DLModuleWrapper
     _datamodule: Kit4DLAbstractDataModule
-    _pl_trainer: pl.Trainer
+    pl_trainer: pl.Trainer
 
     def __init__(self, conf: Conf) -> None:
         self._conf = conf
@@ -32,6 +32,22 @@ class Trainer(LoggerMixin):
         self._device = self._conf.base.device
         self._metric_logger = self._new_metric_logger()
         set_seed(self._conf.base.seed)
+
+    def prepapre_new(self, *, experiment_name: str | None = None) -> "Trainer":
+        """Copy and prepare the trainer.
+
+        Parameters
+        ----------
+        experiment_name : str, optional
+            Name of the experiment to be used in the new trainer. If not
+            provided, the name is copied from the current trainer.
+        """
+        _conf = self._conf
+        if experiment_name:
+            _conf = self._conf.copy()
+            _conf.base.experiment_name = experiment_name
+            _conf.logging.maybe_update_experiment_name(experiment_name)
+        return type(self)(_conf).prepare()
 
     def _configure_logger(self) -> None:
         super().configure_logger(
@@ -43,12 +59,12 @@ class Trainer(LoggerMixin):
     @property
     def is_finished(self) -> bool:
         """Check if training routing finished."""
-        return self._pl_trainer.state.finished
+        return self.pl_trainer.state.finished
 
     def prepare(self) -> "Trainer":
         """Prepare trainer by configuring the model and data modules."""
-        self._model_wrap = self._wrap_model()
-        self._pl_trainer = self._configure_trainer()
+        self.model_wrap = self._wrap_model()
+        self.pl_trainer = self._configure_trainer()
         self._datamodule = self._configure_datamodule()
         self._log_hparams()
         return self
@@ -59,7 +75,7 @@ class Trainer(LoggerMixin):
             {
                 "trainable_parameters": sum(
                     p.numel()
-                    for p in self._model_wrap.model.parameters()
+                    for p in self.model_wrap.model.parameters()
                     if p.requires_grad
                 )
             }
@@ -67,23 +83,36 @@ class Trainer(LoggerMixin):
 
     def fit(self) -> "Trainer":
         """Fit the trainer making use of `lightning.pytorch.Trainer`."""
-        assert self._pl_trainer, (
+        assert self.pl_trainer, (
             "trainer is not configured. did you forget to call `prepare()`"
             " method first?"
         )
-        self._pl_trainer.fit(
-            self._model_wrap.model, datamodule=self._datamodule
-        )
+        self._datamodule.setup("fit")
+        new_trainer = self
+        i = 0
+        for i, (tr_dataloader, val_dataloader, suff) in enumerate(
+            self._datamodule.trainval_dataloaders()
+        ):
+            self._logger.info("Starting training for split %d...", i + 1)
+            new_trainer = new_trainer.prepapre_new(
+                experiment_name=self._conf.experiment_name + suff
+            )
+            new_trainer.pl_trainer.fit(
+                new_trainer.model_wrap.model,
+                train_dataloaders=tr_dataloader,
+                val_dataloaders=val_dataloader,
+            )
+        self._logger.info("Training finished! %d splits processed", i + 1)
         return self
 
     def test(self) -> "Trainer":
         """Test the model."""
-        assert self._pl_trainer, (
+        assert self.pl_trainer, (
             "trainer is not configured. did you forget to call `prepare()`"
             " method first?"
         )
         ckpt_path = None
-        for callback in self._pl_trainer.checkpoint_callbacks:
+        for callback in self.pl_trainer.checkpoint_callbacks:
             if isinstance(callback, pl_callbacks.ModelCheckpoint):
                 self.debug(
                     "best checkpoint taken from callback %s",
@@ -102,21 +131,29 @@ class Trainer(LoggerMixin):
             )
             ckpt_path = self._conf.training.checkpoint_path
         if ckpt_path:
-            model = self._model_wrap.load_checkpoint(ckpt_path)
-        self._pl_trainer.test(
-            model, datamodule=self._datamodule, ckpt_path=ckpt_path
-        )
+            model = self.model_wrap.load_checkpoint(ckpt_path)
+        self._datamodule.setup("test")
+        for i, test_dataloader in enumerate(
+            self._datamodule.test_dataloader()
+        ):
+            self._logger.info("Starting testing for split %d...", i + 1)
+            self.pl_trainer.test(model, dataloaders=test_dataloader)
         return self
 
     def predict(self) -> "Trainer":
         """Predict values for the model."""
-        assert self._pl_trainer, (
+        assert self.pl_trainer, (
             "trainer is not configured. did you forget to call `prepare()`"
             " method first?"
         )
-        self._pl_trainer.predict(
-            self._model_wrap.model, datamodule=self._datamodule
-        )
+        self._datamodule.setup("predict")
+        for i, pred_dataloader in enumerate(
+            self._datamodule.predict_dataloader()
+        ):
+            self._logger.info("Starting prediction for split %d...", i + 1)
+            self.pl_trainer.predict(
+                self.model_wrap.model, dataloaders=pred_dataloader
+            )
         return self
 
     def _new_metric_logger(self) -> pl_log.Logger:
