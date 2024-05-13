@@ -71,7 +71,7 @@ class S3DISDatamodule(Kit4DLAbstractDataModule):
             self.info("processing Area_%d", area_id)
             s3dis.prepare_single_area(area_id=area_id)
 
-    def prepare_traindataset(self, test_area: int) -> Dataset:
+    def prepare_traindatasets(self, test_area: int) -> Dataset:
         train_files = [
             file
             for file in s3dis.hdf5_files()
@@ -79,7 +79,7 @@ class S3DISDatamodule(Kit4DLAbstractDataModule):
         ]
         return S3DISDataset(files=train_files)
 
-    def prepare_valdataset(self, test_area: int) -> Dataset:
+    def prepare_valdatasets(self, test_area: int) -> Dataset:
         test_files = [
             file for file in s3dis.hdf5_files() if f"Area_{test_area}" in file
         ]

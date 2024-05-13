@@ -279,7 +279,7 @@ class SimpleCNN(Kit4DLAbstractModule):
 #### Defining datamodule
 Similarily to the model, datamodule instance is fully defined by the Python class and its configuration.
 The datamodule need to be a subclass of the `Kit4DLAbstractDataModule` abstract class from the `kit4dl` package.
-The class has to implement, at least, `prepare_trainvaldataset` (if preparing is the same for the train and validation splits) or `prepare_traindataset` and `prepare_valdataset` (if preparing data differs). Besides those, you can define `prepare_testdataset` and `prepare_predictdataset`, for test and prediction, respectively.
+The class has to implement, at least, `prepare_trainvaldatasets` (if preparing is the same for the train and validation splits) or `prepare_traindatasets` and `prepare_valdatasets` (if preparing data differs). Besides those, you can define `prepare_testdataset` and `prepare_predictdataset`, for test and prediction, respectively.
 
 ##### ✍️ Example
 ```python
@@ -291,7 +291,7 @@ from kit4dl.dataset import Kit4DLAbstractDataModule
 
 
 class MNISTCustomDatamodule(Kit4DLAbstractDataModule):
-    def prepare_trainvaldataset(
+    def prepare_trainvaldatasets(
         self, root_dir: str
     ) -> tuple[Dataset, Dataset]:
         dset = MNIST(
@@ -384,8 +384,8 @@ num_workers = 4
 
 In the root `[dataset]` you should define `target` property being a path to the subclass of the `Kit4DLAbstractDataModule` module (see [Defining `target`](#defining-target)).
 Then, you need to define either `[dataset.trainval]` section or two separate sections: `[dataset.train]`, `[dataset.validation]`. There are also optional sections: `[dataset.test]` and `[dataset.predict]`.
-In `[dataset.trainval]` you pass values for parameters of the `prepare_trainvaldataset` method.
-Respectively, in the `[dataset.train]` you pass values for the parameters of the `prepare_traindataset` method, in `[dataset.validation]` — `prepare_valdataset`, `[dataset.test]` — `prepare_testdataset`, `[dataset.predict]` — `prepare_predictdataset`.
+In `[dataset.trainval]` you pass values for parameters of the `prepare_trainvaldatasets` method.
+Respectively, in the `[dataset.train]` you pass values for the parameters of the `prepare_traindatasets` method, in `[dataset.validation]` — `prepare_valdatasets`, `[dataset.test]` — `prepare_testdataset`, `[dataset.predict]` — `prepare_predictdataset`.
 
 Besides dataset configuration, you need to specify data loader arguments as indicated in the PyTorch docs [torch.utils.data.DataLoader](https://pytorch.org/docs/stable/data.html#torch.utils.data.DataLoader).
 

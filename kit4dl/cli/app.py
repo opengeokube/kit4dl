@@ -60,10 +60,11 @@ def init(
         The optional name of the project.
         If skipped, the deafult `new_kit4dl_project` will be used
     """
+    _template_pkg = "kit4dl.cli._templates"
     log.info("Kit4DL Creating a new skeleton for the project: << %s >>", name)
     assert not os.path.exists(name), f"The project `{name}` already exists!"
-    with importlib.resources.path(
-        "kit4dl.cli._templates", "project"
+    with importlib.resources.as_file(
+        importlib.resources.files(_template_pkg).joinpath("project")
     ) as empty_proj_path:
         shutil.copytree(empty_proj_path, name)
     _remove_redundant_items(name)
