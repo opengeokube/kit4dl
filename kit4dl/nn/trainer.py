@@ -94,13 +94,13 @@ class Trainer(LoggerMixin):
             self._datamodule.trainval_dataloaders()
         ):
             self._logger.info("Starting training for split %d...", i + 1)
-            new_trainer = new_trainer.prepapre_new(
-                experiment_name=self._conf.experiment_name + suff
-            )
             new_trainer.pl_trainer.fit(
                 new_trainer.model_wrap.model,
                 train_dataloaders=tr_dataloader,
                 val_dataloaders=val_dataloader,
+            )
+            new_trainer = new_trainer.prepapre_new(
+                experiment_name=self._conf.experiment_name + suff
             )
         self._logger.info("Training finished! %d splits processed", i + 1)
         return self
