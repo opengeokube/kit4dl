@@ -4,6 +4,7 @@ import importlib.resources
 import logging
 import os
 import shutil
+from typing import Optional
 
 
 import typer
@@ -37,6 +38,25 @@ configure_logger(log, _CLI_LOG_LEVEL, _CLI_LOG_FORMAT)
 # ##############################
 def _remove_redundant_items(path):
     shutil.rmtree(os.path.join(path, "__pycache__"), ignore_errors=True)
+
+
+def parse_overwriting_options(
+    ctx: typer.Context, value: str | None
+) -> dict[str, str]:
+    """Parse extra arguments for the `overwrite` option."""
+    assert ctx
+    custom_dict: dict = {}
+    if not value:
+        return custom_dict
+    for kv_pair in value.split(","):
+        try:
+            key, value = kv_pair.split("=")
+        except ValueError as err:
+            raise typer.BadParameter(
+                f"Invalid key-value pair: {kv_pair}"
+            ) from err
+        custom_dict[key] = value
+    return custom_dict
 
 
 def _is_test_allowed(trainer: Trainer) -> bool:
@@ -121,6 +141,14 @@ def train(
         bool,
         typer.Option(help="If testing (using best weights) should be skipped"),
     ] = False,
+    overwrite: Annotated[
+        Optional[str],
+        typer.Option(
+            ...,
+            callback=parse_overwriting_options,
+            help="Comma-separated key-value pairs (KEY=VALUE)",
+        ),
+    ] = None,
 ) -> None:
     """Train using the configuration file.
 
@@ -133,7 +161,7 @@ def train(
     test
     """
     log.info("Attempt to run training...")
-    conf_ = setup_env_and_get_conf(conf_path=conf)
+    conf_ = setup_env_and_get_conf(conf_path=conf, overwrite=overwrite)  # type: ignore[arg-type]
     log.info("Running trainer \U0001f3ac")
     trainer = Trainer(conf=conf_).prepare()
     trainer.fit()

@@ -569,7 +569,6 @@ class TestConf:
         type = "csv"
         name = "logging_exp_name"
         """
-        breakpoint()
         conf = Conf(**toml.loads(load))
         assert "name" in conf.logging.arguments
         assert conf.logging.arguments["name"] == "logging_exp_name"
