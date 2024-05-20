@@ -22,7 +22,11 @@ A quick way to start with machine and deep learning
 [![Conda Version](https://img.shields.io/conda/vn/conda-forge/kit4dl.svg)](https://anaconda.org/conda-forge/kit4dl) 
 [![Conda Downloads](https://img.shields.io/conda/dn/conda-forge/kit4dl.svg)](https://anaconda.org/conda-forge/kit4dl)
 
+!!! News
+    You can now overwrite configuration with command line options. See [Overwriting configuration with CLI](cli.md#overwriting-configuration)!
 
+!!! News
+    You can now define a custom train/validation split for experiments. See [Defining custom splits](datamodule.md#custom-splits)!
 
 
 **Kit4DL** is a Python framework for simple, fast, and customisable deep learning prototyping and development. It uses *PyTorch Lightning* as a backend, since it is a powerful, yet quick-to-set-up, framework for deep learning pipelines management, and it relies on TOML (TOML format documentation can be found in [https://toml.io/](https://toml.io/)) configuration file. Though TOML is a relatively new format, it is gaining more and more attention in the Python ecosystem thanks to its intuitiveness, conciseness, and ease of reading. Furthermore, *Kit4DL* uses *torchmetrics* library for *PyTorch*-integrated and efficient implementation of a miscellaneous of metrics.
