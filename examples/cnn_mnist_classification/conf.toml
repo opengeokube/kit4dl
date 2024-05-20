@@ -8,28 +8,28 @@ format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 
 [model]
 # We can use relative path (w.r.t. the conf.toml file) to the .py file
-target = "./model.py::SimpleCNN" 
+target = "model::SimpleCNN" 
 input_dims = 1
 layers = 4
 dropout = 0.5
 output_dims = 10
 
 [training]
-epochs = 10
+epochs = 1
 epoch_schedulers = [
     {target = "torch.optim.lr_scheduler::CosineAnnealingLR", T_max = 100}
 ]
 callbacks = [
-    {target = "./callbacks.py::SaveConfusionMatrixCallback",  task="multiclass", num_classes = 10, save_dir = "{{ PROJECT_DIR }}/cm"},
+    {target = "callbacks::SaveConfusionMatrixCallback",  task="multiclass", num_classes = 10, save_dir = "{{ PROJECT_DIR }}/cm"},
     {target = "lightning.pytorch.callbacks::DeviceStatsMonitor"}
 ]
 
-[training.checkpoint]
-path = "chckpt"
-monitor = {"metric" = "MyPrecision", "stage" = "val"}
-filename = "{epoch}_{val_myprecision:.2f}_cnn"
-mode = "max"
-save_top_k = 1
+# [training.checkpoint]
+# path = "chckpt"
+# monitor = {"metric" = "MyPrecision", "stage" = "val"}
+# filename = "{epoch}_{val_myprecision:.2f}_cnn"
+# mode = "max"
+# save_top_k = 1
 
 [training.optimizer]
 target = "torch.optim::Adam"

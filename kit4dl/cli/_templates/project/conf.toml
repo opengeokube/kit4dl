@@ -71,11 +71,11 @@ target = "./datamodule.py::MyCustomDatamodule"
 # if you want to specify different logic for train and validation datasets,
 # like loading separate formerly prepared files, you two tables [dataset.train] and [dataset.validation]
 [dataset.train]
-# here you can define arguments taken by the method `prepare_traindataset`
+# here you can define arguments taken by the method `prepare_traindatasets`
 root_dir = "my_train_file.txt"
 
 [dataset.validation]
-# here you can define arguments taken by the method `prepare_valdataset`
+# here you can define arguments taken by the method `prepare_valdatasets`
 root_dir = "my_val_file.txt"
 
 [dataset.train.loader]

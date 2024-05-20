@@ -558,6 +558,9 @@ class TestConf:
             == "handwritten_digit_classification"
         )
 
+    @pytest.mark.skip(
+        reason="Name is overwriten by experiment_name since version 2024.5b1"
+    )
     def test_dont_override_exp_name_with_base_if_provided(
         self, base_conf_txt_full
     ):
@@ -666,6 +669,9 @@ class TestLogging:
         conf.maybe_update_experiment_name(EXP_NAME)
         assert conf.arguments[attr_name] == EXP_NAME
 
+    @pytest.mark.skip(
+        reason="Name is overwriten by experiment_name since version 2024.5b1"
+    )
     @pytest.mark.parametrize(
         "log_nick, attr_name",
         [

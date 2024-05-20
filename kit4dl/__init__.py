@@ -1,4 +1,5 @@
 """Kit4DL package."""
+
 __all__ = (
     "setup_and_train",
     "setup_and_test",
@@ -19,6 +20,9 @@ from kit4dl._version import __version__
 import kit4dl.nn.confmodels
 from kit4dl.formatting import escape_os_sep, substitute_symbols
 from kit4dl.nn.trainer import Trainer
+from kit4dl.nn.base import Kit4DLAbstractModule
+from kit4dl.nn.dataset import Kit4DLAbstractDataModule
+
 
 # ##############################
 #       CONFIGURE LOGGER
@@ -116,15 +120,23 @@ def _overwrite_dict(mapping: dict, overwrite: dict | None = None) -> None:
     def _replace_recursively(mapping, key, value):
         key_0, *subkeys = key.split(".", maxsplit=1)
         if subkeys:
-            _replace_recursively(mapping[key_0], ".".join(subkeys), value)
-        else:
-            mapping[key_0] = value
+            return _replace_recursively(
+                mapping[key_0], ".".join(subkeys), value
+            )
+        if key_0 not in mapping:
+            return False
+        mapping[key_0] = value
+        return True
 
     if not overwrite:
         return
     log.info("Overwriting configuration dictionary with %s", overwrite)
     for key, value in overwrite.items():
-        _replace_recursively(mapping, key, value)
+        changed = _replace_recursively(mapping, key, value)
+        if not changed:
+            raise KeyError(
+                f"Key {key} not found in the configuration dictionary."
+            )
 
 
 def update_context_from_static() -> None:
