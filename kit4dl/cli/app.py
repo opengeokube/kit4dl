@@ -69,8 +69,8 @@ def _is_test_allowed(trainer: Trainer) -> bool:
 @_app.command()
 def init(
     name: Annotated[
-        str, typer.Option(help="The name of your new project")
-    ] = "new_kit4dl_project"
+        str, typer.Option(default=..., help="The name of your new project")
+    ] = "new_kit4dl_project",
 ) -> None:
     """Create a new Kit4DL project.
 
@@ -93,8 +93,8 @@ def init(
 @_app.command()
 def resume(
     checkpoint: Annotated[
-        str, typer.Option(help="Path to the checkpoint file")
-    ]
+        str, typer.Option(default=..., help="Path to the checkpoint file")
+    ] = "./checkpoint.ckpt",
 ):
     """Resume learning from the checkpoint.
 
@@ -109,7 +109,8 @@ def resume(
 @_app.command()
 def test(
     conf: Annotated[
-        str, typer.Option(help="Path to the configuration TOML file")
+        str,
+        typer.Option(default=..., help="Path to the configuration TOML file"),
     ] = get_default_conf_path(),
 ):
     """Test using the configuration file.
@@ -135,16 +136,20 @@ def test(
 @_app.command()
 def train(
     conf: Annotated[
-        str, typer.Option(help="Path to the configuration TOML file")
+        str,
+        typer.Option(default=..., help="Path to the configuration TOML file"),
     ] = get_default_conf_path(),
     skiptest: Annotated[
         bool,
-        typer.Option(help="If testing (using best weights) should be skipped"),
+        typer.Option(
+            default=...,
+            help="If testing (using best weights) should be skipped",
+        ),
     ] = False,
     overwrite: Annotated[
         Optional[str],
         typer.Option(
-            ...,
+            default=...,
             callback=parse_overwriting_options,
             help="Comma-separated key-value pairs (KEY=VALUE)",
         ),
