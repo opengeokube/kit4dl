@@ -1,0 +1,712 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Kit4DL - A quick way to start with machine and deep learning">
+      
+      
+      
+      
+        <link rel="prev" href="installation.html">
+      
+      
+        <link rel="next" href="cli.html">
+      
+      
+      <link rel="icon" href="static/logo.svg">
+      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.24">
+    
+    
+      
+        <title>Quick start - Kit4DL</title>
+      
+    
+    
+      <link rel="stylesheet" href="assets/stylesheets/main.6543a935.min.css">
+      
+        
+        <link rel="stylesheet" href="assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="teal">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#quick-start" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="index.html" title="Kit4DL" class="md-header__button md-logo" aria-label="Kit4DL" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Kit4DL
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Quick start
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="teal"  aria-hidden="true"  type="radio" name="__palette" id="__palette_0">
+    
+  
+</form>
+      
+    
+    
+      <script>var media,input,key,value,palette=__md_get("__palette");if(palette&&palette.color){"(prefers-color-scheme)"===palette.color.media&&(media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']"),palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent"));for([key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/opengeokube/kit4dl" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 512"><!--! Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M186.1 328.7c0 20.9-10.9 55.1-36.7 55.1s-36.7-34.2-36.7-55.1 10.9-55.1 36.7-55.1 36.7 34.2 36.7 55.1zM480 278.2c0 31.9-3.2 65.7-17.5 95-37.9 76.6-142.1 74.8-216.7 74.8-75.8 0-186.2 2.7-225.6-74.8-14.6-29-20.2-63.1-20.2-95 0-41.9 13.9-81.5 41.5-113.6-5.2-15.8-7.7-32.4-7.7-48.8 0-21.5 4.9-32.3 14.6-51.8 45.3 0 74.3 9 108.8 36 29-6.9 58.8-10 88.7-10 27 0 54.2 2.9 80.4 9.2 34-26.7 63-35.2 107.8-35.2 9.8 19.5 14.6 30.3 14.6 51.8 0 16.4-2.6 32.7-7.7 48.2 27.5 32.4 39 72.3 39 114.2zm-64.3 50.5c0-43.9-26.7-82.6-73.5-82.6-18.9 0-37 3.4-56 6-14.9 2.3-29.8 3.2-45.1 3.2-15.2 0-30.1-.9-45.1-3.2-18.7-2.6-37-6-56-6-46.8 0-73.5 38.7-73.5 82.6 0 87.8 80.4 101.3 150.4 101.3h48.2c70.3 0 150.6-13.4 150.6-101.3zm-82.6-55.1c-25.8 0-36.7 34.2-36.7 55.1s10.9 55.1 36.7 55.1 36.7-34.2 36.7-55.1-10.9-55.1-36.7-55.1z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    opengeokube/kit4dl
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="index.html" title="Kit4DL" class="md-nav__button md-logo" aria-label="Kit4DL" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    Kit4DL
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/opengeokube/kit4dl" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 512"><!--! Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M186.1 328.7c0 20.9-10.9 55.1-36.7 55.1s-36.7-34.2-36.7-55.1 10.9-55.1 36.7-55.1 36.7 34.2 36.7 55.1zM480 278.2c0 31.9-3.2 65.7-17.5 95-37.9 76.6-142.1 74.8-216.7 74.8-75.8 0-186.2 2.7-225.6-74.8-14.6-29-20.2-63.1-20.2-95 0-41.9 13.9-81.5 41.5-113.6-5.2-15.8-7.7-32.4-7.7-48.8 0-21.5 4.9-32.3 14.6-51.8 45.3 0 74.3 9 108.8 36 29-6.9 58.8-10 88.7-10 27 0 54.2 2.9 80.4 9.2 34-26.7 63-35.2 107.8-35.2 9.8 19.5 14.6 30.3 14.6 51.8 0 16.4-2.6 32.7-7.7 48.2 27.5 32.4 39 72.3 39 114.2zm-64.3 50.5c0-43.9-26.7-82.6-73.5-82.6-18.9 0-37 3.4-56 6-14.9 2.3-29.8 3.2-45.1 3.2-15.2 0-30.1-.9-45.1-3.2-18.7-2.6-37-6-56-6-46.8 0-73.5 38.7-73.5 82.6 0 87.8 80.4 101.3 150.4 101.3h48.2c70.3 0 150.6-13.4 150.6-101.3zm-82.6-55.1c-25.8 0-36.7 34.2-36.7 55.1s10.9 55.1 36.7 55.1 36.7-34.2 36.7-55.1-10.9-55.1-36.7-55.1z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    opengeokube/kit4dl
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="index.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    About
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="installation.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Installation
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Quick start
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="quick.html" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Quick start
+  </span>
+  
+
+      </a>
+      
+        
+
+  
+
+<nav class="md-nav md-nav--secondary" aria-label="Page contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Page contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#step-1-create-a-virtual-environment" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 1. Create a virtual environment
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-2-install-kit4dl" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 2. Install Kit4DL
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-3-prepare-an-empty-kit4dl-project" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 3. Prepare an empty Kit4DL project:
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-4-prepare-toml-configuration-file" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 4. Prepare TOML configuration file
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="cli.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    CLI
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="nn.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Neural networks
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="datamodule.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Data module
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+  
+
+<nav class="md-nav md-nav--secondary" aria-label="Page contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Page contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#step-1-create-a-virtual-environment" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 1. Create a virtual environment
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-2-install-kit4dl" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 2. Install Kit4DL
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-3-prepare-an-empty-kit4dl-project" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 3. Prepare an empty Kit4DL project:
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-4-prepare-toml-configuration-file" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 4. Prepare TOML configuration file
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+<h1 id="quick-start">Quick start<a class="headerlink" href="#quick-start" title="Permanent link">&para;</a></h1>
+<p>Below, you can find quick start quide for <strong>Kit4DL</strong>.</p>
+<h2 id="step-1-create-a-virtual-environment">Step 1. Create a virtual environment<a class="headerlink" href="#step-1-create-a-virtual-environment" title="Permanent link">&para;</a></h2>
+<p>You can use <code>venv</code> built-it package:</p>
+<p><div class="language-bash copy highlight"><pre><span></span><code>python<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>ai
+</code></pre></div>
+and activate it using appropriate file in <code>ai/bin</code> directory.</p>
+<p>You can also use conda environments:</p>
+<p><div class="language-bash copy highlight"><pre><span></span><code>conda<span class="w"> </span>create<span class="w"> </span>-n<span class="w"> </span>ai<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.11
+</code></pre></div>
+and activate it using the command</p>
+<div class="language-bash copy highlight"><pre><span></span><code>conda<span class="w"> </span>activate<span class="w"> </span>ai
+</code></pre></div>
+<h2 id="step-2-install-kit4dl">Step 2. Install Kit4DL<a class="headerlink" href="#step-2-install-kit4dl" title="Permanent link">&para;</a></h2>
+<p>Either using <code>PyPI</code> repository:</p>
+<div class="language-bash copy highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span>kit4dl<span class="w"> </span>
+</code></pre></div>
+<p>or using Anaconda repository:</p>
+<div class="language-bash copy highlight"><pre><span></span><code>conda<span class="w"> </span>install<span class="w"> </span>-c<span class="w"> </span>conda-forge<span class="w"> </span>kit4dl
+</code></pre></div>
+<h2 id="step-3-prepare-an-empty-kit4dl-project">Step 3. Prepare an empty Kit4DL project:<a class="headerlink" href="#step-3-prepare-an-empty-kit4dl-project" title="Permanent link">&para;</a></h2>
+<div class="language-python annotate highlight"><pre><span></span><code><span class="n">kit4dl</span> <span class="n">init</span> <span class="o">--</span><span class="n">name</span><span class="o">=</span><span class="n">my</span><span class="o">-</span><span class="n">first</span><span class="o">-</span><span class="n">project</span> <span class="c1"># (1)!</span>
+</code></pre></div>
+<ol>
+<li>Parameter <code>--name</code> is optional and, by default, takes value <code>new_kit4dl_project</code></li>
+</ol>
+<h2 id="step-4-prepare-toml-configuration-file">Step 4. Prepare TOML configuration file<a class="headerlink" href="#step-4-prepare-toml-configuration-file" title="Permanent link">&para;</a></h2>
+<p>All configuration stuff related to ANN learning, validation and testing is managed by the configuration file in TOML format.
+When you create an empty Kit4DL project, you'll get example config.toml file with the following structure:</p>
+<div class="language-toml annotate highlight"><pre><span></span><code><span class="k">[base]</span><span class="w"> </span><span class="c1"># (1)!</span>
+<span class="n">seed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="c1"># (2)!</span>
+<span class="n">cuda_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="c1"># (3)!</span>
+<span class="n">experiment_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;my_new_awesome_experiment&quot;</span><span class="w"> </span><span class="c1"># (4)!</span>
+
+<span class="k">[logging]</span><span class="w"> </span><span class="c1"># (5)!</span>
+<span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;comet&quot;</span><span class="w"> </span><span class="c1"># (6)!</span>
+<span class="n">level</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;info&quot;</span><span class="w"> </span><span class="c1"># (7)!</span>
+<span class="n">format</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;%(asctime)s - %(name)s - %(levelname)s - %(message)s&quot;</span><span class="w"> </span><span class="c1"># (8)!</span>
+
+
+<span class="k">[model]</span><span class="w"> </span><span class="c1"># (9)!</span>
+<span class="n">target</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;./model.py::MyNewNetwork&quot;</span><span class="w"> </span><span class="c1"># (10)!</span>
+<span class="n">arg1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;...&quot;</span><span class="w"> </span><span class="c1"># (11)!</span>
+<span class="n">arg2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;...&quot;</span>
+
+<span class="k">[training]</span><span class="w"> </span><span class="c1"># (12)!</span>
+<span class="n">epochs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">100</span><span class="w"> </span><span class="c1"># (13)!</span>
+<span class="n">epoch_schedulers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="c1"># (14)!</span>
+<span class="w">    </span><span class="p">{</span><span class="n">target</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">&quot;torch.optim.lr_scheduler::CosineAnnealingLR&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">T_max</span><span class="p">=</span><span class="mi">100</span><span class="p">}</span>
+<span class="p">]</span>
+
+<span class="k">[training.checkpoint]</span><span class="w"> </span><span class="c1"># (15)!</span>
+<span class="n">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;my_checkpoints&quot;</span><span class="w"> </span><span class="c1"># (16)!</span>
+<span class="n">monitor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="n">metric</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">&quot;MyScore&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">stage</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">&quot;val&quot;</span><span class="p">}</span><span class="w"> </span><span class="c1"># (17)!</span>
+<span class="n">filename</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;{epoch}_{val_myscore:.2f}_some_name&quot;</span><span class="w"> </span><span class="c1"># (18)!</span>
+<span class="n">mode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;max&quot;</span><span class="w"> </span><span class="c1"># (19)!</span>
+<span class="n">save_top_k</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
+
+<span class="k">[training.optimizer]</span>
+<span class="n">target</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;torch.optim::Adam&quot;</span><span class="w"> </span><span class="c1"># (20)!</span>
+<span class="n">lr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0001</span><span class="w"> </span><span class="c1"># (21)!</span>
+<span class="n">weight_decay</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.03</span>
+
+<span class="k">[training.criterion]</span>
+<span class="n">target</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;torch.nn::NLLLoss&quot;</span><span class="w"> </span><span class="c1"># (22)!</span>
+<span class="n">weight</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="mf">0.1</span><span class="p">,</span><span class="w"> </span><span class="mf">0.9</span><span class="p">]</span><span class="w"> </span><span class="c1"># (23)!</span>
+
+<span class="k">[validation]</span>
+<span class="n">run_every_epoch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="c1"># (24)!</span>
+
+<span class="k">[dataset]</span>
+<span class="n">target</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;./datamodule.py::MyCustomDatamodule&quot;</span><span class="w"> </span><span class="c1"># (25)!</span>
+
+<span class="k">[dataset.trainval]</span><span class="w"> </span><span class="c1"># (26)!</span>
+<span class="n">arg1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">10</span><span class="w"> </span><span class="c1"># (27)!</span>
+<span class="n">arg2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="err">...</span>
+
+<span class="k">[dataset.train]</span><span class="w"> </span><span class="c1"># (28)!</span>
+<span class="n">root_dir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;my_train_file.txt&quot;</span><span class="w"> </span><span class="c1"># (29)!</span>
+
+<span class="k">[dataset.validation]</span>
+<span class="n">root_dir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;my_val_file.txt&quot;</span>
+
+<span class="k">[dataset.train.loader]</span><span class="w"> </span><span class="c1"># (30)!</span>
+<span class="n">batch_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">10</span><span class="w"> </span><span class="c1"># (31)!</span>
+<span class="n">shuffle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+<span class="n">num_workers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">4</span>
+
+<span class="k">[dataset.validation.loader]</span><span class="w"> </span><span class="c1"># (32)!</span>
+<span class="n">batch_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">10</span>
+<span class="n">shuffle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">false</span>
+<span class="n">num_workers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">4</span>
+
+<span class="k">[dataset.test.loader]</span><span class="w"> </span><span class="c1"># (33)!</span>
+<span class="n">batch_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">10</span>
+<span class="n">shuffle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">false</span>
+<span class="n">num_workers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">4</span>
+
+<span class="k">[metrics]</span><span class="w"> </span><span class="c1"># (34)!</span>
+<span class="n">MyScore</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span>
+<span class="w">    </span><span class="n">target</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;torchmetrics::Precision&quot;</span><span class="err">,</span><span class="w">  </span><span class="c1"># (35)!</span>
+<span class="w">    </span><span class="n">task</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;multiclass&quot;</span><span class="err">,</span><span class="w"> </span><span class="c1"># (36)!</span>
+<span class="w">    </span><span class="n">num_classes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">10</span><span class="err">}</span><span class="w">  </span>
+<span class="n">MySecondScore</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="n">target</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">&quot;torchmetrics::FBetaScore&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">task</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">&quot;multiclass&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">num_classes</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="n">beta</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mf">0.1</span><span class="p">}</span><span class="w"> </span>
+</code></pre></div>
+<ol>
+<li>The section with base setup.</li>
+<li>Seed for pseudorandom numbers generator (to enable reproducibility).</li>
+<li>CUDA device ID to use (if you have just one GPU installed, use <code>0</code>). To use CPU for learning, remove that line.</li>
+<li>Experiment name to use throughout the learning/logging process. Basically, it can be any text you want.</li>
+<li>Section for logging setup.</li>
+<li>One of supported logging services to use ("comet", "csv", "mlflow", "neptune", "tensorboard", "wandb"). If not set, <code>csv</code> will be used.</li>
+<li>Logging level for Python logger ("debug", "info", "warn", "error").</li>
+<li>Logging format according to Python logging documentation. Use <a href="https://docs.python.org/3/library/logging.html#logrecord-attributes">supported attributes</a>.</li>
+<li>ANN-model related configuration.</li>
+<li>Path to the subclass of <code>Kit4DLAbstractModule</code>. If can be an absolute or relative path followed by class name (e.g. <code>./model.py::MyNewNetwork</code>). If the class is importable, you can specify its fully qualified name (e.g. <code>some_package.some_module.MyNewNetwork</code>).</li>
+<li>If you class <code>MyNewNetwork</code> have some parameters, you can specify them here (e.g. number of layers, number of hidden units, etc).</li>
+<li>The section with trening-specific configuration.</li>
+<li>Quite self-explanatory: number of epochs :)</li>
+<li>If you want to specify some epochs schedulers, you can add <code>epoch_schedulers</code> attribute in the configuration file. It should be a list of dictionaries. Each dictionary should have <code>target</code> attribute indicating a class to the scheduler, and - if needed - other arguments required by the scheduler class indicated in <code>target</code> property.</li>
+<li>You can specify model checkpointing!</li>
+<li>Directory where checkpoints should be saved.</li>
+<li>Attribute to indicate which metric should be tracked for checkpointing (e.g. to save the model with the best accuracy) and for which phase (suuported phases are: <code>train</code>, <code>val</code>).</li>
+<li>Pattern for saved checkpoint as indicated <a href="https://lightning.ai/docs/pytorch/stable/api/lightning.pytorch.callbacks.ModelCheckpoint.html">here</a>. You can use metric defined in <code>[metric]</code> section using the pattern <code>&lt;stage&gt;_&lt;lowercase metric name&gt;</code> (e.g. <code>val_myscore</code>).</li>
+<li>You can also define some other arguments accepted by <a href="https://lightning.ai/docs/pytorch/stable/api/lightning.pytorch.callbacks.ModelCheckpoint.html">ModelCheckpoint</a></li>
+<li>Path to the optimizer class.</li>
+<li>The optimizer-specify arguments can be specified as extra attributes in the section.</li>
+<li>Path to the criterion class</li>
+<li>Weights for criterion specified as list of floats.</li>
+<li>How frequently validation should be run.</li>
+<li>Path to the subclass of <code>Kit4DLAbstractDataModule</code></li>
+<li>If there is a common procedure for generating train/validation sSlit like random split the input data, you can define arguments in the section [dataset.trainval]. </li>
+<li>Arguments for the <code>prepare_trainvaldataset</code> method of you subclass of <code>Kit4DLAbstractDataModule</code> might be passed as extra attributes in this section.</li>
+<li>If you want to specify different logic for train and validation datasets like loading separate formerly prepared files, you can use separate sections [dataset.train] and [dataset.validation].</li>
+<li>This is a sample argument passed to <code>prepare_traindataset</code> of you subclass of <code>Kit4DLAbstractDataModule</code>.</li>
+<li>Section for configuration of data loader for train dataset.</li>
+<li>You can define all arguments accepted by <a href="https://pytorch.org/docs/stable/data.html#torch.utils.data.DataLoader">pytorch DataLoader</a></li>
+<li>Similarily for validation data loader...</li>
+<li>... and the test one.</li>
+<li>The section contains metric used for evaluate model, save checkpoints, and store in services like <a href="http://comet.com">Comet.ml</a>. Each metric is a dictionary whose key must be an only-letter text without white signs...</li>
+<li><code>target</code> key for a metric should indicate a subclass of <code>torchmetric.Metric</code> base class or one of the metrics defined in <code>torchmetric</code> package (e.g. <code>torchmetrics::Precision</code>).</li>
+<li>Some extra arguments required by the given metric can be specified as other items in the dictionary.</li>
+</ol>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": ".", "features": ["search.suggest", "search.highlight", "content.tooltips", "content.code.annotate", "content.code.copy", "content.code.select"], "search": "assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="assets/javascripts/bundle.081f42fc.min.js"></script>
+      
+    
+  </body>
+</html>

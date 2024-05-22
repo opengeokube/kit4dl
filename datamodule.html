@@ -1,0 +1,2408 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Kit4DL - A quick way to start with machine and deep learning">
+      
+      
+      
+      
+        <link rel="prev" href="nn.html">
+      
+      
+      
+      <link rel="icon" href="static/logo.svg">
+      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.24">
+    
+    
+      
+        <title>Data module - Kit4DL</title>
+      
+    
+    
+      <link rel="stylesheet" href="assets/stylesheets/main.6543a935.min.css">
+      
+        
+        <link rel="stylesheet" href="assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="teal">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#specifying-data-module" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="index.html" title="Kit4DL" class="md-header__button md-logo" aria-label="Kit4DL" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Kit4DL
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Data module
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="teal"  aria-hidden="true"  type="radio" name="__palette" id="__palette_0">
+    
+  
+</form>
+      
+    
+    
+      <script>var media,input,key,value,palette=__md_get("__palette");if(palette&&palette.color){"(prefers-color-scheme)"===palette.color.media&&(media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']"),palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent"));for([key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/opengeokube/kit4dl" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 512"><!--! Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M186.1 328.7c0 20.9-10.9 55.1-36.7 55.1s-36.7-34.2-36.7-55.1 10.9-55.1 36.7-55.1 36.7 34.2 36.7 55.1zM480 278.2c0 31.9-3.2 65.7-17.5 95-37.9 76.6-142.1 74.8-216.7 74.8-75.8 0-186.2 2.7-225.6-74.8-14.6-29-20.2-63.1-20.2-95 0-41.9 13.9-81.5 41.5-113.6-5.2-15.8-7.7-32.4-7.7-48.8 0-21.5 4.9-32.3 14.6-51.8 45.3 0 74.3 9 108.8 36 29-6.9 58.8-10 88.7-10 27 0 54.2 2.9 80.4 9.2 34-26.7 63-35.2 107.8-35.2 9.8 19.5 14.6 30.3 14.6 51.8 0 16.4-2.6 32.7-7.7 48.2 27.5 32.4 39 72.3 39 114.2zm-64.3 50.5c0-43.9-26.7-82.6-73.5-82.6-18.9 0-37 3.4-56 6-14.9 2.3-29.8 3.2-45.1 3.2-15.2 0-30.1-.9-45.1-3.2-18.7-2.6-37-6-56-6-46.8 0-73.5 38.7-73.5 82.6 0 87.8 80.4 101.3 150.4 101.3h48.2c70.3 0 150.6-13.4 150.6-101.3zm-82.6-55.1c-25.8 0-36.7 34.2-36.7 55.1s10.9 55.1 36.7 55.1 36.7-34.2 36.7-55.1-10.9-55.1-36.7-55.1z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    opengeokube/kit4dl
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="index.html" title="Kit4DL" class="md-nav__button md-logo" aria-label="Kit4DL" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    Kit4DL
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/opengeokube/kit4dl" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 512"><!--! Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M186.1 328.7c0 20.9-10.9 55.1-36.7 55.1s-36.7-34.2-36.7-55.1 10.9-55.1 36.7-55.1 36.7 34.2 36.7 55.1zM480 278.2c0 31.9-3.2 65.7-17.5 95-37.9 76.6-142.1 74.8-216.7 74.8-75.8 0-186.2 2.7-225.6-74.8-14.6-29-20.2-63.1-20.2-95 0-41.9 13.9-81.5 41.5-113.6-5.2-15.8-7.7-32.4-7.7-48.8 0-21.5 4.9-32.3 14.6-51.8 45.3 0 74.3 9 108.8 36 29-6.9 58.8-10 88.7-10 27 0 54.2 2.9 80.4 9.2 34-26.7 63-35.2 107.8-35.2 9.8 19.5 14.6 30.3 14.6 51.8 0 16.4-2.6 32.7-7.7 48.2 27.5 32.4 39 72.3 39 114.2zm-64.3 50.5c0-43.9-26.7-82.6-73.5-82.6-18.9 0-37 3.4-56 6-14.9 2.3-29.8 3.2-45.1 3.2-15.2 0-30.1-.9-45.1-3.2-18.7-2.6-37-6-56-6-46.8 0-73.5 38.7-73.5 82.6 0 87.8 80.4 101.3 150.4 101.3h48.2c70.3 0 150.6-13.4 150.6-101.3zm-82.6-55.1c-25.8 0-36.7 34.2-36.7 55.1s10.9 55.1 36.7 55.1 36.7-34.2 36.7-55.1-10.9-55.1-36.7-55.1z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    opengeokube/kit4dl
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="index.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    About
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="installation.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Installation
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="quick.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Quick start
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="cli.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    CLI
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="nn.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Neural networks
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Data module
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="datamodule.html" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Data module
+  </span>
+  
+
+      </a>
+      
+        
+
+  
+
+<nav class="md-nav md-nav--secondary" aria-label="Page contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Page contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule" class="md-nav__link">
+    <span class="md-ellipsis">
+      Kit4DLAbstractDataModule
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.prepare_data" class="md-nav__link">
+    <span class="md-ellipsis">
+      prepare_data
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="prepare_data">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.prepare_data--examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      Examples
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.prepare_traindataset" class="md-nav__link">
+    <span class="md-ellipsis">
+      prepare_traindataset
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="prepare_traindataset">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.prepare_traindataset--parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parameters
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.prepare_traindataset--returns" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.prepare_traindataset--examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      Examples
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.prepare_valdataset" class="md-nav__link">
+    <span class="md-ellipsis">
+      prepare_valdataset
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="prepare_valdataset">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.prepare_valdataset--parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parameters
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.prepare_valdataset--returns" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.prepare_valdataset--examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      Examples
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.prepare_trainvaldatasets" class="md-nav__link">
+    <span class="md-ellipsis">
+      prepare_trainvaldatasets
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="prepare_trainvaldatasets">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.prepare_trainvaldatasets--parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parameters
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.prepare_trainvaldatasets--returns" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.prepare_trainvaldatasets--examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      Examples
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.prepare_testdataset" class="md-nav__link">
+    <span class="md-ellipsis">
+      prepare_testdataset
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="prepare_testdataset">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.prepare_testdataset--parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parameters
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.prepare_testdataset--returns" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.prepare_testdataset--examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      Examples
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.prepare_predictdataset" class="md-nav__link">
+    <span class="md-ellipsis">
+      prepare_predictdataset
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="prepare_predictdataset">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.prepare_predictdataset--parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parameters
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.prepare_predictdataset--returns" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.prepare_predictdataset--examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      Examples
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      setup
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="setup">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.setup--parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parameters
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.get_collate_fn" class="md-nav__link">
+    <span class="md-ellipsis">
+      get_collate_fn
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.get_train_collate_fn" class="md-nav__link">
+    <span class="md-ellipsis">
+      get_train_collate_fn
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.get_val_collate_fn" class="md-nav__link">
+    <span class="md-ellipsis">
+      get_val_collate_fn
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.get_test_collate_fn" class="md-nav__link">
+    <span class="md-ellipsis">
+      get_test_collate_fn
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.get_predict_collate_fn" class="md-nav__link">
+    <span class="md-ellipsis">
+      get_predict_collate_fn
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.trainval_dataloaders" class="md-nav__link">
+    <span class="md-ellipsis">
+      trainval_dataloaders
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.test_dataloader" class="md-nav__link">
+    <span class="md-ellipsis">
+      test_dataloader
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.predict_dataloader" class="md-nav__link">
+    <span class="md-ellipsis">
+      predict_dataloader
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.numpy_train_dataloader" class="md-nav__link">
+    <span class="md-ellipsis">
+      numpy_train_dataloader
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.numpy_val_dataloader" class="md-nav__link">
+    <span class="md-ellipsis">
+      numpy_val_dataloader
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.numpy_testdataloader" class="md-nav__link">
+    <span class="md-ellipsis">
+      numpy_testdataloader
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.numpy_predictdataloader" class="md-nav__link">
+    <span class="md-ellipsis">
+      numpy_predictdataloader
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#custom-splits" class="md-nav__link">
+    <span class="md-ellipsis">
+      Custom splits
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+  
+
+<nav class="md-nav md-nav--secondary" aria-label="Page contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Page contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule" class="md-nav__link">
+    <span class="md-ellipsis">
+      Kit4DLAbstractDataModule
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.prepare_data" class="md-nav__link">
+    <span class="md-ellipsis">
+      prepare_data
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="prepare_data">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.prepare_data--examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      Examples
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.prepare_traindataset" class="md-nav__link">
+    <span class="md-ellipsis">
+      prepare_traindataset
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="prepare_traindataset">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.prepare_traindataset--parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parameters
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.prepare_traindataset--returns" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.prepare_traindataset--examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      Examples
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.prepare_valdataset" class="md-nav__link">
+    <span class="md-ellipsis">
+      prepare_valdataset
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="prepare_valdataset">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.prepare_valdataset--parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parameters
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.prepare_valdataset--returns" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.prepare_valdataset--examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      Examples
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.prepare_trainvaldatasets" class="md-nav__link">
+    <span class="md-ellipsis">
+      prepare_trainvaldatasets
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="prepare_trainvaldatasets">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.prepare_trainvaldatasets--parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parameters
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.prepare_trainvaldatasets--returns" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.prepare_trainvaldatasets--examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      Examples
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.prepare_testdataset" class="md-nav__link">
+    <span class="md-ellipsis">
+      prepare_testdataset
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="prepare_testdataset">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.prepare_testdataset--parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parameters
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.prepare_testdataset--returns" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.prepare_testdataset--examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      Examples
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.prepare_predictdataset" class="md-nav__link">
+    <span class="md-ellipsis">
+      prepare_predictdataset
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="prepare_predictdataset">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.prepare_predictdataset--parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parameters
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.prepare_predictdataset--returns" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.prepare_predictdataset--examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      Examples
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      setup
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="setup">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.setup--parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parameters
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.get_collate_fn" class="md-nav__link">
+    <span class="md-ellipsis">
+      get_collate_fn
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.get_train_collate_fn" class="md-nav__link">
+    <span class="md-ellipsis">
+      get_train_collate_fn
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.get_val_collate_fn" class="md-nav__link">
+    <span class="md-ellipsis">
+      get_val_collate_fn
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.get_test_collate_fn" class="md-nav__link">
+    <span class="md-ellipsis">
+      get_test_collate_fn
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.get_predict_collate_fn" class="md-nav__link">
+    <span class="md-ellipsis">
+      get_predict_collate_fn
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.trainval_dataloaders" class="md-nav__link">
+    <span class="md-ellipsis">
+      trainval_dataloaders
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.test_dataloader" class="md-nav__link">
+    <span class="md-ellipsis">
+      test_dataloader
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.predict_dataloader" class="md-nav__link">
+    <span class="md-ellipsis">
+      predict_dataloader
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.numpy_train_dataloader" class="md-nav__link">
+    <span class="md-ellipsis">
+      numpy_train_dataloader
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.numpy_val_dataloader" class="md-nav__link">
+    <span class="md-ellipsis">
+      numpy_val_dataloader
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.numpy_testdataloader" class="md-nav__link">
+    <span class="md-ellipsis">
+      numpy_testdataloader
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.numpy_predictdataloader" class="md-nav__link">
+    <span class="md-ellipsis">
+      numpy_predictdataloader
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#custom-splits" class="md-nav__link">
+    <span class="md-ellipsis">
+      Custom splits
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+<h1 id="specifying-data-module">Specifying data module<a class="headerlink" href="#specifying-data-module" title="Permanent link">&para;</a></h1>
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<a id="kit4dl.nn.dataset.Kit4DLAbstractDataModule"></a>
+    <div class="doc doc-contents first">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-external" title="abc.ABC" href="https://docs.python.org/3/library/abc.html#abc.ABC">ABC</a></code>, <code><span title="lightning.pytorch.LightningDataModule">LightningDataModule</span></code>, <code><span title="kit4dl.mixins.LoggerMixin">LoggerMixin</span></code></p>
+
+
+      <p>The class with the logic for dataset management.</p>
+<p>The class provides a user with a simple interface:
+<code>prepare_data</code> is a method for downloading and preprocessing datasets
+<code>prepare_traindatasets</code> is a method returning <code>torch.Dataset</code> for train
+    data
+<code>prepare_valdatasets</code> is a method returning <code>torch.Dataset</code> for validation
+    data
+<code>prepare_trainvaldatasets</code> is a method returning a tuple of two
+    <code>torch.Dataset</code>s for train and validation data
+    (if this method is provided, <code>prepare_traindatasets</code> and
+    <code>prepare_valdatasets</code> shouldn't be implemented)
+<code>prepare_testdataset</code> is a method returning <code>torch.Dataset</code> for test data
+<code>prepare_predictdataset</code> is a method returning <code>torch.Dataset</code> for data
+    for prediction</p>
+
+                  <details class="quote">
+                    <summary>Source code in <code>kit4dl/nn/dataset.py</code></summary>
+                    <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">38</span>
+<span class="normal">39</span>
+<span class="normal">40</span>
+<span class="normal">41</span>
+<span class="normal">42</span>
+<span class="normal">43</span>
+<span class="normal">44</span>
+<span class="normal">45</span>
+<span class="normal">46</span>
+<span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span>
+<span class="normal">55</span>
+<span class="normal">56</span>
+<span class="normal">57</span>
+<span class="normal">58</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">conf</span><span class="p">:</span> <span class="n">DatasetConf</span><span class="p">):</span>
+    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">conf</span> <span class="o">=</span> <span class="n">conf</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">trainval_dataset_generator</span><span class="p">:</span> <span class="p">(</span>
+        <span class="n">Generator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">Dataset</span><span class="p">],</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">train_dataset</span><span class="p">:</span> <span class="n">Dataset</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">val_dataset</span><span class="p">:</span> <span class="n">Dataset</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">test_dataset</span><span class="p">:</span> <span class="n">Dataset</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">predict_dataset</span><span class="p">:</span> <span class="n">Dataset</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_split_suffix</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+        <span class="s2">&quot;KIT4DL_SPLIT_PREFIX&quot;</span><span class="p">,</span> <span class="s2">&quot;(split=</span><span class="si">{:02d}</span><span class="s2">)&quot;</span>
+    <span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_configure_logger</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">extra_arg_key</span><span class="p">,</span> <span class="n">extra_arg_value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">conf</span><span class="o">.</span><span class="n">arguments</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="s2">&quot;setting extra user-defined argument: </span><span class="si">%s</span><span class="s2">:</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">extra_arg_key</span><span class="p">,</span>
+            <span class="n">extra_arg_value</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">extra_arg_key</span><span class="p">,</span> <span class="n">extra_arg_value</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+                  </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="kit4dl.nn.dataset.Kit4DLAbstractDataModule.prepare_data" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">prepare_data</span>
+
+
+<a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.prepare_data" class="headerlink" title="Permanent link">&para;</a></h2>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span class="nf">prepare_data</span><span class="p">()</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+      <p>Prepare dataset for train/validation/test/predict splits.</p>
+<h4 id="kit4dl.nn.dataset.Kit4DLAbstractDataModule.prepare_data--examples">Examples<a class="headerlink" href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.prepare_data--examples" title="Permanent link">&para;</a></h4>
+<div class="language-python highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">MyDatamodule</span><span class="p">(</span><span class="n">Kit4DLAbstractDataModule</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">prepare_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># any logic you need to perform before creating splits</span>
+        <span class="n">download_dataset</span><span class="p">()</span>
+</code></pre></div>
+
+            <details class="quote">
+              <summary>Source code in <code>kit4dl/nn/dataset.py</code></summary>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">67</span>
+<span class="normal">68</span>
+<span class="normal">69</span>
+<span class="normal">70</span>
+<span class="normal">71</span>
+<span class="normal">72</span>
+<span class="normal">73</span>
+<span class="normal">74</span>
+<span class="normal">75</span>
+<span class="normal">76</span>
+<span class="normal">77</span>
+<span class="normal">78</span>
+<span class="normal">79</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">prepare_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Prepare dataset for train/validation/test/predict splits.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    ```python</span>
+<span class="sd">    class MyDatamodule(Kit4DLAbstractDataModule):</span>
+
+<span class="sd">        def prepare_data(self):</span>
+<span class="sd">            # any logic you need to perform before creating splits</span>
+<span class="sd">            download_dataset()</span>
+<span class="sd">    ```</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="kit4dl.nn.dataset.Kit4DLAbstractDataModule.prepare_traindataset" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">prepare_traindataset</span>
+
+
+<a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.prepare_traindataset" class="headerlink" title="Permanent link">&para;</a></h2>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span class="nf">prepare_traindataset</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3/library/typing.html#typing.Any">Any</a></span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3/library/typing.html#typing.Any">Any</a></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="torch.utils.data.Dataset">Dataset</span></span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+      <p>Prepare dataset for training.</p>
+<h4 id="kit4dl.nn.dataset.Kit4DLAbstractDataModule.prepare_traindataset--parameters">Parameters<a class="headerlink" href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.prepare_traindataset--parameters" title="Permanent link">&para;</a></h4>
+<p><em>args: Any
+    List of positional arguments to setup the dataset
+*</em>kwargs : Any
+    List of named arguments required to setup the dataset</p>
+<h4 id="kit4dl.nn.dataset.Kit4DLAbstractDataModule.prepare_traindataset--returns">Returns<a class="headerlink" href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.prepare_traindataset--returns" title="Permanent link">&para;</a></h4>
+<p>train_dataset : Dataset
+    A training dataset</p>
+<h4 id="kit4dl.nn.dataset.Kit4DLAbstractDataModule.prepare_traindataset--examples">Examples<a class="headerlink" href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.prepare_traindataset--examples" title="Permanent link">&para;</a></h4>
+<div class="language-python highlight"><pre><span></span><code><span class="o">...</span>
+<span class="k">def</span> <span class="nf">prepare_traindatasets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dataset</span><span class="p">:</span>
+    <span class="n">train_dset</span> <span class="o">=</span> <span class="n">MyDataset</span><span class="p">(</span><span class="n">root_dir</span><span class="o">=</span><span class="n">root_dir</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">train_dset</span>
+</code></pre></div>
+
+            <details class="quote">
+              <summary>Source code in <code>kit4dl/nn/dataset.py</code></summary>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 81</span>
+<span class="normal"> 82</span>
+<span class="normal"> 83</span>
+<span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">prepare_traindataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Prepare dataset for training.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    *args: Any</span>
+<span class="sd">        List of positional arguments to setup the dataset</span>
+<span class="sd">    **kwargs : Any</span>
+<span class="sd">        List of named arguments required to setup the dataset</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    train_dataset : Dataset</span>
+<span class="sd">        A training dataset</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    ```python</span>
+<span class="sd">    ...</span>
+<span class="sd">    def prepare_traindatasets(self, root_dir: str) -&gt; Dataset:</span>
+<span class="sd">        train_dset = MyDataset(root_dir=root_dir)</span>
+<span class="sd">        return train_dset</span>
+<span class="sd">    ```</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="kit4dl.nn.dataset.Kit4DLAbstractDataModule.prepare_valdataset" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">prepare_valdataset</span>
+
+
+<a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.prepare_valdataset" class="headerlink" title="Permanent link">&para;</a></h2>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span class="nf">prepare_valdataset</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3/library/typing.html#typing.Any">Any</a></span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3/library/typing.html#typing.Any">Any</a></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="torch.utils.data.Dataset">Dataset</span></span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+      <p>Prepare dataset for validation.</p>
+<h4 id="kit4dl.nn.dataset.Kit4DLAbstractDataModule.prepare_valdataset--parameters">Parameters<a class="headerlink" href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.prepare_valdataset--parameters" title="Permanent link">&para;</a></h4>
+<p><em>args: Any
+    List of positional arguments to setup the dataset
+*</em>kwargs : Any
+    List of named arguments required to setup the dataset</p>
+<h4 id="kit4dl.nn.dataset.Kit4DLAbstractDataModule.prepare_valdataset--returns">Returns<a class="headerlink" href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.prepare_valdataset--returns" title="Permanent link">&para;</a></h4>
+<p>val_dataset : Dataset
+    A validation dataset</p>
+<h4 id="kit4dl.nn.dataset.Kit4DLAbstractDataModule.prepare_valdataset--examples">Examples<a class="headerlink" href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.prepare_valdataset--examples" title="Permanent link">&para;</a></h4>
+<div class="language-python highlight"><pre><span></span><code><span class="o">...</span>
+<span class="k">def</span> <span class="nf">prepare_valdatasets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dataset</span><span class="p">:</span>
+    <span class="n">val_dset</span> <span class="o">=</span> <span class="n">MyDataset</span><span class="p">(</span><span class="n">root_dir</span><span class="o">=</span><span class="n">root_dir</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">val_dset</span>
+</code></pre></div>
+
+            <details class="quote">
+              <summary>Source code in <code>kit4dl/nn/dataset.py</code></summary>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">prepare_valdataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Prepare dataset for validation.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    *args: Any</span>
+<span class="sd">        List of positional arguments to setup the dataset</span>
+<span class="sd">    **kwargs : Any</span>
+<span class="sd">        List of named arguments required to setup the dataset</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    val_dataset : Dataset</span>
+<span class="sd">        A validation dataset</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    ```python</span>
+<span class="sd">    ...</span>
+<span class="sd">    def prepare_valdatasets(self, root_dir: str) -&gt; Dataset:</span>
+<span class="sd">        val_dset = MyDataset(root_dir=root_dir)</span>
+<span class="sd">        return val_dset</span>
+<span class="sd">    ```</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="kit4dl.nn.dataset.Kit4DLAbstractDataModule.prepare_trainvaldatasets" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">prepare_trainvaldatasets</span>
+
+
+<a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.prepare_trainvaldatasets" class="headerlink" title="Permanent link">&para;</a></h2>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span class="nf">prepare_trainvaldatasets</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3/library/typing.html#typing.Any">Any</a></span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3/library/typing.html#typing.Any">Any</a></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Generator" href="https://docs.python.org/3/library/typing.html#typing.Generator">Generator</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#tuple">tuple</a></span><span class="p">[</span><span class="n"><span title="torch.utils.data.Dataset">Dataset</span></span><span class="p">,</span> <span class="n"><span title="torch.utils.data.Dataset">Dataset</span></span><span class="p">],</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+      <p>Prepare dataset for training and validation.</p>
+<h4 id="kit4dl.nn.dataset.Kit4DLAbstractDataModule.prepare_trainvaldatasets--parameters">Parameters<a class="headerlink" href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.prepare_trainvaldatasets--parameters" title="Permanent link">&para;</a></h4>
+<p><em>args: Any
+    List of positional arguments to setup the dataset
+*</em>kwargs : Any
+    List of named arguments required to setup the dataset</p>
+<h4 id="kit4dl.nn.dataset.Kit4DLAbstractDataModule.prepare_trainvaldatasets--returns">Returns<a class="headerlink" href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.prepare_trainvaldatasets--returns" title="Permanent link">&para;</a></h4>
+<p>trainval_dataset_generators : tuple of two Datasets and a string
+    Tuple consisting of train and validation dataset, and a suffix
+    for the split</p>
+<h4 id="kit4dl.nn.dataset.Kit4DLAbstractDataModule.prepare_trainvaldatasets--examples">Examples<a class="headerlink" href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.prepare_trainvaldatasets--examples" title="Permanent link">&para;</a></h4>
+<div class="language-python highlight"><pre><span></span><code><span class="o">...</span>
+<span class="k">def</span> <span class="nf">prepare_trainvaldatasets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">Dataset</span><span class="p">]:</span>
+    <span class="n">dset</span> <span class="o">=</span> <span class="n">MyDataset</span><span class="p">(</span><span class="n">root_dir</span><span class="o">=</span><span class="n">root_dir</span><span class="p">)</span>
+    <span class="n">train_dset</span><span class="p">,</span> <span class="n">val_dset</span> <span class="o">=</span> <span class="n">random_split</span><span class="p">(</span><span class="n">dset</span><span class="p">,</span> <span class="p">[</span><span class="mi">500</span><span class="p">,</span> <span class="mi">50</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">train_dset</span><span class="p">,</span> <span class="n">val_dset</span>
+</code></pre></div>
+
+            <details class="quote">
+              <summary>Source code in <code>kit4dl/nn/dataset.py</code></summary>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span>
+<span class="normal">161</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">prepare_trainvaldatasets</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">Dataset</span><span class="p">],</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Prepare dataset for training and validation.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    *args: Any</span>
+<span class="sd">        List of positional arguments to setup the dataset</span>
+<span class="sd">    **kwargs : Any</span>
+<span class="sd">        List of named arguments required to setup the dataset</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    trainval_dataset_generators : tuple of two Datasets and a string</span>
+<span class="sd">        Tuple consisting of train and validation dataset, and a suffix</span>
+<span class="sd">        for the split</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    ```python</span>
+<span class="sd">    ...</span>
+<span class="sd">    def prepare_trainvaldatasets(self, root_dir: str) -&gt; tuple[Dataset, Dataset]:</span>
+<span class="sd">        dset = MyDataset(root_dir=root_dir)</span>
+<span class="sd">        train_dset, val_dset = random_split(dset, [500, 50])</span>
+<span class="sd">        return train_dset, val_dset</span>
+<span class="sd">    ```</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="kit4dl.nn.dataset.Kit4DLAbstractDataModule.prepare_testdataset" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">prepare_testdataset</span>
+
+
+<a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.prepare_testdataset" class="headerlink" title="Permanent link">&para;</a></h2>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span class="nf">prepare_testdataset</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3/library/typing.html#typing.Any">Any</a></span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3/library/typing.html#typing.Any">Any</a></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="torch.utils.data.Dataset">Dataset</span></span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+      <p>Prepare dataset for testing.</p>
+<h4 id="kit4dl.nn.dataset.Kit4DLAbstractDataModule.prepare_testdataset--parameters">Parameters<a class="headerlink" href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.prepare_testdataset--parameters" title="Permanent link">&para;</a></h4>
+<p><em>args: Any
+    List of positional arguments to setup the dataset
+*</em>kwargs : Any
+    List of named arguments required to setup the dataset</p>
+<h4 id="kit4dl.nn.dataset.Kit4DLAbstractDataModule.prepare_testdataset--returns">Returns<a class="headerlink" href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.prepare_testdataset--returns" title="Permanent link">&para;</a></h4>
+<p>test_datasets : Dataset
+    A test dataset</p>
+<h4 id="kit4dl.nn.dataset.Kit4DLAbstractDataModule.prepare_testdataset--examples">Examples<a class="headerlink" href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.prepare_testdataset--examples" title="Permanent link">&para;</a></h4>
+<div class="language-python highlight"><pre><span></span><code><span class="o">...</span>
+<span class="k">def</span> <span class="nf">prepare_testdataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dataset</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">MyDataset</span><span class="p">(</span><span class="n">root_dir</span><span class="o">=</span><span class="n">root_dir</span><span class="p">)</span>
+</code></pre></div>
+
+            <details class="quote">
+              <summary>Source code in <code>kit4dl/nn/dataset.py</code></summary>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span>
+<span class="normal">169</span>
+<span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span>
+<span class="normal">175</span>
+<span class="normal">176</span>
+<span class="normal">177</span>
+<span class="normal">178</span>
+<span class="normal">179</span>
+<span class="normal">180</span>
+<span class="normal">181</span>
+<span class="normal">182</span>
+<span class="normal">183</span>
+<span class="normal">184</span>
+<span class="normal">185</span>
+<span class="normal">186</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">prepare_testdataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Prepare dataset for testing.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    *args: Any</span>
+<span class="sd">        List of positional arguments to setup the dataset</span>
+<span class="sd">    **kwargs : Any</span>
+<span class="sd">        List of named arguments required to setup the dataset</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    test_datasets : Dataset</span>
+<span class="sd">        A test dataset</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    ```python</span>
+<span class="sd">    ...</span>
+<span class="sd">    def prepare_testdataset(self, root_dir: str) -&gt; Dataset:</span>
+<span class="sd">        return MyDataset(root_dir=root_dir)</span>
+<span class="sd">    ```</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="kit4dl.nn.dataset.Kit4DLAbstractDataModule.prepare_predictdataset" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">prepare_predictdataset</span>
+
+
+<a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.prepare_predictdataset" class="headerlink" title="Permanent link">&para;</a></h2>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span class="nf">prepare_predictdataset</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3/library/typing.html#typing.Any">Any</a></span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3/library/typing.html#typing.Any">Any</a></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="torch.utils.data.Dataset">Dataset</span></span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+      <p>Prepare dataset for predicting.</p>
+<h4 id="kit4dl.nn.dataset.Kit4DLAbstractDataModule.prepare_predictdataset--parameters">Parameters<a class="headerlink" href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.prepare_predictdataset--parameters" title="Permanent link">&para;</a></h4>
+<p><em>args: Any
+    List of positional arguments to setup the dataset
+*</em>kwargs : Any
+    List of named arguments required to setup the dataset</p>
+<h4 id="kit4dl.nn.dataset.Kit4DLAbstractDataModule.prepare_predictdataset--returns">Returns<a class="headerlink" href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.prepare_predictdataset--returns" title="Permanent link">&para;</a></h4>
+<p>pred_datasets : Dataset
+    A prediction dataset</p>
+<h4 id="kit4dl.nn.dataset.Kit4DLAbstractDataModule.prepare_predictdataset--examples">Examples<a class="headerlink" href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.prepare_predictdataset--examples" title="Permanent link">&para;</a></h4>
+<div class="language-python highlight"><pre><span></span><code><span class="o">...</span>
+<span class="k">def</span> <span class="nf">prepare_predictdataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dataset</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">MyDataset</span><span class="p">(</span><span class="n">root_dir</span><span class="o">=</span><span class="n">root_dir</span><span class="p">)</span>
+</code></pre></div>
+
+            <details class="quote">
+              <summary>Source code in <code>kit4dl/nn/dataset.py</code></summary>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">188</span>
+<span class="normal">189</span>
+<span class="normal">190</span>
+<span class="normal">191</span>
+<span class="normal">192</span>
+<span class="normal">193</span>
+<span class="normal">194</span>
+<span class="normal">195</span>
+<span class="normal">196</span>
+<span class="normal">197</span>
+<span class="normal">198</span>
+<span class="normal">199</span>
+<span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span>
+<span class="normal">206</span>
+<span class="normal">207</span>
+<span class="normal">208</span>
+<span class="normal">209</span>
+<span class="normal">210</span>
+<span class="normal">211</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">prepare_predictdataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Prepare dataset for predicting.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    *args: Any</span>
+<span class="sd">        List of positional arguments to setup the dataset</span>
+<span class="sd">    **kwargs : Any</span>
+<span class="sd">        List of named arguments required to setup the dataset</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pred_datasets : Dataset</span>
+<span class="sd">        A prediction dataset</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    ```python</span>
+<span class="sd">    ...</span>
+<span class="sd">    def prepare_predictdataset(self, root_dir: str) -&gt; Dataset:</span>
+<span class="sd">        return MyDataset(root_dir=root_dir)</span>
+<span class="sd">    ```</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="kit4dl.nn.dataset.Kit4DLAbstractDataModule.setup" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">setup</span>
+
+
+<a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.setup" class="headerlink" title="Permanent link">&para;</a></h2>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span class="nf">setup</span><span class="p">(</span><span class="n">stage</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+      <p>Set up data depending on the stage.</p>
+<p>The method should not be overriden unless necessary.</p>
+<h4 id="kit4dl.nn.dataset.Kit4DLAbstractDataModule.setup--parameters">Parameters<a class="headerlink" href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.setup--parameters" title="Permanent link">&para;</a></h4>
+<p>stage : str
+    The stage of the pipeline. One out of <code>['fit', 'test', 'predict']</code></p>
+
+            <details class="quote">
+              <summary>Source code in <code>kit4dl/nn/dataset.py</code></summary>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">285</span>
+<span class="normal">286</span>
+<span class="normal">287</span>
+<span class="normal">288</span>
+<span class="normal">289</span>
+<span class="normal">290</span>
+<span class="normal">291</span>
+<span class="normal">292</span>
+<span class="normal">293</span>
+<span class="normal">294</span>
+<span class="normal">295</span>
+<span class="normal">296</span>
+<span class="normal">297</span>
+<span class="normal">298</span>
+<span class="normal">299</span>
+<span class="normal">300</span>
+<span class="normal">301</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stage</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Set up data depending on the stage.</span>
+
+<span class="sd">    The method should not be overriden unless necessary.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    stage : str</span>
+<span class="sd">        The stage of the pipeline. One out of `[&#39;fit&#39;, &#39;test&#39;, &#39;predict&#39;]`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">match</span> <span class="n">stage</span><span class="p">:</span>
+        <span class="k">case</span> <span class="s2">&quot;fit&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_handle_fit_stage</span><span class="p">()</span>
+        <span class="k">case</span> <span class="s2">&quot;test&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_handle_test_stage</span><span class="p">()</span>
+        <span class="k">case</span> <span class="s2">&quot;predict&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_handle_predict_stage</span><span class="p">()</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="kit4dl.nn.dataset.Kit4DLAbstractDataModule.get_collate_fn" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">get_collate_fn</span>
+
+
+<a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.get_collate_fn" class="headerlink" title="Permanent link">&para;</a></h2>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span class="nf">get_collate_fn</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Callable" href="https://docs.python.org/3/library/typing.html#typing.Callable">Callable</a></span> <span class="o">|</span> <span class="kc">None</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+      <p>Get batch collate function.</p>
+
+            <details class="quote">
+              <summary>Source code in <code>kit4dl/nn/dataset.py</code></summary>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">303</span>
+<span class="normal">304</span>
+<span class="normal">305</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_collate_fn</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get batch collate function.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="kc">None</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="kit4dl.nn.dataset.Kit4DLAbstractDataModule.get_train_collate_fn" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">get_train_collate_fn</span>
+
+
+<a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.get_train_collate_fn" class="headerlink" title="Permanent link">&para;</a></h2>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span class="nf">get_train_collate_fn</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Callable" href="https://docs.python.org/3/library/typing.html#typing.Callable">Callable</a></span> <span class="o">|</span> <span class="kc">None</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+      <p>Get train specific collate function.</p>
+
+            <details class="quote">
+              <summary>Source code in <code>kit4dl/nn/dataset.py</code></summary>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">307</span>
+<span class="normal">308</span>
+<span class="normal">309</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_train_collate_fn</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get train specific collate function.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_collate_fn</span><span class="p">()</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="kit4dl.nn.dataset.Kit4DLAbstractDataModule.get_val_collate_fn" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">get_val_collate_fn</span>
+
+
+<a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.get_val_collate_fn" class="headerlink" title="Permanent link">&para;</a></h2>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span class="nf">get_val_collate_fn</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Callable" href="https://docs.python.org/3/library/typing.html#typing.Callable">Callable</a></span> <span class="o">|</span> <span class="kc">None</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+      <p>Get validation specific collate function.</p>
+
+            <details class="quote">
+              <summary>Source code in <code>kit4dl/nn/dataset.py</code></summary>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">311</span>
+<span class="normal">312</span>
+<span class="normal">313</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_val_collate_fn</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get validation specific collate function.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_collate_fn</span><span class="p">()</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="kit4dl.nn.dataset.Kit4DLAbstractDataModule.get_test_collate_fn" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">get_test_collate_fn</span>
+
+
+<a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.get_test_collate_fn" class="headerlink" title="Permanent link">&para;</a></h2>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span class="nf">get_test_collate_fn</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Callable" href="https://docs.python.org/3/library/typing.html#typing.Callable">Callable</a></span> <span class="o">|</span> <span class="kc">None</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+      <p>Get test specific collate function.</p>
+
+            <details class="quote">
+              <summary>Source code in <code>kit4dl/nn/dataset.py</code></summary>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">315</span>
+<span class="normal">316</span>
+<span class="normal">317</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_test_collate_fn</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get test specific collate function.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_collate_fn</span><span class="p">()</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="kit4dl.nn.dataset.Kit4DLAbstractDataModule.get_predict_collate_fn" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">get_predict_collate_fn</span>
+
+
+<a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.get_predict_collate_fn" class="headerlink" title="Permanent link">&para;</a></h2>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span class="nf">get_predict_collate_fn</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Callable" href="https://docs.python.org/3/library/typing.html#typing.Callable">Callable</a></span> <span class="o">|</span> <span class="kc">None</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+      <p>Get predict specific collate function.</p>
+
+            <details class="quote">
+              <summary>Source code in <code>kit4dl/nn/dataset.py</code></summary>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">319</span>
+<span class="normal">320</span>
+<span class="normal">321</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_predict_collate_fn</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get predict specific collate function.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_collate_fn</span><span class="p">()</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="kit4dl.nn.dataset.Kit4DLAbstractDataModule.trainval_dataloaders" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">trainval_dataloaders</span>
+
+
+<a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.trainval_dataloaders" class="headerlink" title="Permanent link">&para;</a></h2>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span class="nf">trainval_dataloaders</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Generator" href="https://docs.python.org/3/library/typing.html#typing.Generator">Generator</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#tuple">tuple</a></span><span class="p">[</span><span class="n"><span title="torch.utils.data.DataLoader">DataLoader</span></span><span class="p">,</span> <span class="n"><span title="torch.utils.data.DataLoader">DataLoader</span></span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span><span class="p">],</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+      <p>Prepare loader for train and validation data.</p>
+
+            <details class="quote">
+              <summary>Source code in <code>kit4dl/nn/dataset.py</code></summary>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">323</span>
+<span class="normal">324</span>
+<span class="normal">325</span>
+<span class="normal">326</span>
+<span class="normal">327</span>
+<span class="normal">328</span>
+<span class="normal">329</span>
+<span class="normal">330</span>
+<span class="normal">331</span>
+<span class="normal">332</span>
+<span class="normal">333</span>
+<span class="normal">334</span>
+<span class="normal">335</span>
+<span class="normal">336</span>
+<span class="normal">337</span>
+<span class="normal">338</span>
+<span class="normal">339</span>
+<span class="normal">340</span>
+<span class="normal">341</span>
+<span class="normal">342</span>
+<span class="normal">343</span>
+<span class="normal">344</span>
+<span class="normal">345</span>
+<span class="normal">346</span>
+<span class="normal">347</span>
+<span class="normal">348</span>
+<span class="normal">349</span>
+<span class="normal">350</span>
+<span class="normal">351</span>
+<span class="normal">352</span>
+<span class="normal">353</span>
+<span class="normal">354</span>
+<span class="normal">355</span>
+<span class="normal">356</span>
+<span class="normal">357</span>
+<span class="normal">358</span>
+<span class="normal">359</span>
+<span class="normal">360</span>
+<span class="normal">361</span>
+<span class="normal">362</span>
+<span class="normal">363</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">trainval_dataloaders</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">DataLoader</span><span class="p">,</span> <span class="n">DataLoader</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Prepare loader for train and validation data.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">conf</span><span class="o">.</span><span class="n">trainval</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">trainval_dataset_generator</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="p">(</span>
+            <span class="s2">&quot;did you forget to return `torch.utils.data.Dataset`instance&quot;</span>
+            <span class="s2">&quot; from the `prepare_trainvaldatasets` method?&quot;</span>
+        <span class="p">)</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">conf</span><span class="o">.</span><span class="n">train</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="p">(</span>
+            <span class="s2">&quot;[dataset.train.loader] section is is missing in the&quot;</span>
+            <span class="s2">&quot; configuration file.&quot;</span>
+        <span class="p">)</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">conf</span><span class="o">.</span><span class="n">validation</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="p">(</span>
+            <span class="s2">&quot;[dataset.validation.loader] section is is missing in the&quot;</span>
+            <span class="s2">&quot; configuration file.&quot;</span>
+        <span class="p">)</span>
+        <span class="k">assert</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">conf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">loader</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">conf</span><span class="o">.</span><span class="n">validation</span><span class="o">.</span><span class="n">loader</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="p">),</span> <span class="p">(</span>
+            <span class="s2">&quot;did you forget to define [dataset.train.loader] and&quot;</span>
+            <span class="s2">&quot;[dataset.validation.loader] sections in the configuration &quot;</span>
+            <span class="s2">&quot;file?&quot;</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">tr_dataset</span><span class="p">,</span> <span class="n">val_dataset</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">trainval_dataset_generator</span>
+        <span class="p">):</span>
+            <span class="k">yield</span> <span class="n">DataLoader</span><span class="p">(</span>
+                <span class="n">tr_dataset</span><span class="p">,</span>
+                <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">conf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">loader</span><span class="p">,</span>
+                <span class="n">collate_fn</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_train_collate_fn</span><span class="p">(),</span>
+            <span class="p">),</span> <span class="n">DataLoader</span><span class="p">(</span>
+                <span class="n">val_dataset</span><span class="p">,</span>
+                <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">conf</span><span class="o">.</span><span class="n">validation</span><span class="o">.</span><span class="n">loader</span><span class="p">,</span>
+                <span class="n">collate_fn</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_val_collate_fn</span><span class="p">(),</span>
+            <span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_split_suffix</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="p">)</span>
+    <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">conf</span><span class="o">.</span><span class="n">train</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">conf</span><span class="o">.</span><span class="n">validation</span><span class="p">:</span>
+        <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">_train_dataloader</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_val_dataloader</span><span class="p">(),</span> <span class="s2">&quot;&quot;</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="kit4dl.nn.dataset.Kit4DLAbstractDataModule.test_dataloader" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">test_dataloader</span>
+
+
+<a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.test_dataloader" class="headerlink" title="Permanent link">&para;</a></h2>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span class="nf">test_dataloader</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n"><span title="torch.utils.data.DataLoader">DataLoader</span></span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+      <p>Prepare loader for test data.</p>
+
+            <details class="quote">
+              <summary>Source code in <code>kit4dl/nn/dataset.py</code></summary>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">397</span>
+<span class="normal">398</span>
+<span class="normal">399</span>
+<span class="normal">400</span>
+<span class="normal">401</span>
+<span class="normal">402</span>
+<span class="normal">403</span>
+<span class="normal">404</span>
+<span class="normal">405</span>
+<span class="normal">406</span>
+<span class="normal">407</span>
+<span class="normal">408</span>
+<span class="normal">409</span>
+<span class="normal">410</span>
+<span class="normal">411</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">test_dataloader</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DataLoader</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Prepare loader for test data.&quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">conf</span><span class="o">.</span><span class="n">test</span><span class="p">,</span> <span class="p">(</span>
+        <span class="s2">&quot;test configuration is not defined. did you forget&quot;</span>
+        <span class="s2">&quot; [dataset.test] section in the configuration file?&quot;</span>
+    <span class="p">)</span>
+    <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">test_dataset</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="p">(</span>
+        <span class="s2">&quot;did you forget to return `torch.utils.data.Dataset` instance&quot;</span>
+        <span class="s2">&quot; from the `prepare_testdataset` method?&quot;</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">DataLoader</span><span class="p">(</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">test_dataset</span><span class="p">,</span>
+        <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">conf</span><span class="o">.</span><span class="n">test</span><span class="o">.</span><span class="n">loader</span><span class="p">,</span>
+        <span class="n">collate_fn</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_test_collate_fn</span><span class="p">(),</span>
+    <span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="kit4dl.nn.dataset.Kit4DLAbstractDataModule.predict_dataloader" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">predict_dataloader</span>
+
+
+<a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.predict_dataloader" class="headerlink" title="Permanent link">&para;</a></h2>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span class="nf">predict_dataloader</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n"><span title="torch.utils.data.DataLoader">DataLoader</span></span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+      <p>Prepare loader for prediction data.</p>
+
+            <details class="quote">
+              <summary>Source code in <code>kit4dl/nn/dataset.py</code></summary>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">413</span>
+<span class="normal">414</span>
+<span class="normal">415</span>
+<span class="normal">416</span>
+<span class="normal">417</span>
+<span class="normal">418</span>
+<span class="normal">419</span>
+<span class="normal">420</span>
+<span class="normal">421</span>
+<span class="normal">422</span>
+<span class="normal">423</span>
+<span class="normal">424</span>
+<span class="normal">425</span>
+<span class="normal">426</span>
+<span class="normal">427</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">predict_dataloader</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DataLoader</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Prepare loader for prediction data.&quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">conf</span><span class="o">.</span><span class="n">predict</span><span class="p">,</span> <span class="p">(</span>
+        <span class="s2">&quot;validation configuration is not defined. did you forget&quot;</span>
+        <span class="s2">&quot; [dataset.predict] section in the configuration file?&quot;</span>
+    <span class="p">)</span>
+    <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">predict_dataset</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="p">(</span>
+        <span class="s2">&quot;did you forget to return `torch.utils.data.Dataset` instance&quot;</span>
+        <span class="s2">&quot; from the `prepare_predictdataset` method?&quot;</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">DataLoader</span><span class="p">(</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">predict_dataset</span><span class="p">,</span>
+        <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">conf</span><span class="o">.</span><span class="n">predict</span><span class="o">.</span><span class="n">loader</span><span class="p">,</span>
+        <span class="n">collate_fn</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_predict_collate_fn</span><span class="p">(),</span>
+    <span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="kit4dl.nn.dataset.Kit4DLAbstractDataModule.numpy_train_dataloader" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">numpy_train_dataloader</span>
+
+
+<a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.numpy_train_dataloader" class="headerlink" title="Permanent link">&para;</a></h2>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span class="nf">numpy_train_dataloader</span><span class="p">()</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+      <p>Prepare loader for train data for models accepting <code>numpy.ndarray</code>.</p>
+
+            <details class="quote">
+              <summary>Source code in <code>kit4dl/nn/dataset.py</code></summary>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">429</span>
+<span class="normal">430</span>
+<span class="normal">431</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">numpy_train_dataloader</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Prepare loader for train data for models accepting `numpy.ndarray`.&quot;&quot;&quot;</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="kit4dl.nn.dataset.Kit4DLAbstractDataModule.numpy_val_dataloader" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">numpy_val_dataloader</span>
+
+
+<a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.numpy_val_dataloader" class="headerlink" title="Permanent link">&para;</a></h2>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span class="nf">numpy_val_dataloader</span><span class="p">()</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+      <p>Prepare loader for val data for models accepting <code>numpy.ndarray</code>.</p>
+
+            <details class="quote">
+              <summary>Source code in <code>kit4dl/nn/dataset.py</code></summary>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">433</span>
+<span class="normal">434</span>
+<span class="normal">435</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">numpy_val_dataloader</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Prepare loader for val data for models accepting `numpy.ndarray`.&quot;&quot;&quot;</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="kit4dl.nn.dataset.Kit4DLAbstractDataModule.numpy_testdataloader" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">numpy_testdataloader</span>
+
+
+<a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.numpy_testdataloader" class="headerlink" title="Permanent link">&para;</a></h2>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span class="nf">numpy_testdataloader</span><span class="p">()</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+      <p>Prepare loader for test data for models accepting <code>numpy.ndarray</code>.</p>
+
+            <details class="quote">
+              <summary>Source code in <code>kit4dl/nn/dataset.py</code></summary>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">437</span>
+<span class="normal">438</span>
+<span class="normal">439</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">numpy_testdataloader</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Prepare loader for test data for models accepting `numpy.ndarray`.&quot;&quot;&quot;</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="kit4dl.nn.dataset.Kit4DLAbstractDataModule.numpy_predictdataloader" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">numpy_predictdataloader</span>
+
+
+<a href="#kit4dl.nn.dataset.Kit4DLAbstractDataModule.numpy_predictdataloader" class="headerlink" title="Permanent link">&para;</a></h2>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span class="nf">numpy_predictdataloader</span><span class="p">()</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+      <p>Prepare loader for pred data for models accepting <code>numpy.ndarray</code>.</p>
+
+            <details class="quote">
+              <summary>Source code in <code>kit4dl/nn/dataset.py</code></summary>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">441</span>
+<span class="normal">442</span>
+<span class="normal">443</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">numpy_predictdataloader</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Prepare loader for pred data for models accepting `numpy.ndarray`.&quot;&quot;&quot;</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div><h2 id="custom-splits">Custom splits<a class="headerlink" href="#custom-splits" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Available since 2024.5b0</p>
+</div>
+<p>n Kit4DL, you can easily define the logic for cross-validation. Starting from the version 2024.5b0 the old method <code>prepare_trainvaldataset</code> was replaced by the <code>prepare_trainvaldatasets</code> method that is a generator. You define the logic of the generator by yourself. To run 10-fold cross validation, implement the method in the following way:</p>
+<div class="language-python copy highlight"><pre><span></span><code><span class="o">...</span>
+<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">KFold</span>
+
+<span class="k">class</span> <span class="nc">MNISTCustomDatamodule</span><span class="p">(</span><span class="n">Kit4DLAbstractDataModule</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">prepare_trainvaldatasets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">dset</span> <span class="o">=</span> <span class="n">MNIST</span><span class="p">(</span>
+            <span class="n">root</span><span class="o">=</span><span class="n">root_dir</span><span class="p">,</span>
+            <span class="n">train</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">download</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">transform</span><span class="o">=</span><span class="n">transforms</span><span class="o">.</span><span class="n">ToTensor</span><span class="p">(),</span>
+        <span class="p">)</span>
+        <span class="n">split</span> <span class="o">=</span> <span class="n">KFold</span><span class="p">(</span><span class="n">n_splits</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">train_ind</span><span class="p">,</span> <span class="n">val_ind</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span>
+            <span class="n">split</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">dset</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">dset</span><span class="o">.</span><span class="n">targets</span><span class="p">)</span>
+        <span class="p">):</span>
+            <span class="k">yield</span> <span class="n">Subset</span><span class="p">(</span><span class="n">dset</span><span class="p">,</span> <span class="n">train_ind</span><span class="p">),</span> <span class="n">Subset</span><span class="p">(</span><span class="n">dset</span><span class="p">,</span> <span class="n">val_ind</span><span class="p">)</span>
+</code></pre></div>
+<p>If you want to stick to the old logic and return a single split, just <code>yield</code> the corresponding datasets:</p>
+<div class="language-python copy highlight"><pre><span></span><code><span class="o">...</span>
+
+<span class="k">class</span> <span class="nc">MNISTCustomDatamodule</span><span class="p">(</span><span class="n">Kit4DLAbstractDataModule</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">prepare_trainvaldatasets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">tr_dset</span> <span class="o">=</span> <span class="n">MNIST</span><span class="p">(</span>
+            <span class="n">root</span><span class="o">=</span><span class="n">root_dir</span><span class="p">,</span>
+            <span class="n">train</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">download</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">transform</span><span class="o">=</span><span class="n">transforms</span><span class="o">.</span><span class="n">ToTensor</span><span class="p">(),</span>
+        <span class="p">)</span>
+        <span class="n">ts_dset</span> <span class="o">=</span> <span class="n">MNIST</span><span class="p">(</span>
+            <span class="n">root</span><span class="o">=</span><span class="n">root_dir</span><span class="p">,</span>
+            <span class="n">train</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">download</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">transform</span><span class="o">=</span><span class="n">transforms</span><span class="o">.</span><span class="n">ToTensor</span><span class="p">(),</span>
+        <span class="p">)</span>        
+        <span class="k">yield</span> <span class="n">tr_dset</span><span class="p">,</span> <span class="n">ts_dset</span>
+</code></pre></div>
+<p>Each generated tuple of train and validation dataset will be fed into the training/validation pipeline. If you use external metric loggers, results for each split will be uploaded using the experiment name and the suffix like <code>(split=0)</code>.</p>
+<p>The suffix can be overwriten by the environmental variable <code>KIT4DL_SPLIT_PREFIX</code>.        </p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": ".", "features": ["search.suggest", "search.highlight", "content.tooltips", "content.code.annotate", "content.code.copy", "content.code.select"], "search": "assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="assets/javascripts/bundle.081f42fc.min.js"></script>
+      
+    
+  </body>
+</html>
