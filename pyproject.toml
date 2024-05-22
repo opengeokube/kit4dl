@@ -48,6 +48,13 @@ dependencies = [
     "toml; python_version<'3.11'"
 ]
 
+
+[project.urls]
+"Homepage" = "https://opengeokube.github.io/kit4dl/"
+"Documentation" = "https://opengeokube.github.io/kit4dl/"
+"Source Code" = "https://github.com/opengeokube/kit4dl"
+"Bug Tracker" = "https://github.com/opengeokube/kit4dl/issues"
+
 [tool.setuptools.dynamic]
 version = {attr = "kit4dl._version.__version__"}
 
