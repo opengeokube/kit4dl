@@ -42,7 +42,7 @@ dependencies = [
     "scikit-learn",
     "colormath",
     "tqdm>=4.57.0,<4.67.0",
-    "typing-extensions>=4.0.0,<4.8.0; python_version<='3.11'",
+    "typing-extensions>=4.8.0",
     "Jinja2<3.2.0",
     "typer[all]",
     "toml; python_version<'3.11'"
