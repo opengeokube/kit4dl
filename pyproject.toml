@@ -48,7 +48,6 @@ dependencies = [
     "toml; python_version<'3.11'"
 ]
 
-
 [project.urls]
 "Homepage" = "https://opengeokube.github.io/kit4dl/"
 "Documentation" = "https://opengeokube.github.io/kit4dl/"
