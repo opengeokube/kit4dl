@@ -376,29 +376,38 @@ class TestDatasetConf:
 class TestConf:
     @pytest.fixture
     def full_conf_dict(self, base_conf_txt):
-        entries = base_conf_txt + """
+        entries = (
+            base_conf_txt
+            + """
         [metrics]
         Precision = {target = "torchmetrics::Precision", task = "multiclass", num_classes=10}
         """
+        )
         yield toml.loads(entries)
 
     def test_conf_parse(self, base_conf_txt):
-        load = base_conf_txt + """
+        load = (
+            base_conf_txt
+            + """
         [metrics]
         Precision = {target = "torchmetrics::Precision", task = "multiclass", num_classes = 10}
         FBetaScore = {target = "torchmetrics::Recall", task = "multiclass", num_classes = 10, beta = 0.1}        
         """
+        )
         _ = Conf(**toml.loads(load))
 
     @pytest.mark.skipif(
         sys.version_info < (3, 11), reason="test for Python < 3.11"
     )
     def test_fail_on_duplicated_key_name(self, base_conf_txt):
-        load = base_conf_txt + """
+        load = (
+            base_conf_txt
+            + """
         [metrics]
         Precision = {target = "torchmetrics::Precision", task = "multiclass", num_classes = 10}
         Precision = {target = "torchmetrics::Precision", task = "multiclass", num_classes = 10}
         """
+        )
         with pytest.raises(ValueError, match="Duplicate keys!"):
             _ = Conf(**toml.loads(load))
 
@@ -406,11 +415,14 @@ class TestConf:
         sys.version_info > (3, 10), reason="test for Python > 3.10"
     )
     def test_fail_on_duplicated_key_name(self, base_conf_txt):
-        load = base_conf_txt + """
+        load = (
+            base_conf_txt
+            + """
         [metrics]
         Precision = {target = "torchmetrics::Precision", task = "multiclass", num_classes=10}
         Precision = {target = "torchmetrics::Precision", task = "multiclass", num_classes=10}
         """
+        )
         with pytest.raises(ValueError, match="Cannot overwrite a value.*"):
             _ = Conf(**toml.loads(load))
 
@@ -421,10 +433,13 @@ class TestConf:
         )
     )
     def test_conf_custom_metric(self, base_conf_txt):
-        load = base_conf_txt + """
+        load = (
+            base_conf_txt
+            + """
         [metrics]
         test.dummy_module.CustomMetric = {}
         """
+        )
         conf = Conf(**toml.loads(load))
 
     @pytest.mark.skip(
@@ -434,18 +449,24 @@ class TestConf:
         )
     )
     def test_conf_custom_metric_fail_on_wrong_parentclass(self, base_conf_txt):
-        load = base_conf_txt + """
+        load = (
+            base_conf_txt
+            + """
         [metrics]
         teset.dummy_module.CustomMetricWrong = {}
         """
+        )
         with pytest.raises(ValidationError, match="duplicate"):
             _ = Conf(**toml.loads(load))
 
     def test_conf_fail_on_nonexisting_metric(self, base_conf_txt):
-        load = base_conf_txt + """
+        load = (
+            base_conf_txt
+            + """
         [metrics]
         MyMetric = {target = "torchmetrics::NonExistingMetric"}
         """
+        )
         with pytest.raises(
             AttributeError,
             match=(
@@ -455,10 +476,13 @@ class TestConf:
             _ = Conf(**toml.loads(load))
 
     def test_conf_fail_on_monitoring_undefined_metric(self, base_conf_txt):
-        load = base_conf_txt + """
+        load = (
+            base_conf_txt
+            + """
         [metrics]
         Precision = {target = "torchmetrics::Precision"}
         """
+        )
         load_dict = toml.loads(load)
         load_dict["training"]["checkpoint"]["monitor"] = {
             "metric": "Recall",
@@ -468,10 +492,13 @@ class TestConf:
             _ = Conf(**load_dict)
 
     def test_conf_get_metric_obj_failed_on_missing_target(self, base_conf_txt):
-        load = base_conf_txt + """
+        load = (
+            base_conf_txt
+            + """
         [metrics]
         Precision = {}
         """
+        )
         with pytest.raises(
             ValidationError,
             match=r".*`target` is not defined for some metric.*",
@@ -479,10 +506,13 @@ class TestConf:
             conf = Conf(**toml.loads(load))
 
     def test_conf_get_metric_obj_failed_on_missing_task(self, base_conf_txt):
-        load = base_conf_txt + """
+        load = (
+            base_conf_txt
+            + """
         [metrics]
         Precision = {target = "torchmetrics::Precision"}
         """
+        )
         conf = Conf(**toml.loads(load))
         with pytest.raises(
             TypeError,
@@ -494,10 +524,13 @@ class TestConf:
             conf.metrics_obj
 
     def test_conf_get_metric_obj(self, base_conf_txt):
-        load = base_conf_txt + """
+        load = (
+            base_conf_txt
+            + """
         [metrics]
         Precision = {target = "torchmetrics::Precision", task = "multiclass", num_classes = 10}
         """
+        )
         conf = Conf(**toml.loads(load))
         metrics = conf.metrics_obj
         assert "precision" in metrics
@@ -547,10 +580,13 @@ class TestConf:
         )
 
     def test_use_base_exp_name_for_metric_logging(self, base_conf_txt_full):
-        load = base_conf_txt_full + """
+        load = (
+            base_conf_txt_full
+            + """
         [logging]
         type = "csv"
         """
+        )
         conf = Conf(**toml.loads(load))
         assert "name" in conf.logging.arguments
         assert (
@@ -564,11 +600,14 @@ class TestConf:
     def test_dont_override_exp_name_with_base_if_provided(
         self, base_conf_txt_full
     ):
-        load = base_conf_txt_full + """
+        load = (
+            base_conf_txt_full
+            + """
         [logging]
         type = "csv"
         name = "logging_exp_name"
         """
+        )
         conf = Conf(**toml.loads(load))
         assert "name" in conf.logging.arguments
         assert conf.logging.arguments["name"] == "logging_exp_name"

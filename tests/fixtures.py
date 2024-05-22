@@ -118,10 +118,13 @@ def base_conf_txt():
 
 @pytest.fixture
 def base_conf_txt_full(base_conf_txt):
-    return base_conf_txt + """
+    return (
+        base_conf_txt
+        + """
         [metrics]
         Precision = {target = "torchmetrics::Precision", task = "multiclass", num_classes = 10}
     """
+    )
 
 
 @pytest.fixture
