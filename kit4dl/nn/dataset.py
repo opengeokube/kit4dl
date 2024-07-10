@@ -97,7 +97,7 @@ class Kit4DLAbstractDataModule(ABC, pl.LightningDataModule, LoggerMixin):
         --------
         ```python
         ...
-        def prepare_traindatasets(self, root_dir: str) -> Dataset:
+        def prepare_traindataset(self, root_dir: str) -> Dataset:
             train_dset = MyDataset(root_dir=root_dir)
             return train_dset
         ```
@@ -123,7 +123,7 @@ class Kit4DLAbstractDataModule(ABC, pl.LightningDataModule, LoggerMixin):
         --------
         ```python
         ...
-        def prepare_valdatasets(self, root_dir: str) -> Dataset:
+        def prepare_valdataset(self, root_dir: str) -> Dataset:
             val_dset = MyDataset(root_dir=root_dir)
             return val_dset
         ```
