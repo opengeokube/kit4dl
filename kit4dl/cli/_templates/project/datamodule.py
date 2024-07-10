@@ -10,11 +10,11 @@ from kit4dl.nn.dataset import Kit4DLAbstractDataModule
 class MyCustomDatamodule(Kit4DLAbstractDataModule):
     """My datamodule docstring."""
 
-    def prepare_traindatasets(self, *args: Any, **kwargs: Any) -> Dataset:
+    def prepare_traindataset(self, *args: Any, **kwargs: Any) -> Dataset:
         """Prepare train dataset."""
         raise NotImplementedError
 
-    def prepare_valdatasets(self, *args: Any, **kwargs: Any) -> Dataset:
+    def prepare_valdataset(self, *args: Any, **kwargs: Any) -> Dataset:
         """Prepare validation dataset."""
         raise NotImplementedError
 
