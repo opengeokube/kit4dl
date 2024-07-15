@@ -9,7 +9,7 @@ test:
 
 .PHONY: format
 format:
-	isort .git 
+	isort .
 	black .
 
 .PHONY: docs
